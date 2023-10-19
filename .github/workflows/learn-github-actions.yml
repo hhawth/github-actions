@@ -11,4 +11,11 @@ jobs:
           node-version: '14'
       - run: npm install -g bats
       - run: bats -v
+  docker-job:
+    runs-on: ubuntu-latest
+    name: starter docker job
+    steps:
+      - name:  docker step
+        id: hello
+        uses: actions/github-actions@v2
 
