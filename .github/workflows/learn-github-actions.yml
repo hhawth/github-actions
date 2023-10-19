@@ -1,36 +1,11 @@
-name: learn-github-actions
+name: docker-build-workflow
 run-name: ${{ github.actor }} is learning GitHub Actions
 on: [push]
 jobs:
-  check-bats-version:
+  build-container:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-      - run: npm install -g bats
-      - run: bats -v
-  docker-job:
-    runs-on: ubuntu-latest
-    name: starter docker job
-    steps:
-      - name:  docker step
-        id: hello
-        uses: actions/hello-world-docker-action@v2
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # Output build artifacts to /github/workspace on the container.
-      - name: Containerized Build
-        uses: ./.github/actions/my-container-action
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: workspace_artifacts
-          path: ${{ github.workspace }}
+      - name: Build docker image
+        run: docker build . -t test:$(date +%s)
 
