@@ -17,5 +17,5 @@ jobs:
     steps:
       - name:  docker step
         id: hello
-        uses: actions/github-actions@v2
+        uses: actions/hello-world-docker-action@v2
 
