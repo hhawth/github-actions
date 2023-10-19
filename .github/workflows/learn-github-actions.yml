@@ -7,6 +7,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build docker image
-        working-directory: ../
-        run: docker build . -t test:$(date +%s)
+        # working-directory: .
+        run: docker build . -f Dockerfile -t test:$(date +%s)
 
