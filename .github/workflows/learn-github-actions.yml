@@ -26,5 +26,5 @@ jobs:
       run: |
         gcloud auth configure-docker europe-west2-docker-docker.pkg.dev
         docker build -t europe-west2-docker-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:latest .
-        docker push europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/nginx:latest
+        docker push europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:latest
 
