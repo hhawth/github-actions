@@ -1,15 +1,43 @@
 <!doctype html>
+<style type="text/css">
+   img {
+      max-width: 100%;
+      height: auto;
+      width: 5vw;
+   }
+   .center {
+      margin-left: auto;
+      margin-right: auto;
+   }
+   th, td {
+      padding-top: 10px;
+      padding-bottom: 20px;
+      padding-left: 30px;
+      padding-right: 40px;
+      margin-left: auto;
+      margin-right: auto;
+   }
+   </style>
 <html>
    <body>
-      <table border = 1>
+      <table  class="center">
          {% for key, value in result.items() %}
+         <thead>
             <tr>
-               <th> {{ key }} </th>
+               <th><img src="{{url_for('static', filename=key.split('vs')[0].strip())+'.png'}}" /></th>
+               <th><img src="{{url_for('static', filename=key.split('vs')[1].strip())+'.png'}}" /></th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr>
+               <td> Chance of winning: {{ value[1]*100 }}% </td>
+               <td> Chance of winning: {{ value[4]*100 }}% </td>
             </tr>
             <tr>
-                <td> {{ value[0:3] }} </td>
-                <td> {{ value[3:] }} </td>
+               <td> Goals: {{ value[2] }} </td>
+               <td> Goals: {{ value[5] }} </td>
             </tr>
+         </tbody>
          {% endfor %}
       </table>
    </body>

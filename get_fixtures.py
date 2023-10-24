@@ -49,24 +49,24 @@ def normal_dist_calc(avg, range, skew):
 
 def find_skew(percentage, conceded):
     # less skewed
-    # if conceded:
-    #     skew = (percentage * 10) - 5
-    #     if percentage < 0.4:
-    #         skew = (percentage * - 10) 
-    # else:
-    #     skew = (percentage * - 10) + 5
-    #     if percentage < 0.4:
-    #         skew = (percentage * 10)
+    if conceded:
+        skew = (percentage * 10) - 5
+        if percentage < 0.35:
+            skew = (percentage * - 10) 
+    else:
+        skew = (percentage * - 10) + 5
+        if percentage < 0.35:
+            skew = (percentage * 10)
 
     # more skewed
-    if conceded:
-        skew = percentage * 10
-        if percentage < 0.35:
-            skew = -10 + (percentage * 10) 
-    else:
-        skew = (percentage * - 10)
-        if percentage < 0.35:
-            skew = 10 - (percentage * 10)
+    # if conceded:
+    #     skew = percentage * 10
+    #     if percentage < 0.35:
+    #         skew = -10 + (percentage * 10) 
+    # else:
+    #     skew = (percentage * - 10)
+    #     if percentage < 0.35:
+    #         skew = 10 - (percentage * 10)
     return skew
 
 def estimate_value(home_stat, home_stat_max, away_stat, away_stat_max, home_win_percentage, away_win_percentage, home=True):
@@ -79,7 +79,7 @@ def estimate_value(home_stat, home_stat_max, away_stat, away_stat_max, home_win_
             home_skew = find_skew(home_win_percentage, conceded=True)
             away_skew = find_skew(away_win_percentage, conceded=False)
 
-        print(home_skew, away_skew)
+        # print(home_skew, away_skew)
 
         
 
@@ -101,7 +101,7 @@ def get_fixtures():
 
     for fixture in fixtures:
         teams = fixture.find_all("span", {"class": "swap-text__target"})
-        print(teams[0].text,"v", teams[1].text)
+        # print(teams[0].text,"v", teams[1].text)
         fixture_text = teams[0].text + " vs " + teams[1].text
         home_team = teams[0].text
         away_team = teams[1].text
@@ -116,7 +116,7 @@ def get_fixtures():
         away_wins_odds = odds[2].text.split(" ")[1].split("/")
         away_wins_odds_as_percent = int(away_wins_odds[1]) / (int(away_wins_odds[0]) + int(away_wins_odds[1]))
 
-        print(home_wins_odds_as_percent, draw_odds_as_percent, away_wins_odds_as_percent)
+        # print(home_wins_odds_as_percent, draw_odds_as_percent, away_wins_odds_as_percent)
 
         cur.execute(f"SELECT * from goals WHERE team = '{home_team}'")
         records = cur.fetchall()
@@ -132,6 +132,6 @@ def get_fixtures():
         results[fixture_text] = [home_team,home_wins_odds_as_percent, home_score_guess, away_team, away_wins_odds_as_percent, away_score_guess]
         # results[away_team] = [away_wins_odds_as_percent, away_score_guess]
 
-        print(f"{round(home_score_guess)} - {round(away_score_guess)}\n")
+        # print(f"{round(home_score_guess)} - {round(away_score_guess)}\n")
     return results
     
