@@ -9,36 +9,45 @@
       margin-left: auto;
       margin-right: auto;
    }
-   th, td {
-      padding-top: 10px;
-      padding-bottom: 20px;
-      padding-left: 30px;
-      padding-right: 40px;
-      margin-left: auto;
-      margin-right: auto;
+   table {
+      border-radius: 1vw;
+      padding-top: 1vw;
+      padding-bottom: 1vw;
    }
-   </style>
+   table:nth-child(even) {
+      background-color: #f2f2f2;
+   }
+   td {
+      padding-top: 1vw;
+      /* padding-bottom: 1vw; */
+      padding-left: 1vw;
+      padding-right: 1vw;
+   }
+</style>
 <html>
    <body>
+      {% for key, value in result.items() %}
       <table  class="center">
-         {% for key, value in result.items() %}
          <thead>
             <tr>
                <th><img src="{{url_for('static', filename=key.split('vs')[0].strip())+'.png'}}" /></th>
+               <th>vs</th>
                <th><img src="{{url_for('static', filename=key.split('vs')[1].strip())+'.png'}}" /></th>
             </tr>
          </thead>
          <tbody>
             <tr>
-               <td> Chance of winning: {{ value[1]*100 }}% </td>
-               <td> Chance of winning: {{ value[4]*100 }}% </td>
+               <td> Chance of winning: {{ value[1] }}% </td>
+               <td></td>
+               <td> Chance of winning: {{ value[4] }}% </td>
             </tr>
             <tr>
                <td> Goals: {{ value[2] }} </td>
+               <td></td>
                <td> Goals: {{ value[5] }} </td>
             </tr>
          </tbody>
-         {% endfor %}
       </table>
+      {% endfor %}
    </body>
 </html>
