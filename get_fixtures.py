@@ -8,6 +8,8 @@ import numpy as np
 
 PROMOTED_TEAMS = ["Burnley", "Luton Town", "Sheffield United"]
 
+FIXTURES = None
+
 
 def year_weightings(
     records, home=True, previous_year_weight=0.4, current_year_weight=0.6
@@ -18,8 +20,6 @@ def year_weightings(
         if row[0] in PROMOTED_TEAMS:
             previous_year_weight = 0.2
             current_year_weight = 0.8
-        # print(row)
-        # breakpoint()
         if home:
             scored_avg = row[1]
             scored_max = row[8]
@@ -57,7 +57,7 @@ def year_weightings(
 
 def normal_dist_calc(avg, range, skew):
     # print(range)
-    value = skewnorm.rvs(skew, loc=avg, scale=(range / 4), size=10000)
+    value = skewnorm.rvs(skew, loc=avg, scale=(range / 4), size=100)
     value = value - min(value)  # Shift the set so the minimum value is equal to zero.
     value = value / max(value)  # Standadize all the vlues between 0 and 1.
     value = value * range  # Multiply the standardized values by the maximum value.
@@ -67,24 +67,24 @@ def normal_dist_calc(avg, range, skew):
 
 def find_skew(percentage, conceded):
     # less skewed
-    if conceded:
-        skew = (percentage * 10) - 5
-        if percentage < 0.35:
-            skew = percentage * -10
-    else:
-        skew = (percentage * -10) + 5
-        if percentage < 0.35:
-            skew = percentage * 10
+    # if conceded:
+    #     skew = (percentage * 10) - 5
+    #     if percentage < 0.35:
+    #         skew = percentage * -10
+    # else:
+    #     skew = (percentage * -10) + 5
+    #     if percentage < 0.35:
+    #         skew = percentage * 10
 
     # more skewed
-    # if conceded:
-    #     skew = percentage * 10
-    #     if percentage < 0.35:
-    #         skew = -10 + (percentage * 10)
-    # else:
-    #     skew = (percentage * - 10)
-    #     if percentage < 0.35:
-    #         skew = 10 - (percentage * 10)
+    if conceded:
+        skew = percentage * 10
+        if percentage < 0.35:
+            skew = -10 + (percentage * 10)
+    else:
+        skew = (percentage * - 10)
+        if percentage < 0.35:
+            skew = 10 - (percentage * 10)
     return skew
 
 
@@ -115,39 +115,51 @@ def estimate_value(
     return (home_mean + away_mean) / 2
 
 
-def get_fixtures():
-    results = {}
+def get_sky_sports_odds():
+    global FIXTURES
     response = requests.get("https://www.skysports.com/premier-league-fixtures")
     soup = BeautifulSoup(response.text, features="html.parser")
-    fixtures = soup.find_all("div", {"class": "fixres__item"})[0:10]
+    # breakpoint()
+    FIXTURES = soup.find_all("div", {"class": "fixres__item"})[0:10]
+
+
+def get_fixtures():
+    global FIXTURES
+    results = {}
 
     con = sl.connect("my-test.db")
     cur = con.cursor()
 
-    for fixture in fixtures:
+    for fixture in FIXTURES:
         teams = fixture.find_all("span", {"class": "swap-text__target"})
         # print(teams[0].text,"v", teams[1].text)
         fixture_text = teams[0].text + " vs " + teams[1].text
         home_team = teams[0].text
         away_team = teams[1].text
         odds = fixture.find_all("span", {"class": "matches__betting-odds"})
-        odds[0].text.split(" ")[1].split("/"), odds[1].text.split("/"), odds[
-            2
-        ].text.split(" ")[1].split("/")
-        home_wins_odds = odds[0].text.split(" ")[1].split("/")
-        home_wins_odds_as_percent = int(home_wins_odds[1]) / (
-            int(home_wins_odds[0]) + int(home_wins_odds[1])
-        )
+        print(teams)
+        try:
+            odds[0].text.split(" ")[1].split("/"), odds[1].text.split("/"), odds[
+                2
+            ].text.split(" ")[1].split("/")
+            home_wins_odds = odds[0].text.split(" ")[1].split("/")
+            home_wins_odds_as_percent = int(home_wins_odds[1]) / (
+                int(home_wins_odds[0]) + int(home_wins_odds[1])
+            )
 
-        draw_odds = odds[1].text.split("/")
-        draw_odds_as_percent = int(draw_odds[1]) / (
-            int(draw_odds[0]) + int(draw_odds[1])
-        )
+            draw_odds = odds[1].text.split("/")
+            draw_odds_as_percent = int(draw_odds[1]) / (
+                int(draw_odds[0]) + int(draw_odds[1])
+            )
 
-        away_wins_odds = odds[2].text.split(" ")[1].split("/")
-        away_wins_odds_as_percent = int(away_wins_odds[1]) / (
-            int(away_wins_odds[0]) + int(away_wins_odds[1])
-        )
+            away_wins_odds = odds[2].text.split(" ")[1].split("/")
+            away_wins_odds_as_percent = int(away_wins_odds[1]) / (
+                int(away_wins_odds[0]) + int(away_wins_odds[1])
+            )
+        except:
+            home_wins_odds_as_percent = None
+            draw_odds_as_percent = None
+            away_wins_odds_as_percent = None
 
         # print(home_wins_odds_as_percent, draw_odds_as_percent, away_wins_odds_as_percent)
 
@@ -169,33 +181,41 @@ def get_fixtures():
             conceded_away_max,
         ) = year_weightings(records, home=False)
 
-        home_score_guess = estimate_value(
-            home_scored_avg,
-            home_scored_max,
-            conceded_away,
-            conceded_away_max,
-            home_wins_odds_as_percent,
-            away_wins_odds_as_percent,
-        )
-        away_score_guess = estimate_value(
-            away_scored_avg,
-            away_scored_max,
-            conceded_home,
-            conceded_home_max,
-            home_wins_odds_as_percent,
-            away_wins_odds_as_percent,
-            home=False,
-        )
+        try:
+            home_score_guess = estimate_value(
+                home_scored_avg,
+                home_scored_max,
+                conceded_away,
+                conceded_away_max,
+                home_wins_odds_as_percent,
+                away_wins_odds_as_percent,
+            )
+            away_score_guess = estimate_value(
+                away_scored_avg,
+                away_scored_max,
+                conceded_home,
+                conceded_home_max,
+                home_wins_odds_as_percent,
+                away_wins_odds_as_percent,
+                home=False,
+            )
 
-        results[fixture_text] = [
-            home_team,
-            round(home_wins_odds_as_percent * 100, 2),
-            round(home_score_guess, 2),
-            away_team,
-            round(away_wins_odds_as_percent * 100, 2),
-            round(away_score_guess, 2),
-        ]
-        # results[away_team] = [away_wins_odds_as_percent, away_score_guess]
+            results[fixture_text] = [
+                home_team,
+                round(home_wins_odds_as_percent * 100, 1),
+                round(home_score_guess, 1),
+                away_team,
+                round(away_wins_odds_as_percent * 100, 1),
+                round(away_score_guess, 1),
+            ]
+        except:
+            results[fixture_text] = [
+                home_team,
+                "N/A",
+                "Sky Sports havent given odds",
+                away_team,
+                "N/A",
+                "Sky Sports havent given odds",
+            ]
 
-        # print(f"{round(home_score_guess)} - {round(away_score_guess)}\n")
     return results

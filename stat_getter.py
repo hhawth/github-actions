@@ -2,95 +2,67 @@ import requests
 from bs4 import BeautifulSoup
 import sqlite3 as sl
 
-teams_url = {
-    "Manchester City": "https://footystats.org/clubs/manchester-city-fc-93",
-    "Tottenham Hotspur": "https://footystats.org/clubs/tottenham-hotspur-fc-92",
-    "Liverpool": "https://footystats.org/clubs/liverpool-fc-151",
-    "West Ham United": "https://footystats.org/clubs/west-ham-united-fc-153",
-    "Arsenal": "https://footystats.org/clubs/arsenal-fc-59",
-    "Brighton and Hove Albion": "https://footystats.org/clubs/brighton-hove-albion-fc-209",
-    "Crystal Palace": "https://footystats.org/clubs/crystal-palace-fc-143",
-    "Brentford": "https://footystats.org/clubs/brentford-fc-218",
-    "Nottingham Forest": "https://footystats.org/clubs/nottingham-forest-fc-211",
-    "Aston Villa": "https://footystats.org/clubs/aston-villa-fc-158",
-    "Manchester United": "https://footystats.org/clubs/manchester-united-fc-149",
-    "Chelsea": "https://footystats.org/clubs/chelsea-fc-152",
-    "Fulham": "https://footystats.org/clubs/fulham-fc-162",
-    "Newcastle United": "https://footystats.org/clubs/newcastle-united-fc-157",
-    "Wolverhampton Wanderers": "https://footystats.org/clubs/wolverhampton-wanderers-fc-223",
-    "Bournemouth": "https://footystats.org/clubs/afc-bournemouth-148",
-    "Sheffield United": "https://footystats.org/clubs/sheffield-united-fc-251",
-    "Everton": "https://footystats.org/clubs/everton-fc-144",
-    "Luton Town": "https://footystats.org/clubs/luton-town-fc-271",
-    "Burnley": "https://footystats.org/clubs/burnley-fc-145",
-}
-
-
-# get all teams current stats
+teams = [
+    "Arsenal",
+    "Aston Villa",
+    "Bournemouth",
+    "Brentford",
+    "Brighton and Hove Albion",
+    "Burnley",
+    "Chelsea",
+    "Crystal Palace",
+    "Everton",
+    "Fulham",
+    "Liverpool",
+    "Luton Town",
+    "Manchester City",
+    "Manchester United",
+    "Newcastle United",
+    "Nottingham Forest",
+    "Sheffield United",
+    "Tottenham Hotspur",
+    "West Ham United",
+    "Wolverhampton Wanderers",
+]
 def get_stats():
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
-    }
+    url = "https://www.soccerstats.com/table.asp?league=england&tid=f"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, features="html.parser")
+    scored_data_side = soup.find_all(id="btable")[1:3]
     con = sl.connect("my-test.db")
     cur = con.cursor()
-    for team, url in teams_url.items():
-        # print(team)
-        response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.text, features="html.parser")
-        scored_data = soup.find(id="scored-0").find("table").find_all("td")
-        chunk_size = 4
-        while scored_data:
-            chunk, scored_data = scored_data[:chunk_size], scored_data[chunk_size:]
-            title, overall, home, away = chunk
-            if title.text == "Scored / Match":
-                scored_home = float(home.text)
-                scored_away = float(away.text)
-                # print(title.text, overall.text, home.text, away.text)
-
-            if title.text == "Highest Scored in a Match":
-                max_scored_home = int(home.text.split(" ")[0])
-                max_scored_away = int(away.text.split(" ")[0])
-                # print(title.text, overall.text, home.text, away.text)
-
-        conceded_data = soup.find(id="conceded-0").find("table").find_all("td")
-        chunk_size = 4
-        while conceded_data:
-            chunk, conceded_data = (
-                conceded_data[:chunk_size],
-                conceded_data[chunk_size:],
-            )
-            title, overall, home, away = chunk
-            if title.text == "Conceded / Match":
-                conceded_home = float(home.text)
-                conceded_away = float(away.text)
-                # print(title.text, overall.text, home.text, away.text)
-            if title.text == "Highest Conceded in a Match":
-                max_conceded_home = int(home.text.split(" ")[0])
-                max_conceded_away = int(away.text.split(" ")[0])
-                # print(title.text, overall.text, home.text, away.text)
-            if title.text == "Clean Sheets %":
-                cleansheet_home = float(home.text.strip("%")) / 100
-                cleansheet_away = float(away.text.strip("%")) / 100
-                # print(title.text, overall.text, cleansheet_home, cleansheet_away)
-
-        # conceded_data = soup.find(id="overview-0").find("table").find_all("td")
-        # chunk_size = 4
-        # while conceded_data:
-        #     chunk, conceded_data = conceded_data[:chunk_size], conceded_data[chunk_size:]
-        #     title, overall, home, away = chunk
-        #     if title.text == "Wins":
-        #         print(title.text, overall.text, home.text, away.text)
-
-        #     if title.text == "Draws":
-        #         print(title.text, overall.text, home.text, away.text)
-
-        #     if title.text == "Losses":
-        #         print(title.text, overall.text, home.text, away.text)
-
-        #     if title.text == "Clean Sheets %":
-        #         print(title.text, overall.text, home.text, away.text)
-
-        cur.execute(
-            f'UPDATE goals set scored_home = {scored_home}, scored_away = {scored_away}, conceded_home = {conceded_home}, conceded_away = {conceded_away}, cleansheet_home = {cleansheet_home}, cleansheet_away = {cleansheet_away}, max_scored_home = {max_scored_home}, max_scored_away = {max_scored_away}, max_conceded_home = {max_conceded_home}, max_conceded_away = {max_conceded_away} WHERE team = "{team}" AND year = "23/24"'
-        )
-        con.commit()
+    for i, side in enumerate(scored_data_side):
+        home = True
+        if i == 1:
+            home = False
+        scored_data_row = side.find_all("tr")[2:22]
+        for j, row in enumerate(scored_data_row):
+            gf_4plus, gf_3, gf_2, gf_1, gf_0, gf_avg, team,  ga_avg, ga_0, ga_1, ga_2, ga_3, ga_4plus = row.find_all("td")
+            goals_for = [gf_4plus.text.strip(), gf_3.text.strip(), gf_2.text.strip(), gf_1.text.strip(), gf_0.text.strip(), gf_avg.text.strip()]
+            max_goals_for = 0
+            for i, stat in enumerate(goals_for):
+                try:
+                    int(stat)
+                    max_goals_for = 4 - int(i)
+                    break
+                except:
+                    continue
+            goals_against = [ga_4plus.text.strip(), ga_3.text.strip(), ga_2.text.strip(), ga_1.text.strip(), ga_0.text.strip(), ga_avg.text.strip()]
+            max_goals_against = 0
+            for i, stat in enumerate(goals_against):
+                try:
+                    int(stat)
+                    max_goals_against = 4 - int(i)
+                    break
+                except:
+                    continue
+            # print(team.text.strip(), teams[j], max_goals_for, gf_avg.text.strip(), max_goals_against, ga_avg.text.strip())
+            if home:
+                cur.execute(
+                    f'UPDATE goals set scored_home = {float(gf_avg.text.strip())}, conceded_home = {float(ga_avg.text.strip())}, max_scored_home = {int(max_goals_for)}, max_conceded_home = {int(max_goals_against)} WHERE team = "{teams[j]}" AND year = "23/24"'
+                )
+            else:
+                cur.execute(
+                    f'UPDATE goals set scored_away = {float(gf_avg.text.strip())}, conceded_away = {float(ga_avg.text.strip())}, max_scored_away = {int(max_goals_for)}, max_conceded_away = {int(max_goals_against)} WHERE team = "{teams[j]}" AND year = "23/24"'
+                )
+            con.commit()
