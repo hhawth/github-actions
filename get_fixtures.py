@@ -130,8 +130,8 @@ def get_fixtures():
     global FIXTURES
     global FIXTURES_LAST_CALL
 
-    if time.time() - FIXTURES_LAST_CALL > 600:
-        get_sky_sports_odds()
+    # if time.time() - FIXTURES_LAST_CALL > 600:
+    get_sky_sports_odds()
     results = {}
 
     con = sl.connect("my-test.db")

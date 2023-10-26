@@ -25,8 +25,8 @@ get_sky_sports_odds_call()
 
 @app.route("/")
 def hello():
-    if time.time() - LAST_STATS_CALL > 6000:
-        stats_call()
+    # if time.time() - LAST_STATS_CALL > 6000:
+    stats_call()
     results = get_fixtures()
     return render_template("home.html", result=results)
 
