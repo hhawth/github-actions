@@ -5,11 +5,13 @@ import sqlite3 as sl
 from scipy.stats import skewnorm
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 PROMOTED_TEAMS = ["Burnley", "Luton Town", "Sheffield United"]
 
-FIXTURES = None
+FIXTURES_LAST_CALL = 0
 
+FIXTURES = None
 
 def year_weightings(
     records, home=True, previous_year_weight=0.4, current_year_weight=0.6
@@ -56,7 +58,6 @@ def year_weightings(
 
 
 def normal_dist_calc(avg, range, skew):
-    # print(range)
     value = skewnorm.rvs(skew, loc=avg, scale=(range / 4), size=100)
     value = value - min(value)  # Shift the set so the minimum value is equal to zero.
     value = value / max(value)  # Standadize all the vlues between 0 and 1.
@@ -106,7 +107,6 @@ def estimate_value(
         home_skew = find_skew(home_win_percentage, conceded=True)
         away_skew = find_skew(away_win_percentage, conceded=False)
 
-    # print(home_skew, away_skew)
 
     home_mean = normal_dist_calc(home_stat, home_stat_max, home_skew)
 
@@ -117,14 +117,21 @@ def estimate_value(
 
 def get_sky_sports_odds():
     global FIXTURES
+    global FIXTURES_LAST_CALL
+
+    print("Getting sky sports odds")
     response = requests.get("https://www.skysports.com/premier-league-fixtures")
     soup = BeautifulSoup(response.text, features="html.parser")
-    # breakpoint()
     FIXTURES = soup.find_all("div", {"class": "fixres__item"})[0:10]
+    FIXTURES_LAST_CALL = time.time()
 
 
 def get_fixtures():
     global FIXTURES
+    global FIXTURES_LAST_CALL
+
+    if time.time() - FIXTURES_LAST_CALL > 600:
+        get_sky_sports_odds()
     results = {}
 
     con = sl.connect("my-test.db")
@@ -132,12 +139,10 @@ def get_fixtures():
 
     for fixture in FIXTURES:
         teams = fixture.find_all("span", {"class": "swap-text__target"})
-        # print(teams[0].text,"v", teams[1].text)
         fixture_text = teams[0].text + " vs " + teams[1].text
         home_team = teams[0].text
         away_team = teams[1].text
         odds = fixture.find_all("span", {"class": "matches__betting-odds"})
-        print(teams)
         try:
             odds[0].text.split(" ")[1].split("/"), odds[1].text.split("/"), odds[
                 2
@@ -160,8 +165,6 @@ def get_fixtures():
             home_wins_odds_as_percent = None
             draw_odds_as_percent = None
             away_wins_odds_as_percent = None
-
-        # print(home_wins_odds_as_percent, draw_odds_as_percent, away_wins_odds_as_percent)
 
         cur.execute(f"SELECT * from goals WHERE team = '{home_team}'")
         records = cur.fetchall()
