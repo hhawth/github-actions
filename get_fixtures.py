@@ -3,9 +3,12 @@ from bs4 import BeautifulSoup
 import sqlite3 as sl
 
 from scipy.stats import skewnorm
-import matplotlib.pyplot as plt
 import numpy as np
-import time
+import logging
+
+logging.basicConfig()
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
 
 PROMOTED_TEAMS = ["Burnley", "Luton Town", "Sheffield United"]
 
@@ -117,21 +120,16 @@ def estimate_value(
 
 def get_sky_sports_odds():
     global FIXTURES
-    global FIXTURES_LAST_CALL
 
-    print("Getting sky sports odds")
+    LOGGER.info("Getting sky sports odds")
     response = requests.get("https://www.skysports.com/premier-league-fixtures")
     soup = BeautifulSoup(response.text, features="html.parser")
     FIXTURES = soup.find_all("div", {"class": "fixres__item"})[0:10]
-    FIXTURES_LAST_CALL = time.time()
 
 
 def get_fixtures():
     global FIXTURES
-    global FIXTURES_LAST_CALL
 
-    # if time.time() - FIXTURES_LAST_CALL > 600:
-    get_sky_sports_odds()
     results = {}
 
     con = sl.connect("my-test.db")
