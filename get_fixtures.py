@@ -159,10 +159,15 @@ def get_fixtures():
             away_wins_odds_as_percent = int(away_wins_odds[1]) / (
                 int(away_wins_odds[0]) + int(away_wins_odds[1])
             )
+            sky_sports_profit = (home_wins_odds_as_percent + draw_odds_as_percent + away_wins_odds_as_percent) - 1
+            home_wins_odds_as_percent = home_wins_odds_as_percent - (sky_sports_profit/3)
+            draw_odds_as_percent = draw_odds_as_percent - (sky_sports_profit/3)
+            away_wins_odds_as_percent = away_wins_odds_as_percent - (sky_sports_profit/3)
         except:
             home_wins_odds_as_percent = None
             draw_odds_as_percent = None
             away_wins_odds_as_percent = None
+        
 
         cur.execute(f"SELECT * from goals WHERE team = '{home_team}'")
         records = cur.fetchall()
@@ -205,6 +210,7 @@ def get_fixtures():
                 home_team,
                 round(home_wins_odds_as_percent * 100, 1),
                 round(home_score_guess, 1),
+                round(draw_odds_as_percent * 100, 1),
                 away_team,
                 round(away_wins_odds_as_percent * 100, 1),
                 round(away_score_guess, 1),
@@ -214,6 +220,7 @@ def get_fixtures():
                 home_team,
                 "N/A",
                 "Sky Sports havent given odds",
+                "N/A",
                 away_team,
                 "N/A",
                 "Sky Sports havent given odds",
