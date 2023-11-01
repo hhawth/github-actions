@@ -22,7 +22,7 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 
-@scheduler.task('interval', id='do_job_2', minutes=10, misfire_grace_time=900)
+@scheduler.task('interval', id='do_job_2', minutes=30, misfire_grace_time=900)
 def get_sky_sports_odds_call():
     get_sky_sports_odds()
 

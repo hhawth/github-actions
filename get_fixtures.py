@@ -17,14 +17,14 @@ FIXTURES_LAST_CALL = 0
 FIXTURES = None
 
 def year_weightings(
-    records, home=True, previous_year_weight=0.4, current_year_weight=0.6
+    records, home=True, previous_year_weight=0.2, current_year_weight=0.8
 ):
     old = None
     current = None
     for row in records:
         if row[0] in PROMOTED_TEAMS:
-            previous_year_weight = 0.2
-            current_year_weight = 0.8
+            previous_year_weight = 0
+            current_year_weight = 1
         if home:
             scored_avg = row[1]
             scored_max = row[8]
