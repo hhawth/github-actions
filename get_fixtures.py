@@ -16,15 +16,8 @@ FIXTURES_LAST_CALL = 0
 
 FIXTURES = None
 
-def year_weightings(
-    records, home=True, previous_year_weight=0.2, current_year_weight=0.8
-):
-    old = None
-    current = None
+def filter_db_results(records, home=True):
     for row in records:
-        if row[0] in PROMOTED_TEAMS:
-            previous_year_weight = 0
-            current_year_weight = 1
         if home:
             scored_avg = row[1]
             scored_max = row[8]
@@ -35,85 +28,38 @@ def year_weightings(
             scored_max = row[9]
             conceded = row[4]
             conceded_max = row[11]
-        if row[7] == "22/23":
-            old = [scored_avg, scored_max, conceded, conceded_max]
-        else:
-            current = [scored_avg, scored_max, conceded, conceded_max]
-
-    scored_avg_weighted = (
-        old[0] * previous_year_weight + current[0] * current_year_weight
-    )
-    scored_max_weighted = (
-        old[1] * previous_year_weight + current[1] * current_year_weight
-    )
-    conceded_avg_weighted = (
-        old[2] * previous_year_weight + current[2] * current_year_weight
-    )
-    conceded_max_weighted = (
-        old[3] * previous_year_weight + current[3] * current_year_weight
-    )
     return (
-        scored_avg_weighted,
-        scored_max_weighted,
-        conceded_avg_weighted,
-        conceded_max_weighted,
+        scored_avg,
+        scored_max,
+        conceded,
+        conceded_max
     )
-
 
 def normal_dist_calc(avg, range, skew):
-    value = skewnorm.rvs(skew, loc=avg, scale=(range / 4), size=100)
+    value = skewnorm.rvs(skew, loc=avg, scale=(range / 4), size=1000)
     value = value - min(value)  # Shift the set so the minimum value is equal to zero.
     value = value / max(value)  # Standadize all the vlues between 0 and 1.
     value = value * range  # Multiply the standardized values by the maximum value.
-    np.mean(value)
     return np.mean(value)
 
-
-def find_skew(percentage, conceded):
-    # less skewed
-    # if conceded:
-    #     skew = (percentage * 10) - 5
-    #     if percentage < 0.35:
-    #         skew = percentage * -10
-    # else:
-    #     skew = (percentage * -10) + 5
-    #     if percentage < 0.35:
-    #         skew = percentage * 10
-
-    # more skewed
-    if conceded:
-        skew = percentage * 10
-        if percentage < 0.35:
-            skew = -10 + (percentage * 10)
-    else:
-        skew = (percentage * - 10)
-        if percentage < 0.35:
-            skew = 10 - (percentage * 10)
-    return skew
-
-
-def estimate_value(
-    home_stat,
-    home_stat_max,
-    away_stat,
-    away_stat_max,
-    home_win_percentage,
-    away_win_percentage,
-    home=True,
+def estimate_goals_scored(
+    team_scored_avg,
+    team_scored_max,
+    other_team_conceded_avg,
+    other_team_conceded_max,
+    win_percentage
 ):
-    if home:
-        # home team to score againest away conceded
-        home_skew = find_skew(home_win_percentage, conceded=False)
-        away_skew = find_skew(away_win_percentage, conceded=True)
+    if win_percentage > 0.33:
+        scored_skew = -(1/(1 - win_percentage)) ** 2
+        conceded_skew = -(1/(1 - win_percentage)) ** 2
     else:
-        # away team to score againest home conceded
-        home_skew = find_skew(home_win_percentage, conceded=True)
-        away_skew = find_skew(away_win_percentage, conceded=False)
+        scored_skew = (1/(win_percentage)) ** 2
+        conceded_skew = (1/(win_percentage)) ** 2
 
 
-    home_mean = normal_dist_calc(home_stat, home_stat_max, home_skew)
+    home_mean = normal_dist_calc(team_scored_avg, team_scored_max, scored_skew)
 
-    away_mean = normal_dist_calc(away_stat, away_stat_max, away_skew)
+    away_mean = normal_dist_calc(other_team_conceded_avg, other_team_conceded_max, conceded_skew)
 
     return (home_mean + away_mean) / 2
 
@@ -146,7 +92,7 @@ def get_fixtures():
                 2
             ].text.split(" ")[1].split("/")
             home_wins_odds = odds[0].text.split(" ")[1].split("/")
-            home_wins_odds_as_percent = int(home_wins_odds[1]) / (
+            home_team_wins_odds_as_percent = int(home_wins_odds[1]) / (
                 int(home_wins_odds[0]) + int(home_wins_odds[1])
             )
 
@@ -156,63 +102,60 @@ def get_fixtures():
             )
 
             away_wins_odds = odds[2].text.split(" ")[1].split("/")
-            away_wins_odds_as_percent = int(away_wins_odds[1]) / (
+            away_team_wins_odds_as_percent = int(away_wins_odds[1]) / (
                 int(away_wins_odds[0]) + int(away_wins_odds[1])
             )
-            sky_sports_profit = (home_wins_odds_as_percent + draw_odds_as_percent + away_wins_odds_as_percent) - 1
-            home_wins_odds_as_percent = home_wins_odds_as_percent - (sky_sports_profit/3)
+            sky_sports_profit = (home_team_wins_odds_as_percent + draw_odds_as_percent + away_team_wins_odds_as_percent) - 1
+            home_team_wins_odds_as_percent = home_team_wins_odds_as_percent - (sky_sports_profit/3)
             draw_odds_as_percent = draw_odds_as_percent - (sky_sports_profit/3)
-            away_wins_odds_as_percent = away_wins_odds_as_percent - (sky_sports_profit/3)
+            away_team_wins_odds_as_percent = away_team_wins_odds_as_percent - (sky_sports_profit/3)
         except:
-            home_wins_odds_as_percent = None
+            home_team_wins_odds_as_percent = None
             draw_odds_as_percent = None
-            away_wins_odds_as_percent = None
+            away_team_wins_odds_as_percent = None
         
 
-        cur.execute(f"SELECT * from goals WHERE team = '{home_team}'")
+        cur.execute(f"SELECT * from goals WHERE team = '{home_team}' AND year = '23/24'")
         records = cur.fetchall()
         (
-            home_scored_avg,
-            home_scored_max,
-            conceded_home,
-            conceded_home_max,
-        ) = year_weightings(records)
+            home_team_scored_avg_at_home,
+            home_team_scored_max_at_home,
+            home_team_conceded_at_home,
+            home_team_conceded_at_home_max,
+        ) = filter_db_results(records)
 
-        cur.execute(f"SELECT * from goals WHERE team = '{away_team}'")
+        cur.execute(f"SELECT * from goals WHERE team = '{away_team}' AND year = '23/24'")
         records = cur.fetchall()
         (
-            away_scored_avg,
-            away_scored_max,
-            conceded_away,
-            conceded_away_max,
-        ) = year_weightings(records, home=False)
+            away_team_scored_avg_away,
+            away_team_scored_max_away,
+            away_team_conceded_away,
+            away_team_conceded_away_max,
+        ) = filter_db_results(records, home=False)
 
         try:
-            home_score_guess = estimate_value(
-                home_scored_avg,
-                home_scored_max,
-                conceded_away,
-                conceded_away_max,
-                home_wins_odds_as_percent,
-                away_wins_odds_as_percent,
+            home_score_guess = estimate_goals_scored(
+                home_team_scored_avg_at_home,
+                home_team_scored_max_at_home,
+                away_team_conceded_away,
+                away_team_conceded_away_max,
+                home_team_wins_odds_as_percent
             )
-            away_score_guess = estimate_value(
-                away_scored_avg,
-                away_scored_max,
-                conceded_home,
-                conceded_home_max,
-                home_wins_odds_as_percent,
-                away_wins_odds_as_percent,
-                home=False,
+            away_score_guess = estimate_goals_scored(
+                away_team_scored_avg_away,
+                away_team_scored_max_away,
+                home_team_conceded_at_home,
+                home_team_conceded_at_home_max,
+                away_team_wins_odds_as_percent
             )
 
             results[fixture_text] = [
                 home_team,
-                round(home_wins_odds_as_percent * 100, 1),
+                round(home_team_wins_odds_as_percent * 100, 1),
                 round(home_score_guess, 1),
                 round(draw_odds_as_percent * 100, 1),
                 away_team,
-                round(away_wins_odds_as_percent * 100, 1),
+                round(away_team_wins_odds_as_percent * 100, 1),
                 round(away_score_guess, 1),
             ]
         except:
