@@ -49,12 +49,14 @@ def estimate_goals_scored(
     other_team_conceded_max,
     win_percentage
 ):
-    if win_percentage > 0.33:
-        scored_skew = -(1/(1 - win_percentage)) ** 2
-        conceded_skew = -(1/(1 - win_percentage)) ** 2
+    win_threshold = 0.5
+    scaler = 1/win_threshold
+    if win_percentage > win_threshold:
+        scored_skew = -(1/(1 - win_percentage)*scaler) ** 2
+        conceded_skew = -(1/(1 - win_percentage)*scaler) ** 2
     else:
-        scored_skew = (1/(win_percentage)) ** 2
-        conceded_skew = (1/(win_percentage)) ** 2
+        scored_skew = (1/(win_percentage*scaler)) ** 2
+        conceded_skew = (1/(win_percentage*scaler)) ** 2
 
 
     home_mean = normal_dist_calc(team_scored_avg, team_scored_max, scored_skew)
