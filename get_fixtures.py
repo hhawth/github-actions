@@ -1,174 +1,199 @@
 import requests
 from bs4 import BeautifulSoup
-import sqlite3 as sl
 
-from scipy.stats import skewnorm
+from scipy.stats import mode
 import numpy as np
 import logging
+from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function
+
+# Create a cache with a time-to-live (TTL) of 1 hour (3600 seconds)
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 
-PROMOTED_TEAMS = ["Burnley", "Luton Town", "Sheffield United"]
-
 FIXTURES_LAST_CALL = 0
 
 FIXTURES = None
 
-def filter_db_results(records, home=True):
-    for row in records:
-        if home:
-            scored_avg = row[1]
-            scored_max = row[8]
-            conceded = row[3]
-            conceded_max = row[10]
-        else:
-            scored_avg = row[2]
-            scored_max = row[9]
-            conceded = row[4]
-            conceded_max = row[11]
-    return (
-        scored_avg,
-        scored_max,
-        conceded,
-        conceded_max
+@cached_function(maxsize=100, ttl=3600)
+def get_fixtures_and_odds():
+    LOGGER.info("Getting sky sports odds")
+    response = requests.get(
+        "https://www.sportytrader.com/en/odds/football/england/premier-league-49/"
+    )
+    soup = BeautifulSoup(response.text, features="html.parser")
+    return soup.find_all(
+        "div",
+        {
+            "class": "cursor-pointer border rounded-md mb-4 px-1 py-2 flex flex-col lg:flex-row relative"
+        },
+    )[0:10]
+
+
+def new_func_poisson(occurrences_of_scores, probability):
+    scores = np.array([4, 3, 2, 1, 0])  # Possible scores
+    occurrences = np.array(occurrences_of_scores[:5])  # First 5 occurrences
+
+    # Calculate base mean
+    total_occurrences = np.sum(occurrences)
+    base_mean = (
+        np.sum(scores * occurrences) / total_occurrences if total_occurrences > 0 else 1
     )
 
-def normal_dist_calc(avg, range, skew):
-    value = skewnorm.rvs(skew, loc=avg, scale=(range / 4), size=1000)
-    value = value - min(value)  # Shift the set so the minimum value is equal to zero.
-    value = value / max(value)  # Standadize all the vlues between 0 and 1.
-    value = value * range  # Multiply the standardized values by the maximum value.
-    return np.mean(value)
+    # Adjust mean based on win probability
+    # adjusted_mean = base_mean * (0.5 + (probability / 100))
+    adjusted_mean = base_mean * (1 / (1 - (probability / 100)))
+    adjusted_mean = min(adjusted_mean, 4)  # Cap the mean at 4 goals
 
-def estimate_goals_scored(
-    team_scored_avg,
-    team_scored_max,
-    other_team_conceded_avg,
-    other_team_conceded_max,
-    win_percentage
+    # Generate Poisson-distributed goals
+    random_goals = np.random.poisson(lam=adjusted_mean, size=100)
+    random_goals = np.maximum(0, random_goals)  # Ensure no negative values
+
+    # Return rounded mean of random goals
+    return mode(random_goals).mode
+
+
+def simulate_match(
+    goal_stats,
+    home_team,
+    away_team,
+    home_team_wins_odds_as_percent,
+    away_team_wins_odds_as_percent,
+    simulations=10,
 ):
-    win_threshold = 0.5
-    scaler = 1/win_threshold
-    if win_percentage > win_threshold:
-        scored_skew = -(1/(1 - win_percentage)*scaler) ** 2
-        conceded_skew = -(1/(1 - win_percentage)*scaler) ** 2
-    else:
-        scored_skew = (1/(win_percentage*scaler)) ** 2
-        conceded_skew = (1/(win_percentage*scaler)) ** 2
+    results = []
+
+    for _ in range(simulations):
+        # Calculate expected goals scored by the home team
+        home_team_estimates_goals_scored = new_func_poisson(
+            goal_stats[home_team]["home"]["goals_for"], home_team_wins_odds_as_percent
+        )
+        away_team_estimates_goals_conceded = new_func_poisson(
+            goal_stats[away_team]["away"]["goals_against"],
+            home_team_wins_odds_as_percent,
+        )
+
+        # Calculate rough estimate for home team
+        rough_estimate_home_team_scored = (
+            home_team_estimates_goals_scored + away_team_estimates_goals_conceded
+        ) / 2
+
+        # Calculate expected goals scored by the away team
+        away_team_estimates_goals_scored = new_func_poisson(
+            goal_stats[away_team]["away"]["goals_for"], away_team_wins_odds_as_percent
+        )
+        home_team_estimates_goals_conceded = new_func_poisson(
+            goal_stats[home_team]["home"]["goals_against"],
+            away_team_wins_odds_as_percent,
+        )
+
+        # Calculate rough estimate for away team
+        rough_estimate_away_team_scored = (
+            away_team_estimates_goals_scored + home_team_estimates_goals_conceded
+        ) / 2
+
+        # Store the result as a tuple (home_score, away_score)
+        results.append(
+            (
+                round(rough_estimate_home_team_scored),
+                round(rough_estimate_away_team_scored),
+            )
+        )
+
+    return results  # Return a list of results
 
 
-    home_mean = normal_dist_calc(team_scored_avg, team_scored_max, scored_skew)
+def calculate_average_score(simulation_results):
+    # Calculate the average scores for home and away teams
+    total_home_goals = sum(home for home, _ in simulation_results)
+    total_away_goals = sum(away for _, away in simulation_results)
 
-    away_mean = normal_dist_calc(other_team_conceded_avg, other_team_conceded_max, conceded_skew)
+    average_home_score = round(total_home_goals / len(simulation_results))
+    average_away_score = round(total_away_goals / len(simulation_results))
 
-    return (home_mean + away_mean) / 2
-
-
-def get_sky_sports_odds():
-    global FIXTURES
-
-    LOGGER.info("Getting sky sports odds")
-    response = requests.get("https://www.skysports.com/premier-league-fixtures")
-    soup = BeautifulSoup(response.text, features="html.parser")
-    FIXTURES = soup.find_all("div", {"class": "fixres__item"})[0:10]
+    return average_home_score, average_away_score
 
 
 def get_fixtures():
-    global FIXTURES
+    fixtures = get_fixtures_and_odds()
 
     results = {}
+    goal_stats = get_stats()
+    top_scorers = get_top_scorers()
+    top_booked = get_top_booked()
 
-    con = sl.connect("my-test.db")
-    cur = con.cursor()
-
-    for fixture in FIXTURES:
-        teams = fixture.find_all("span", {"class": "swap-text__target"})
-        fixture_text = teams[0].text + " vs " + teams[1].text
-        home_team = teams[0].text
-        away_team = teams[1].text
-        odds = fixture.find_all("span", {"class": "matches__betting-odds"})
+    for fixture in fixtures:
+        teams = fixture.find_next("a").text.strip().split(" - ")
+        home_team = teams[0]
+        away_team = teams[1]
+        fixture_text = home_team + " vs " + away_team
+        odds = fixture.find_all(
+            "span",
+            {
+                "class": "px-1 h-booklogosm font-bold bg-primary-yellow text-white leading-8 rounded-r-md w-14 md:w-18 flex justify-center items-center text-base"
+            },
+        )
         try:
-            odds[0].text.split(" ")[1].split("/"), odds[1].text.split("/"), odds[
-                2
-            ].text.split(" ")[1].split("/")
-            home_wins_odds = odds[0].text.split(" ")[1].split("/")
-            home_team_wins_odds_as_percent = int(home_wins_odds[1]) / (
-                int(home_wins_odds[0]) + int(home_wins_odds[1])
-            )
+            home_wins_odds = float(odds[0].text)
+            home_team_wins_odds_as_percent = (1 / home_wins_odds) * 100
 
-            draw_odds = odds[1].text.split("/")
-            draw_odds_as_percent = int(draw_odds[1]) / (
-                int(draw_odds[0]) + int(draw_odds[1])
-            )
+            draw_odds = float(odds[1].text)
+            draw_odds_as_percent = (1 / draw_odds) * 100
 
-            away_wins_odds = odds[2].text.split(" ")[1].split("/")
-            away_team_wins_odds_as_percent = int(away_wins_odds[1]) / (
-                int(away_wins_odds[0]) + int(away_wins_odds[1])
+            away_wins_odds = float(odds[2].text)
+            away_team_wins_odds_as_percent = (1 / away_wins_odds) * 100
+            broker_profit = (
+                home_team_wins_odds_as_percent
+                + draw_odds_as_percent
+                + away_team_wins_odds_as_percent
+            ) - 100
+            home_team_wins_odds_as_percent = home_team_wins_odds_as_percent - (
+                broker_profit / 3
             )
-            sky_sports_profit = (home_team_wins_odds_as_percent + draw_odds_as_percent + away_team_wins_odds_as_percent) - 1
-            home_team_wins_odds_as_percent = home_team_wins_odds_as_percent - (sky_sports_profit/3)
-            draw_odds_as_percent = draw_odds_as_percent - (sky_sports_profit/3)
-            away_team_wins_odds_as_percent = away_team_wins_odds_as_percent - (sky_sports_profit/3)
+            draw_odds_as_percent = draw_odds_as_percent - (broker_profit / 3)
+            away_team_wins_odds_as_percent = away_team_wins_odds_as_percent - (
+                broker_profit / 3
+            )
         except:
             home_team_wins_odds_as_percent = None
             draw_odds_as_percent = None
             away_team_wins_odds_as_percent = None
-        
-
-        cur.execute(f"SELECT * from goals WHERE team = '{home_team}' AND year = '23/24'")
-        records = cur.fetchall()
-        (
-            home_team_scored_avg_at_home,
-            home_team_scored_max_at_home,
-            home_team_conceded_at_home,
-            home_team_conceded_at_home_max,
-        ) = filter_db_results(records)
-
-        cur.execute(f"SELECT * from goals WHERE team = '{away_team}' AND year = '23/24'")
-        records = cur.fetchall()
-        (
-            away_team_scored_avg_away,
-            away_team_scored_max_away,
-            away_team_conceded_away,
-            away_team_conceded_away_max,
-        ) = filter_db_results(records, home=False)
 
         try:
-            home_score_guess = estimate_goals_scored(
-                home_team_scored_avg_at_home,
-                home_team_scored_max_at_home,
-                away_team_conceded_away,
-                away_team_conceded_away_max,
-                home_team_wins_odds_as_percent
+            average_home_score, average_away_score = calculate_average_score(
+                simulate_match(
+                    goal_stats,
+                    home_team,
+                    away_team,
+                    home_team_wins_odds_as_percent,
+                    away_team_wins_odds_as_percent,
+                )
             )
-            away_score_guess = estimate_goals_scored(
-                away_team_scored_avg_away,
-                away_team_scored_max_away,
-                home_team_conceded_at_home,
-                home_team_conceded_at_home_max,
-                away_team_wins_odds_as_percent
-            )
-
-            results[fixture_text] = [
-                home_team,
-                round(home_team_wins_odds_as_percent * 100, 1),
-                round(home_score_guess, 1),
-                round(draw_odds_as_percent * 100, 1),
-                away_team,
-                round(away_team_wins_odds_as_percent * 100, 1),
-                round(away_score_guess, 1),
-            ]
+            results[fixture_text]= {
+                "home_team": home_team,
+                "away_team": away_team,
+                "home_win_percentage": round(home_team_wins_odds_as_percent, 1),
+                "home_goals": round(average_home_score),
+                "likely_home_scorers": top_scorers[top_scorers['team_name'] == home_team].to_dict(orient='records'),
+                "likely_home_booked": top_booked[top_booked['team_name'] == home_team].to_dict(orient='records'),
+                "draw_percentage": round(draw_odds_as_percent, 1),
+                "away_win_percentage": round(away_team_wins_odds_as_percent, 1),
+                "away_goals": round(average_away_score),
+                "likely_away_scorers": top_scorers[top_scorers['team_name'] == away_team].to_dict(orient='records'),
+                "likely_away_booked": top_booked[top_booked['team_name'] == away_team].to_dict(orient='records'),
+            }
         except:
-            results[fixture_text] = [
-                home_team,
-                "N/A",
-                "Sky Sports havent given odds",
-                "N/A",
-                away_team,
-                "N/A",
-                "Sky Sports havent given odds",
-            ]
+            results[fixture_text]= {
+                "home_team": home_team,
+                "away_team": "away_team",
+                "home_win_percentage": "N/A",
+                "draw_percentage": "N/A",
+                "away_win_percentage": "N/A",
+                "home_goals": "N/A",
+                "away_goals": "N/A",
+                "likely_home_scorers": [],
+                "likely_away_scorers": [],
+            }
 
     return results

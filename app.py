@@ -1,10 +1,9 @@
 import logging
-import time
 
 from flask import Flask, render_template
 from flask_apscheduler import APScheduler
 
-from get_fixtures import get_fixtures, get_sky_sports_odds
+from get_fixtures import get_fixtures, get_fixtures_and_odds
 from stat_getter import get_stats
 
 logging.basicConfig()
@@ -28,8 +27,8 @@ scheduler.start()
 
 
 @scheduler.task("interval", id="do_job_2", hours=6, misfire_grace_time=900)
-def get_sky_sports_odds_call():
-    get_sky_sports_odds()
+def get_fixtures_and_odds_call():
+    get_fixtures_and_odds()
 
 
 @scheduler.task("interval", id="do_job_1", hours=6, misfire_grace_time=900)
@@ -39,13 +38,13 @@ def stats_call():
 
 
 stats_call()
-get_sky_sports_odds_call()
+get_fixtures_and_odds_call()
 
 
 @app.route("/")
 def hello():
     results = get_fixtures()
-    return render_template("home.html", result=results)
+    return render_template("home.html", matches=results)
 
 
 if __name__ == "__main__":

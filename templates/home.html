@@ -1,65 +1,127 @@
 <!doctype html>
-<style type="text/css">
-   @media only screen and (max-width: 600px) {
-      img {
-      max-width: 100%;
-      height: auto;
-      width: auto;
-   }
-   }
-   body {
-     font-family: Arial, sans-serif;
-   }
-   img {
-      max-width: 100%;
-      height: auto;
-      width: 10vw;
-   }
-   .center {
-      margin-left: auto;
-      margin-right: auto;
-   }
-   table {
-      border-radius: 1vw;
-      padding-top: 1vw;
-      padding-bottom: 1vw;
-   }
-   table:nth-child(even) {
-      background-color: #f2f2f2;
-   }
-   td {
-      padding-top: 1vw;
-      padding-left: 1vw;
-      padding-right: 1vw;
-   }
-</style>
 <html>
    <head>
       <meta content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" name="viewport">
+      <style type="text/css">
+         @media only screen and (max-width: 600px) {
+            img {
+               max-width: 100%;
+               height: auto;
+               width: auto;
+            }
+         }
+         body {
+            font-family: Arial, sans-serif;
+         }
+         img {
+            max-width: 100%;
+            height: auto;
+            width: 10vw;
+         }
+         .center {
+            margin-left: auto;
+            margin-right: auto;
+         }
+         table {
+            border-radius: 1vw;
+            padding-top: 1vw;
+            padding-bottom: 1vw;
+            width: 80%; /* Set width for better display */
+            margin: auto; /* Center the table */
+         }
+         table:nth-child(even) {
+            background-color: #f2f2f2;
+         }
+         td {
+            padding-top: 1vw;
+            padding-left: 1vw;
+            padding-right: 1vw;
+         }
+      </style>
    </head>
    <body>
-      {% for key, value in result.items() %}
-      <table  class="center">
+      {% for key, value in matches.items() %}
+      <table class="center">
          <thead>
             <tr>
-               <th><img src="{{url_for('static', filename=key.split('vs')[0].strip())+'.png'}}" /></th>
+               <th><img src="{{url_for('static', filename=value['home_team'] + '.png')}}" /></th>
                <th>vs</th>
-               <th><img src="{{url_for('static', filename=key.split('vs')[1].strip())+'.png'}}" /></th>
+               <th><img src="{{url_for('static', filename=value['away_team'] + '.png')}}" /></th>
             </tr>
          </thead>
          <tbody>
             <tr>
-               <td> Win %: {{ value[1] }}% </td>
-               <td> Draw %:  {{ value[3] }}</td>
-               <td> Win %: {{ value[5] }}% </td>
+               <td>Win %: {{ value['home_win_percentage'] }}%</td>
+               <td>Draw %: {{ value['draw_percentage'] }}%</td>
+               <td>Win %: {{ value['away_win_percentage'] }}%</td>
             </tr>
             <tr>
-               <td> Goals: {{ value[2] }} </td>
+               <td>Goals: {{ value['home_goals'] }}</td>
                <td></td>
-               <td> Goals: {{ value[6] }} </td>
+               <td>Goals: {{ value['away_goals'] }}</td>
+            </tr>
+            <tr>
+               <!-- Home Team Likely Scorers -->
+               <td>
+                  <strong>{{ value['home_team'] }} Likely Scorers:</strong>
+                  <select>
+                     {% if value['likely_home_scorers'] %}
+                         {% for scorer in value['likely_home_scorers'] %}
+                             <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['goals_scored'] }} | Threat: {{ scorer['threat'] }}</option>
+                         {% endfor %}
+                     {% else %}
+                         <option>No scorers available</option>
+                     {% endif %}
+                  </select>
+               </td>
+               <td></td>
+               <!-- Away Team Likely Scorers -->
+               <td>
+                  <strong>{{ value['away_team'] }} Likely Scorers:</strong>
+                  <select>
+                     {% if value['likely_away_scorers'] %}
+                         {% for scorer in value['likely_away_scorers'] %}
+                             <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['goals_scored'] }} | Threat: {{ scorer['threat'] }}</option>
+                         {% endfor %}
+                     {% else %}
+                         <option>No scorers available</option>
+                     {% endif %}
+                  </select>
+               </td>
+            </tr>
+            <tr>
+               <!-- Home Team Likely to be Booked -->
+               <td>
+                  <strong>{{ value['home_team'] }} Likely to be Booked:</strong>
+                  <select>
+                     {% if value['likely_home_booked'] %}
+                         {% for scorer in value['likely_home_booked'] %}
+                             <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
+                         {% endfor %}
+                     {% else %}
+                         <option>No scorers available</option>
+                     {% endif %}
+                  </select>
+               </td>
+               <td></td>
+               <!-- Away Team Likely Scorers -->
+               <td>
+                  <strong>{{ value['away_team'] }} Likely to be Booked:</strong>
+                  <select>
+                     {% if value['likely_away_booked'] %}
+                         {% for scorer in value['likely_away_booked'] %}
+                             <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
+                         {% endfor %}
+                     {% else %}
+                         <option>No scorers available</option>
+                     {% endif %}
+                  </select>
+               </td>
             </tr>
          </tbody>
       </table>
+      <br>
       {% endfor %}
    </body>
 </html>
+
