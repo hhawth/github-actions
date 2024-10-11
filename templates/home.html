@@ -1,127 +1,146 @@
 <!doctype html>
 <html>
-   <head>
-      <meta content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" name="viewport">
-      <style type="text/css">
-         @media only screen and (max-width: 600px) {
-            img {
-               max-width: 100%;
-               height: auto;
-               width: auto;
-            }
-         }
-         body {
+<head>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0" name="viewport">
+    <style type="text/css">
+        body {
             font-family: Arial, sans-serif;
-         }
-         img {
-            max-width: 100%;
-            height: auto;
-            width: 10vw;
-         }
-         .center {
-            margin-left: auto;
-            margin-right: auto;
-         }
-         table {
+            margin: 0;
+            padding: 10px; /* Add padding for mobile */
+        }
+        img {
+            width: 80px; /* Set a fixed width */
+            height: 80px; /* Set a fixed height */
+            object-fit: contain; /* Ensures the image fits within the dimensions without being cut off */
+        }
+        .center {
+            display: flex; /* Use flexbox for better alignment */
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px 0;
+        }
+        table {
             border-radius: 1vw;
-            padding-top: 1vw;
-            padding-bottom: 1vw;
-            width: 80%; /* Set width for better display */
+            width: 100%; /* Make table full-width */
             margin: auto; /* Center the table */
-         }
-         table:nth-child(even) {
+            border-collapse: collapse; /* Collapse borders for cleaner look */
+            table-layout: fixed; /* Fixed layout to prevent variable column widths */
+        }
+        th, td {
+            padding: 10px; /* Add padding for better touch targets */
+            text-align: center; /* Center text */
+            vertical-align: middle; /* Align vertically to middle */
+            border: none; /* Remove borders for a cleaner look */
+        }
+        /* Adjust the text area to prevent overflow */
+        td {
+            min-height: 60px; /* Set a minimum height for cells */
+            max-height: 120px; /* Set a maximum height to avoid excessive growth */
+            overflow: hidden; /* Hide any overflow */
+            white-space: normal; /* Allow text to wrap */
+        }
+        /* Dropdown styling */
+        select {
+            width: 100%; /* Ensure dropdowns take full width of the cell */
+            padding: 5px; /* Add padding for better touch targets */
+            margin-top: 5px; /* Add margin for spacing */
+            box-sizing: border-box; /* Ensure padding does not affect total width */
+        }
+        div:nth-child(even) {
             background-color: #f2f2f2;
-         }
-         td {
-            padding-top: 1vw;
-            padding-left: 1vw;
-            padding-right: 1vw;
-         }
-      </style>
-   </head>
-   <body>
-      {% for key, value in matches.items() %}
-      <table class="center">
-         <thead>
-            <tr>
-               <th><img src="{{url_for('static', filename=value['home_team'] + '.png')}}" /></th>
-               <th>vs</th>
-               <th><img src="{{url_for('static', filename=value['away_team'] + '.png')}}" /></th>
-            </tr>
-         </thead>
-         <tbody>
-            <tr>
-               <td>Win %: {{ value['home_win_percentage'] }}%</td>
-               <td>Draw %: {{ value['draw_percentage'] }}%</td>
-               <td>Win %: {{ value['away_win_percentage'] }}%</td>
-            </tr>
-            <tr>
-               <td>Goals: {{ value['home_goals'] }}</td>
-               <td></td>
-               <td>Goals: {{ value['away_goals'] }}</td>
-            </tr>
-            <tr>
-               <!-- Home Team Likely Scorers -->
-               <td>
-                  <strong>{{ value['home_team'] }} Likely Scorers:</strong>
-                  <select>
-                     {% if value['likely_home_scorers'] %}
-                         {% for scorer in value['likely_home_scorers'] %}
-                             <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['goals_scored'] }} | Threat: {{ scorer['threat'] }}</option>
-                         {% endfor %}
-                     {% else %}
-                         <option>No scorers available</option>
-                     {% endif %}
-                  </select>
-               </td>
-               <td></td>
-               <!-- Away Team Likely Scorers -->
-               <td>
-                  <strong>{{ value['away_team'] }} Likely Scorers:</strong>
-                  <select>
-                     {% if value['likely_away_scorers'] %}
-                         {% for scorer in value['likely_away_scorers'] %}
-                             <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['goals_scored'] }} | Threat: {{ scorer['threat'] }}</option>
-                         {% endfor %}
-                     {% else %}
-                         <option>No scorers available</option>
-                     {% endif %}
-                  </select>
-               </td>
-            </tr>
-            <tr>
-               <!-- Home Team Likely to be Booked -->
-               <td>
-                  <strong>{{ value['home_team'] }} Likely to be Booked:</strong>
-                  <select>
-                     {% if value['likely_home_booked'] %}
-                         {% for scorer in value['likely_home_booked'] %}
-                             <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
-                         {% endfor %}
-                     {% else %}
-                         <option>No scorers available</option>
-                     {% endif %}
-                  </select>
-               </td>
-               <td></td>
-               <!-- Away Team Likely Scorers -->
-               <td>
-                  <strong>{{ value['away_team'] }} Likely to be Booked:</strong>
-                  <select>
-                     {% if value['likely_away_booked'] %}
-                         {% for scorer in value['likely_away_booked'] %}
-                             <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
-                         {% endfor %}
-                     {% else %}
-                         <option>No scorers available</option>
-                     {% endif %}
-                  </select>
-               </td>
-            </tr>
-         </tbody>
-      </table>
-      <br>
-      {% endfor %}
-   </body>
+        }
+        /* Media query for screens larger than 600px */
+        @media only screen and (min-width: 601px) {
+            img {
+                width: 80px; /* Maintain original size for larger screens */
+                height: 80px; /* Maintain original size for larger screens */
+            }
+            td {
+                padding: 20px; /* More padding on larger screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    {% for key, value in matches.items() %}
+    <div class="center">
+        <table>
+            <thead>
+                <tr>
+                    <th><img src="{{url_for('static', filename=value['home_team'] + '.png')}}" alt="{{ value['home_team'] }} logo" /></th>
+                    <th>vs</th>
+                    <th><img src="{{url_for('static', filename=value['away_team'] + '.png')}}" alt="{{ value['away_team'] }} logo" /></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Win %: {{ value['home_win_percentage'] }}%</td>
+                    <td>Draw %: {{ value['draw_percentage'] }}%</td>
+                    <td>Win %: {{ value['away_win_percentage'] }}%</td>
+                </tr>
+                <tr>
+                    <td>Goals: {{ value['home_goals'] }}</td>
+                    <td></td> <!-- Ensure the cell is empty but included -->
+                    <td>Goals: {{ value['away_goals'] }}</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>{{ value['home_team'] }} Likely Scorers:</strong>
+                        <select>
+                            {% if value['likely_home_scorers'] %}
+                                {% for scorer in value['likely_home_scorers'] %}
+                                    <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['goals_scored'] }} | Threat: {{ scorer['threat'] }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option>No scorers available</option>
+                            {% endif %}
+                        </select>
+                    </td>
+                    <td></td> <!-- Keep the structure uniform -->
+                    <td>
+                        <strong>{{ value['away_team'] }} Likely Scorers:</strong>
+                        <select>
+                            {% if value['likely_away_scorers'] %}
+                                {% for scorer in value['likely_away_scorers'] %}
+                                    <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['goals_scored'] }} | Threat: {{ scorer['threat'] }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option>No scorers available</option>
+                            {% endif %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>{{ value['home_team'] }} Likely to be Booked:</strong>
+                        <select>
+                            {% if value['likely_home_booked'] %}
+                                {% for scorer in value['likely_home_booked'] %}
+                                    <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option>No players available</option>
+                            {% endif %}
+                        </select>
+                    </td>
+                    <td></td> <!-- Keep the structure uniform -->
+                    <td>
+                        <strong>{{ value['away_team'] }} Likely to be Booked:</strong>
+                        <select>
+                            {% if value['likely_away_booked'] %}
+                                {% for scorer in value['likely_away_booked'] %}
+                                    <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option>No players available</option>
+                            {% endif %}
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</body>
 </html>
-
