@@ -117,7 +117,7 @@
                         <select>
                             {% if value['likely_home_booked'] %}
                                 {% for scorer in value['likely_home_booked'] %}
-                                    <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
+                                    <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Yellow Cards: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
                                 {% endfor %}
                             {% else %}
                                 <option>No players available</option>
@@ -130,7 +130,7 @@
                         <select>
                             {% if value['likely_away_booked'] %}
                                 {% for scorer in value['likely_away_booked'] %}
-                                    <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Goals: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
+                                    <option>{{ scorer['first_name'] }} {{ scorer['second_name'] }} - Yellow Cards: {{ scorer['yellow_cards'] }} | Total Minutes: {{ scorer['minutes'] }}</option>
                                 {% endfor %}
                             {% else %}
                                 <option>No players available</option>

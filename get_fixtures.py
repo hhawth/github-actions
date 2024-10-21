@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from scipy.stats import mode
+from scipy.stats import mode, skewnorm
 import numpy as np
 import logging
 from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function
@@ -30,8 +30,7 @@ def get_fixtures_and_odds():
         },
     )[0:10]
 
-
-def new_func_poisson(occurrences_of_scores, probability):
+def new_func_skewnorm_with_prob(occurrences_of_scores, probability):
     scores = np.array([4, 3, 2, 1, 0])  # Possible scores
     occurrences = np.array(occurrences_of_scores[:5])  # First 5 occurrences
 
@@ -41,16 +40,26 @@ def new_func_poisson(occurrences_of_scores, probability):
         np.sum(scores * occurrences) / total_occurrences if total_occurrences > 0 else 1
     )
 
-    # Adjust mean based on win probability
-    # adjusted_mean = base_mean * (0.5 + (probability / 100))
-    adjusted_mean = base_mean * (1 / (1 - (probability / 100)))
-    adjusted_mean = min(adjusted_mean, 4)  # Cap the mean at 4 goals
+    # Calculate standard deviation
+    variance = np.sum(occurrences * (scores - base_mean) ** 2) / total_occurrences
+    std_dev = np.sqrt(variance) if total_occurrences > 0 else 1
 
-    # Generate Poisson-distributed goals
-    random_goals = np.random.poisson(lam=adjusted_mean, size=100)
-    random_goals = np.maximum(0, random_goals)  # Ensure no negative values
+    # Cap probability between 0% and 100%
+    probability = min(probability, 100)
 
-    # Return rounded mean of random goals
+    # Adjust skewness: neutral at 33%
+    # Use a linear scaling that centers around 33%
+    skew = (probability - 33) / 10  # Maps probability from -3.3 (low) to +6.7 (high)
+
+    # Adjust skew so that it doesn't go below -3 (strong negative skew)
+    skew = max(skew, -3)
+
+    # Generate skewed normally-distributed goals
+    random_goals = skewnorm.rvs(skew, loc=base_mean, scale=std_dev, size=100)
+    random_goals = np.round(random_goals)  # Round to nearest whole number
+    random_goals = np.clip(random_goals, 0, 4)  # Cap values between 0 and 4
+
+    # Return the mode of generated goals
     return mode(random_goals).mode
 
 
@@ -60,59 +69,35 @@ def simulate_match(
     away_team,
     home_team_wins_odds_as_percent,
     away_team_wins_odds_as_percent,
-    simulations=10,
 ):
-    results = []
+    home_team_estimates_goals_scored = new_func_skewnorm_with_prob(
+        goal_stats[home_team]["home"]["goals_for"], home_team_wins_odds_as_percent
+    )
+    away_team_estimates_goals_conceded = new_func_skewnorm_with_prob(
+        goal_stats[away_team]["away"]["goals_against"],
+        home_team_wins_odds_as_percent,
+    )
 
-    for _ in range(simulations):
-        # Calculate expected goals scored by the home team
-        home_team_estimates_goals_scored = new_func_poisson(
-            goal_stats[home_team]["home"]["goals_for"], home_team_wins_odds_as_percent
-        )
-        away_team_estimates_goals_conceded = new_func_poisson(
-            goal_stats[away_team]["away"]["goals_against"],
-            home_team_wins_odds_as_percent,
-        )
+    # Calculate rough estimate for home team
+    rough_estimate_home_team_scored = (
+        home_team_estimates_goals_scored + away_team_estimates_goals_conceded
+    ) / 2
 
-        # Calculate rough estimate for home team
-        rough_estimate_home_team_scored = (
-            home_team_estimates_goals_scored + away_team_estimates_goals_conceded
-        ) / 2
+    # Calculate expected goals scored by the away team
+    away_team_estimates_goals_scored = new_func_skewnorm_with_prob(
+        goal_stats[away_team]["away"]["goals_for"], away_team_wins_odds_as_percent
+    )
+    home_team_estimates_goals_conceded = new_func_skewnorm_with_prob(
+        goal_stats[home_team]["home"]["goals_against"],
+        away_team_wins_odds_as_percent,
+    )
 
-        # Calculate expected goals scored by the away team
-        away_team_estimates_goals_scored = new_func_poisson(
-            goal_stats[away_team]["away"]["goals_for"], away_team_wins_odds_as_percent
-        )
-        home_team_estimates_goals_conceded = new_func_poisson(
-            goal_stats[home_team]["home"]["goals_against"],
-            away_team_wins_odds_as_percent,
-        )
+    # Calculate rough estimate for away team
+    rough_estimate_away_team_scored = (
+        away_team_estimates_goals_scored + home_team_estimates_goals_conceded
+    ) / 2
 
-        # Calculate rough estimate for away team
-        rough_estimate_away_team_scored = (
-            away_team_estimates_goals_scored + home_team_estimates_goals_conceded
-        ) / 2
-
-        # Store the result as a tuple (home_score, away_score)
-        results.append(
-            (
-                round(rough_estimate_home_team_scored),
-                round(rough_estimate_away_team_scored),
-            )
-        )
-
-    return results  # Return a list of results
-
-
-def calculate_average_score(simulation_results):
-    # Calculate the average scores for home and away teams
-    total_home_goals = sum(home for home, _ in simulation_results)
-    total_away_goals = sum(away for _, away in simulation_results)
-
-    average_home_score = round(total_home_goals / len(simulation_results))
-    average_away_score = round(total_away_goals / len(simulation_results))
-
-    return average_home_score, average_away_score
+    return round(rough_estimate_home_team_scored), round(rough_estimate_away_team_scored)
 
 
 def get_fixtures():
@@ -161,15 +146,13 @@ def get_fixtures():
             away_team_wins_odds_as_percent = None
 
         try:
-            average_home_score, average_away_score = calculate_average_score(
-                simulate_match(
+            average_home_score, average_away_score = simulate_match(
                     goal_stats,
                     home_team,
                     away_team,
                     home_team_wins_odds_as_percent,
                     away_team_wins_odds_as_percent,
                 )
-            )
             results[fixture_text]= {
                 "home_team": home_team,
                 "away_team": away_team,
@@ -183,10 +166,11 @@ def get_fixtures():
                 "likely_away_scorers": top_scorers[top_scorers['team_name'] == away_team].to_dict(orient='records'),
                 "likely_away_booked": top_booked[top_booked['team_name'] == away_team].to_dict(orient='records'),
             }
-        except:
+        except Exception as e:
+            print(e)
             results[fixture_text]= {
                 "home_team": home_team,
-                "away_team": "away_team",
+                "away_team": away_team,
                 "home_win_percentage": "N/A",
                 "draw_percentage": "N/A",
                 "away_win_percentage": "N/A",
