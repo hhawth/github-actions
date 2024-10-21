@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def hello():
+def main():
     results = get_fixtures()
     return render_template("home.html", matches=results)
 
