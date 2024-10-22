@@ -55,7 +55,7 @@ def new_func_skewnorm_with_prob(occurrences_of_scores, probability):
     skew = max(skew, -3)
 
     # Generate skewed normally-distributed goals
-    random_goals = skewnorm.rvs(skew, loc=base_mean, scale=std_dev, size=100)
+    random_goals = skewnorm.rvs(skew, loc=base_mean, scale=std_dev, size=1000)
     random_goals = np.round(random_goals)  # Round to nearest whole number
     random_goals = np.clip(random_goals, 0, 4)  # Cap values between 0 and 4
 
