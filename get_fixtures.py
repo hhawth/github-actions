@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from scipy.stats import mode, skewnorm
 import numpy as np
 import logging
-from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function
+from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function, get_form
 
 # Create a cache with a time-to-live (TTL) of 1 hour (3600 seconds)
 
@@ -97,6 +97,23 @@ def simulate_match(
 
     return round(rough_estimate_home_team_scored), round(rough_estimate_away_team_scored)
 
+# Function to calculate winning probabilities based on form
+def calculate_probabilities(arsenal_form, liverpool_form):
+    # Calculate total form score
+    total_form = arsenal_form + liverpool_form
+    
+    # Calculate draw probability as a function of form (this can be adjusted)
+    draw_probability = (0.6 * min(arsenal_form, liverpool_form)) / total_form  # Adjust draw probability factor as needed
+    
+    # Calculate winning probabilities using relative form
+    arsenal_win_probability = (arsenal_form / total_form) * (1 - draw_probability)
+    liverpool_win_probability = (liverpool_form / total_form) * (1 - draw_probability)
+    
+    return arsenal_win_probability * 100, liverpool_win_probability* 100, draw_probability* 100
+
+# Calculate probabilities
+# probabilities = calculate_probabilities(arsenal_form, liverpool_form)
+
 
 def get_fixtures():
     fixtures = get_fixtures_and_odds()
@@ -105,6 +122,7 @@ def get_fixtures():
     goal_stats = get_stats()
     top_scorers = get_top_scorers()
     top_booked = get_top_booked()
+    form = get_form()
 
     for fixture in fixtures:
         teams = fixture.find_next("a").text.strip().split(" - ")
@@ -131,13 +149,15 @@ def get_fixtures():
                 + draw_odds_as_percent
                 + away_team_wins_odds_as_percent
             ) - 100
-            home_team_wins_odds_as_percent = home_team_wins_odds_as_percent - (
+            broker_home_team_wins_odds_as_percent = round(home_team_wins_odds_as_percent - (
                 broker_profit / 3
-            )
-            draw_odds_as_percent = draw_odds_as_percent - (broker_profit / 3)
-            away_team_wins_odds_as_percent = away_team_wins_odds_as_percent - (
+            ),1)
+            broker_draw_odds_as_percent = round(draw_odds_as_percent - (broker_profit / 3),1)
+            broker_away_team_wins_odds_as_percent = round(away_team_wins_odds_as_percent - (
                 broker_profit / 3
-            )
+            ), 1 )
+
+            home_team_wins_odds_as_percent, away_team_wins_odds_as_percent, draw_odds_as_percent = calculate_probabilities(form.get(home_team), form.get(away_team))
         except:
             home_team_wins_odds_as_percent = None
             draw_odds_as_percent = None
@@ -154,18 +174,23 @@ def get_fixtures():
             results[fixture_text]= {
                 "home_team": home_team,
                 "away_team": away_team,
+                "home_team_form": form.get(home_team),
                 "home_win_percentage": round(home_team_wins_odds_as_percent, 1),
+                "broker_home_win_percentage": broker_home_team_wins_odds_as_percent,
                 "home_goals": round(average_home_score),
                 "likely_home_scorers": top_scorers[top_scorers['team_name'] == home_team].to_dict(orient='records'),
                 "likely_home_booked": top_booked[top_booked['team_name'] == home_team].to_dict(orient='records'),
                 "draw_percentage": round(draw_odds_as_percent, 1),
+                "broker_draw_percentage": broker_draw_odds_as_percent,
                 "away_win_percentage": round(away_team_wins_odds_as_percent, 1),
+                "broker_away_win_percentage": broker_away_team_wins_odds_as_percent,
                 "away_goals": round(average_away_score),
+                "away_team_form": form.get(away_team),
                 "likely_away_scorers": top_scorers[top_scorers['team_name'] == away_team].to_dict(orient='records'),
                 "likely_away_booked": top_booked[top_booked['team_name'] == away_team].to_dict(orient='records'),
             }
         except Exception as e:
-            print(e)
+            print(e.with_traceback())
             results[fixture_text]= {
                 "home_team": home_team,
                 "away_team": away_team,
@@ -176,6 +201,9 @@ def get_fixtures():
                 "away_goals": "N/A",
                 "likely_home_scorers": [],
                 "likely_away_scorers": [],
+                "broker_home_win_percentage":"N/A",
+                "broker_away_win_percentage":"N/A",
+                "broker_draw_percentage":"N/A",
             }
 
     return results

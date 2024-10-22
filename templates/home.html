@@ -21,7 +21,7 @@
             margin: 10px 0;
         }
         table {
-            border-radius: 1vw;
+            border-radius: 10vw;
             width: 100%; /* Make table full-width */
             margin: auto; /* Center the table */
             border-collapse: collapse; /* Collapse borders for cleaner look */
@@ -75,15 +75,25 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Win %: {{ value['home_win_percentage'] }}%</td>
-                    <td>Draw %: {{ value['draw_percentage'] }}%</td>
-                    <td>Win %: {{ value['away_win_percentage'] }}%</td>
-                </tr>
-                <tr>
                     <td>Goals: {{ value['home_goals'] }}</td>
                     <td></td> <!-- Ensure the cell is empty but included -->
                     <td>Goals: {{ value['away_goals'] }}</td>
                 </tr>
+                <tr>
+                    <td>Win %: {{ value['home_win_percentage'] }}% | Broker Win %: {{ value['broker_home_win_percentage'] }}% | Avg Points Per Game: {{ value['home_team_form'] }}</td>
+                    <td>Draw %: {{ value['draw_percentage'] }}% | Broker Draw %: {{ value['broker_draw_percentage'] }}%</td>
+                    <td>Win %: {{ value['away_win_percentage'] }}% | Broker Win %: {{ value['broker_away_win_percentage'] }}% | Avg Points Per Game: {{ value['away_team_form'] }}</td>
+                </tr>
+                <!-- <tr>
+                    <td>Broker Win %: {{ value['broker_home_win_percentage'] }}%</td>
+                    <td>Broker Draw %: {{ value['broker_draw_percentage'] }}%</td>
+                    <td>Broker Win %: {{ value['broker_away_win_percentage'] }}%</td>
+                </tr>
+                <tr>
+                    <td>Avg Points Per Game: {{ value['home_team_form'] }}</td>
+                    <td></td>
+                    <td>Avg Points Per Game: {{ value['away_team_form'] }}</td>
+                </tr> -->
                 <tr>
                     <td>
                         <strong>{{ value['home_team'] }} Likely Scorers:</strong>

@@ -105,6 +105,41 @@ def get_stats():
                     "goals_against": goals_against,
                 }
     return scored_data_result
+                
+
+mapped_teams = {
+    "Arsenal":"Arsenal",
+    "Aston Villa":"Aston Villa",
+    "Bournemouth":"Bournemouth",
+    "Brentford":"Brentford",
+    "Brighton":"Brighton",
+    "Chelsea":"Chelsea",
+    "Crystal Palace":"Crystal Palace",
+    "Everton":"Everton",
+    "Fulham":"Fulham",
+    "Ipswich Town":"Ipswich Town",
+    "Leicester City":"Leicester",
+    "Liverpool":"Liverpool",
+    "Manchester City":"Manchester City",
+    "Manchester Utd":"Manchester United",
+    "Nottm Forest":"Newcastle",
+    "Newcastle Utd":"Nottingham Forest",
+    "Southampton":"Southampton",
+    "Tottenham":"Tottenham",
+    "West Ham Utd": "West Ham",
+    "Wolverhampton":"Wolves",
+}
+@cached_function(ttl=3600, maxsize=100)
+def get_form():
+    url = "https://www.soccerstats.com/formtable.asp?league=england"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, features="html.parser")
+    form_table = soup.find_all(id="btable")[9].find_all("tr")[2:22]
+    results = {}
+    for form in form_table:
+        team,_,_,form_of_team = form.find_all("td")[1:5]
+        results[mapped_teams.get(team.text.strip())] = float(form_of_team.text.strip())
+    return results
 
 
 @cached_function(ttl=3600, maxsize=100)
