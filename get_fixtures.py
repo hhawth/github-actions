@@ -47,12 +47,10 @@ def new_func_skewnorm_with_prob(occurrences_of_scores, probability):
     # Cap probability between 0% and 100%
     probability = min(probability, 100)
 
-    # Adjust skewness: neutral at 33%
-    # Use a linear scaling that centers around 33%
-    skew = (probability - 33) / 10  # Maps probability from -3.3 (low) to +6.7 (high)
-
-    # Adjust skew so that it doesn't go below -3 (strong negative skew)
-    skew = max(skew, -3)
+    # Adjust skewness: neutral at 33%, scale it and cap at -3 to +3
+    skew = (probability - 33) / 11.17  # Maps probability from -3 to +3
+    skew = max(skew, -3)  # Cap skew at a minimum of -3
+    skew = min(skew, 3)   # Cap skew at a maximum of 3
 
     # Generate skewed normally-distributed goals
     random_goals = skewnorm.rvs(skew, loc=base_mean, scale=std_dev, size=1000)
