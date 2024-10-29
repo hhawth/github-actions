@@ -137,8 +137,21 @@ def get_form():
     form_table = soup.find_all(id="btable")[9].find_all("tr")[2:22]
     results = {}
     for form in form_table:
-        team,_,_,form_of_team = form.find_all("td")[1:5]
+        team,_,_,_,form_of_team = form.find_all("td")[1:6]
         results[mapped_teams.get(team.text.strip())] = float(form_of_team.text.strip())
+    return results
+
+@cached_function(ttl=3600, maxsize=100)
+def get_relative_performance():
+    url = "https://www.soccerstats.com/table.asp?league=england&tid=rp"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, features="html.parser")
+    rp_table = soup.find_all(id="btable")[0].find_all("tr")[2:22]
+    results = {}
+    for rp in rp_table:
+        team = rp.find_all("td")[1]
+        rp_of_team = rp.find_all("td")[7]
+        results[mapped_teams.get(team.text.strip())] = float(rp_of_team.text.strip())
     return results
 
 

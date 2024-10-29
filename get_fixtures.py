@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from scipy.stats import mode, skewnorm
 import numpy as np
 import logging
-from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function, get_form
+from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function, get_form, get_relative_performance
 
 # Create a cache with a time-to-live (TTL) of 1 hour (3600 seconds)
 
@@ -97,23 +97,63 @@ def simulate_match(
 
     return round(rough_estimate_home_team_scored), round(rough_estimate_away_team_scored)
 
-# Function to calculate winning probabilities based on form
-def calculate_probabilities(arsenal_form, liverpool_form):
-    # Calculate total form score
-    total_form = arsenal_form + liverpool_form
-    
-    # Calculate draw probability as a function of form (this can be adjusted)
-    draw_probability = (0.6 * min(arsenal_form, liverpool_form)) / total_form  # Adjust draw probability factor as needed
-    
-    # Calculate winning probabilities using relative form
-    arsenal_win_probability = (arsenal_form / total_form) * (1 - draw_probability)
-    liverpool_win_probability = (liverpool_form / total_form) * (1 - draw_probability)
-    
-    return arsenal_win_probability * 100, liverpool_win_probability* 100, draw_probability* 100
 
-# Calculate probabilities
-# probabilities = calculate_probabilities(arsenal_form, liverpool_form)
+# Function to calculate winning probabilities with dynamic draw probability and performance index
+def calculate_probabilities_with_performance_index(home_form, away_form, home_performance_index, away_performance_index):
+    # Define a weight for the performance index influence and a max reduction cap
+    performance_weight = 0.2  # Adjust this weight for desired PI impact
+    max_adjustment = 0.2  # Cap maximum adjustment to 15% for boost or reduction
 
+    # Adjust home form score based on performance index
+    if home_form == 0:
+        # If home form is zero, use PI as a baseline form value
+        adjusted_home_form = home_performance_index * performance_weight
+    else:
+        # Boost form if PI is greater than form
+        if home_performance_index > home_form:
+            adjustment = (home_performance_index - home_form) * performance_weight
+            adjusted_home_form = home_form * (1 + min(adjustment, max_adjustment))
+        # Reduce form if PI is less than form
+        elif home_performance_index < home_form:
+            adjustment = (home_form - home_performance_index) * performance_weight
+            adjusted_home_form = home_form * (1 - min(adjustment, max_adjustment))
+        else:
+            adjusted_home_form = home_form  # No change if equal
+
+    # Adjust away form score based on performance index
+    if away_form == 0:
+        # If away form is zero, use PI as a baseline form value
+        adjusted_away_form = away_performance_index * performance_weight
+    else:
+        # Boost form if PI is greater than form
+        if away_performance_index > away_form:
+            adjustment = (away_performance_index - away_form) * performance_weight
+            adjusted_away_form = away_form * (1 + min(adjustment, max_adjustment))
+        # Reduce form if PI is less than form
+        elif away_performance_index < away_form:
+            adjustment = (away_form - away_performance_index) * performance_weight
+            adjusted_away_form = away_form * (1 - min(adjustment, max_adjustment))
+        else:
+            adjusted_away_form = away_form  # No change if equal
+    # Calculate total form using adjusted scores
+    total_form = adjusted_home_form + adjusted_away_form
+    
+    # Calculate form difference based on adjusted scores for draw probability adjustment
+    form_difference = abs(adjusted_home_form - adjusted_away_form)
+    
+    # Base draw probability, with dynamic adjustment
+    base_draw_probability = 0.15  # Baseline draw probability
+    closeness_factor = 1 - (form_difference / total_form)
+    draw_probability = base_draw_probability + 0.1 * closeness_factor
+    
+    # Cap draw probability between 0 and 1
+    draw_probability = max(0, min(draw_probability, 1))
+    
+    # Calculate final win probabilities using adjusted form and draw probability
+    home_win_probability = (adjusted_home_form / total_form) * (1 - draw_probability)
+    away_win_probability = (adjusted_away_form / total_form) * (1 - draw_probability)
+    
+    return home_win_probability * 100, away_win_probability * 100, draw_probability * 100
 
 def get_fixtures():
     fixtures = get_fixtures_and_odds()
@@ -123,6 +163,7 @@ def get_fixtures():
     top_scorers = get_top_scorers()
     top_booked = get_top_booked()
     form = get_form()
+    performance = get_relative_performance()
 
     for fixture in fixtures:
         teams = fixture.find_next("a").text.strip().split(" - ")
@@ -157,7 +198,7 @@ def get_fixtures():
                 broker_profit / 3
             ), 1 )
 
-            home_team_wins_odds_as_percent, away_team_wins_odds_as_percent, draw_odds_as_percent = calculate_probabilities(form.get(home_team), form.get(away_team))
+            home_team_wins_odds_as_percent, away_team_wins_odds_as_percent, draw_odds_as_percent = calculate_probabilities_with_performance_index(form.get(home_team), form.get(away_team), performance.get(home_team), performance.get(away_team))
         except:
             home_team_wins_odds_as_percent = None
             draw_odds_as_percent = None
