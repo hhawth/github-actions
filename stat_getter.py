@@ -143,15 +143,15 @@ def get_form():
 
 @cached_function(ttl=3600, maxsize=100)
 def get_relative_performance():
-    url = "https://www.soccerstats.com/table.asp?league=england&tid=rp"
+    url = "https://www.soccerstats.com/formtable.asp?league=england"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, features="html.parser")
-    rp_table = soup.find_all(id="btable")[0].find_all("tr")[2:22]
+    form_table = soup.find_all(id="btable")[9].find_all("tr")[2:22]
     results = {}
-    for rp in rp_table:
-        team = rp.find_all("td")[1]
-        rp_of_team = rp.find_all("td")[7]
-        results[mapped_teams.get(team.text.strip())] = float(rp_of_team.text.strip())
+    for form in form_table:
+        team = form.find_all("td")[1]
+        rp = form.find_all("td")[-2]
+        results[mapped_teams.get(team.text.strip())] = float(rp.text.strip("%"))/100
     return results
 
 
@@ -244,3 +244,5 @@ def get_top_booked():
     top_booked = _get_top_booked(player_stats)
 
     return top_booked
+
+get_relative_performance()
