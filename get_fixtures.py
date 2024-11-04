@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 import logging
 from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function, get_form, get_relative_performance
-from calculations import simulate_match, calculate_form_score, calculate_win_probability
+from calculations import calculate_form_score, calculate_win_probability, simulate_multiple_matches
 
 # Create a cache with a time-to-live (TTL) of 1 hour (3600 seconds)
 
@@ -74,8 +74,7 @@ def get_fixtures():
             ), 1 )
             home_team_form_score = calculate_form_score(form.get(home_team), performance.get(home_team))
             away_team_form_score = calculate_form_score(form.get(away_team), performance.get(away_team))
-            home_team_wins_odds_as_percent, away_team_wins_odds_as_percent = calculate_win_probability(home_team_form_score, away_team_form_score)
-
+            home_team_wins_odds_as_percent, away_team_wins_odds_as_percent = calculate_win_probability(home_team_form_score, away_team_form_score, broker_home_team_wins_odds_as_percent, broker_away_team_wins_odds_as_percent)
 
 
             # home_team_wins_odds_as_percent, away_team_wins_odds_as_percent, draw_odds_as_percent = calculate_probabilities_with_performance_index(form.get(home_team), form.get(away_team), performance.get(home_team), performance.get(away_team))
@@ -85,7 +84,7 @@ def get_fixtures():
             away_team_wins_odds_as_percent = None
 
         try:
-            average_home_score, average_away_score = simulate_match(
+            average_home_score, average_away_score = simulate_multiple_matches(
                     goal_stats,
                     home_team,
                     away_team,
