@@ -7,9 +7,8 @@ def new_func_skewnorm_with_prob(occurrences_of_scores, probability):
 
     # Calculate base mean
     total_occurrences = np.sum(occurrences)
-    base_mean = (
-        np.sum(scores * occurrences) / total_occurrences if total_occurrences > 0 else 1
-    )
+
+    base_mean = occurrences_of_scores[-1]
 
     # Calculate standard deviation
     variance = np.sum(occurrences * (scores - base_mean) ** 2) / total_occurrences
@@ -38,8 +37,6 @@ def simulate_match(
     home_team_wins_odds_as_percent,
     away_team_wins_odds_as_percent,
 ):
-    print(home_team, home_team_wins_odds_as_percent)
-    print(away_team, away_team_wins_odds_as_percent)
     home_team_estimates_goals_scored = new_func_skewnorm_with_prob(
         goal_stats[home_team]["home"]["goals_for"], home_team_wins_odds_as_percent
     )

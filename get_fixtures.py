@@ -106,6 +106,8 @@ def get_fixtures():
                 "away_team_form": form.get(away_team),
                 "likely_away_scorers": top_scorers[top_scorers['team_name'] == away_team].to_dict(orient='records'),
                 "likely_away_booked": top_booked[top_booked['team_name'] == away_team].to_dict(orient='records'),
+                "avg_goals_home": goal_stats[home_team]["home"]["goals_for"][-1],
+                "avg_goals_away": goal_stats[away_team]["away"]["goals_for"][-1],
             }
         except Exception as e:
             print(e.with_traceback())
