@@ -10,8 +10,7 @@ LOGGER.setLevel(logging.DEBUG)
 
 LAST_STATS_CALL = None
 
-app = Flask(__name__)
-
+app = Flask(__name__, static_folder='static', template_folder='templates')
 
 @app.route("/")
 def main():

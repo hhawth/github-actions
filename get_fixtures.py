@@ -128,5 +128,3 @@ def get_fixtures():
             }
 
     return results
-
-# get_fixtures()
