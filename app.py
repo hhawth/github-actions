@@ -1,5 +1,4 @@
 import logging
-
 from flask import Flask, render_template
 
 from get_fixtures import get_fixtures
@@ -19,4 +18,4 @@ def main():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True, host="0.0.0.0", port=5000)
