@@ -26,6 +26,7 @@ def get_fixtures_and_odds():
     )
     soup = BeautifulSoup(response.text, features="html.parser")
     # breakpoint()
+    LOGGER.info(soup)
     return soup.find_all(
         "div",
         {
@@ -43,11 +44,14 @@ def get_fixtures():
     form = get_form()
     performance = get_relative_performance()
 
+    LOGGER.info(f"Length of fixutes: {len(fixtures)}")
+
     for fixture in fixtures:
         teams =  fixture.find_all("div",{"time-table__team-title"})
         home_team = teams[0].text
         away_team = teams[1].text
         fixture_text = home_team + " vs " + away_team
+        LOGGER.info(fixture_text)
         odds = fixture.find_all(
             "div",
             {
