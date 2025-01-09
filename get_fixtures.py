@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import logging
-from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function, get_form, get_relative_performance
+from stat_getter import get_stats, get_top_booked, get_top_scorers, get_form, get_relative_performance
 from calculations import calculate_form_score, calculate_win_probability, simulate_multiple_matches
 
 # Random User-Agent
@@ -18,11 +18,12 @@ FIXTURES_LAST_CALL = 0
 
 FIXTURES = None
 
-@cached_function(maxsize=100, ttl=3600)
+# @cached_function(maxsize=100, ttl=3600)
 def get_fixtures_and_odds():
     LOGGER.info("Getting sky sports odds")
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     }
     response = requests.get(
         "https://www.ukclubsport.com/football/premier-league/", headers=headers
