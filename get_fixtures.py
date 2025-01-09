@@ -21,11 +21,13 @@ FIXTURES = None
 @cached_function(maxsize=100, ttl=3600)
 def get_fixtures_and_odds():
     LOGGER.info("Getting sky sports odds")
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
     response = requests.get(
-        "https://www.ukclubsport.com/football/premier-league/"
+        "https://www.ukclubsport.com/football/premier-league/", headers=headers
     )
     soup = BeautifulSoup(response.text, features="html.parser")
-    # breakpoint()
     LOGGER.info(soup)
     return soup.find_all(
         "div",
