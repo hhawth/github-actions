@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     libnspr4 \
     libnss3 \
+    libgbm1 \
+    xdg-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Google Chrome
