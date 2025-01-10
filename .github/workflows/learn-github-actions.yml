@@ -25,6 +25,6 @@ jobs:
         GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
       run: |
         gcloud auth configure-docker europe-west2-docker.pkg.dev
-        docker build --no-cache -t europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:latest .
+        docker build -t europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:latest .
         docker push europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:latest
 
