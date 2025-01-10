@@ -1,33 +1,27 @@
 # Use a slim Python image for minimal base image
-FROM python:3.10-slim
+FROM python:3.8-slim
 
 # Install dependencies for Chrome and ChromeDriver
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
-    ca-certificates \
-    libx11-dev \
-    libxkbfile-dev \
-    libsecret-1-dev \
-    libvulkan1 \
-    fonts-liberation \
-    libappindicator3-1 \
-    libasound2 \
-    libnspr4 \
-    libnss3 \
-    libgbm1 \
-    xdg-utils \
-    unzip \
+    gnupg \
+    --no-install-recommends \
+    && apt-get-clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Google Chrome
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && dpkg -i google-chrome-stable_current_amd64.deb \
-    && apt-get -fy install \
-    && rm google-chrome-stable_current_amd64.deb
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get-update \
+    && apt-get install -y google-chrome-stable \
+    && apt-get-clean \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Install ChromeDriver
-RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip \
+RUN CHROMEDRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) \
+    && wget -O /tmp/chromedriver.zip https//chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip \
     && unzip /tmp/chromedriver.zip -d /usr/local/bin/ \
     && rm /tmp/chromedriver.zip
 
