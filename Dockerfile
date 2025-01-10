@@ -1,13 +1,15 @@
 # Use a slim Python image for minimal base image
-FROM selenium/node-chrome-debug
-
-# Install Python and pip
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip && \
-    rm -rf /var/lib/apt/lists/* 
+FROM python:3.11-slim
 
 COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Download and install ChromeDriver automatically using webdriver-manager
+RUN apt-get update && apt-get install -y unzip xvfb  # Install dependencies for ChromeDriver
+RUN webdriver-manager download chromedriver --version=latest --arch=linux64 --destination=/app/chromedriver
+
+# Set working directory in container
+WORKDIR /python-docker
 
 # Copy and install Python dependencies
 
