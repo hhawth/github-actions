@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     libnss3 \
     libgbm1 \
     xdg-utils \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Google Chrome
