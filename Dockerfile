@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     # Add the Google Chrome repository and signing key
     && curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | tee /usr/share/keyrings/google-linux-signing-key.pub \
     && DISTRO=$(lsb_release -c | awk '{print $2}') \
-    && echo "deb [signed-by=/usr/share/keyrings/google-linux-signing-key.pub] https://dl.google.com/linux/chrome/deb/ $DISTRO main" | tee /etc/apt/sources.list.d/google-chrome.list \
+    && echo "deb [signed-by=/usr/share/keyrings/google-linux-signing-key.pub] https://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
     # Install Google Chrome
     && apt-get install -y google-chrome-stable \
