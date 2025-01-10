@@ -2,6 +2,7 @@
 FROM python:3.11-slim
 
 COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir flask selenium webdriver-manager
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Download and install ChromeDriver automatically using webdriver-manager
