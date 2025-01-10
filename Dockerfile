@@ -1,4 +1,4 @@
-FROM python:3.10-alpine
+FROM python:3.10-slim
 
 # Install necessary packages
 RUN apt-get update && apt-get install -y \
