@@ -1,5 +1,5 @@
 # Use a slim Python image for minimal base image
-FROM selenium/python-detox
+FROM selenium/node-chrome-debug
 
 COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
