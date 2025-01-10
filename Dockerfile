@@ -4,6 +4,7 @@ FROM python:3.8-slim
 # Install dependencies for Chrome and ChromeDriver
 RUN apt-get update && apt-get install -y \
     wget \
+    unzip \
     curl \
     gnupg \
     --no-install-recommends \
