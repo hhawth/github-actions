@@ -1,5 +1,5 @@
 # Use a slim Python image for minimal base image
-FROM python:3.8-slim
+FROM python:3.11-slim
 
 # Install dependencies for Chrome and ChromeDriver
 RUN apt-get update && apt-get install -y \
