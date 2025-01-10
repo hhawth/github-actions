@@ -5,9 +5,10 @@ COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir flask selenium webdriver-manager
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Download and install ChromeDriver automatically using webdriver-manager
-RUN apt-get update && apt-get install -y unzip xvfb  # Install dependencies for ChromeDriver
-RUN webdriver-manager download chromedriver --version=latest --arch=linux64 --destination=/app/chromedriver
+# Install all dependencies in a single RUN command
+RUN pip install --no-cache-dir flask selenium webdriver-manager \
+    && apt-get update && apt-get install -y unzip xvfb \
+    && webdriver-manager download chromedriver --version=latest --arch=linux64 --destination=/app/chromedriver
 
 # Set working directory in container
 WORKDIR /python-docker
