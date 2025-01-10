@@ -7,8 +7,15 @@ RUN apt-get update && apt-get install -y wget unzip chromium && rm -rf /var/lib/
 RUN CHROME_VERSION=$(chromium --version | awk '{print $2}' | cut -d '.' -f 1-3) 
 RUN echo "Detected Chrome version: $CHROME_VERSION"
 
+# Verify $CHROME_VERSION (optional)
+# RUN echo $CHROME_VERSION
+
+# Test network connectivity (optional)
+# RUN wget http://google.com
+
 # Download and install ChromeDriver
 RUN wget -q -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROME_VERSION/chromedriver_linux64.zip" && \
+    ls -l /tmp/chromedriver.zip && \  # Check downloaded file (optional)
     unzip /tmp/chromedriver.zip -d /usr/bin/ && \
     rm /tmp/chromedriver.zip
 
