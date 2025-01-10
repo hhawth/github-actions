@@ -1,23 +1,19 @@
 # Use a slim Python image for minimal base image
 FROM python:3.11-slim
 
-RUN apt-get update && apt-get install -y wget unzip chromium && rm -rf /var/lib/apt/lists/*
+# Stage 1: Install dependencies
+RUN apt-get update && apt-get install -y wget chromium && rm -rf /var/lib/apt/lists/*
 
-# Get Chrome version
+# Stage 2: Download ChromeDriver (assuming same context)
 RUN CHROME_VERSION=$(chromium --version | awk '{print $2}' | cut -d '.' -f 1-3) 
 RUN echo "Detected Chrome version: $CHROME_VERSION"
+RUN wget -q -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROME_VERSION/chromedriver_linux64.zip"
 
-# Verify $CHROME_VERSION (optional)
-# RUN echo $CHROME_VERSION
-
-# Test network connectivity (optional)
-# RUN wget http://google.com
-
-# Download and install ChromeDriver
-RUN wget -q -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROME_VERSION/chromedriver_linux64.zip" && \
-    ls -l /tmp/chromedriver.zip && \  # Check downloaded file (optional)
-    unzip /tmp/chromedriver.zip -d /usr/bin/ && \
-    rm /tmp/chromedriver.zip
+# Stage 3: Final image (copy and unzip ChromeDriver)
+FROM python:3.11-slim  # Switch to the final Python image
+COPY --from=0 /tmp/chromedriver.zip /tmp/chromedriver.zip  # Copy from previous stage
+RUN unzip /tmp/chromedriver.zip -d /usr/bin/
+RUN rm /tmp/chromedriver.zip
 
 ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROME_DRIVER=/usr/bin/chromedriver
