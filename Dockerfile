@@ -10,6 +10,11 @@ RUN apt-get update && apt-get install -y \
     libxkbfile-dev \
     libsecret-1-dev \
     libvulkan1 \
+    fonts-liberation \
+    libappindicator3-1 \
+    libasound2 \
+    libnspr4 \
+    libnss3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Google Chrome
