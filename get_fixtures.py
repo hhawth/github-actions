@@ -14,8 +14,6 @@ from calculations import (
 from selenium.webdriver.chrome.options import Options
 import cachetools
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -62,15 +60,14 @@ def get_fixtures_and_odds():
 
     # Set up Chrome options
     options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("window-size=1024,768")
+    chrome_options.add_argument("--no-sandbox")
 
-
-    # Start the WebDriver
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()), options=options
-    )
+    # Initialize a new browser
+    driver = webdriver.Chrome(chrome_options=chrome_options)
 
     try:
         # Open the website
