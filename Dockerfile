@@ -6,7 +6,11 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Install Chrome and ChromeDriver
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget && \
+    apt-get install -y --no-install-recommends \
+    wget \
+    libxkbcommon0 \
+    libxrandr2 \
+    xdg-utils && \
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
     dpkg -i google-chrome-stable_current_amd64.deb && \
     rm google-chrome-stable_current_amd64.deb && \
