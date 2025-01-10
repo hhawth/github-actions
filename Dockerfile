@@ -1,18 +1,18 @@
 # Use a slim Python image for minimal base image
 FROM python:3.11-slim
 
+# Install Chromium and required tools
 RUN apt-get update && apt-get install -y \
     wget \
     unzip \
-    chromium \
+    chromium=131.0.6778.264-1~deb12u1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install the latest compatible ChromeDriver
-RUN wget -q -O /tmp/LATEST_RELEASE "https://chromedriver.storage.googleapis.com/LATEST_RELEASE" && \
-    CHROME_DRIVER_VERSION=$(cat /tmp/LATEST_RELEASE) && \
-    wget -q -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip" && \
+# Download the matching ChromeDriver for the installed Chromium version
+RUN CHROME_VERSION=$(chromium --product-version | cut -d '.' -f 1,2,3) && \
+    wget -q -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROME_VERSION/chromedriver_linux64.zip" && \
     unzip /tmp/chromedriver.zip -d /usr/bin/ && \
-    rm /tmp/chromedriver.zip /tmp/LATEST_RELEASE
+    rm /tmp/chromedriver.zip
 
 ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROME_DRIVER=/usr/bin/chromedriver
