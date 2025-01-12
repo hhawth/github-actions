@@ -29,7 +29,11 @@ def get_fixtures_and_odds():
     df = pd.read_csv(StringIO(response.text))
     eng_df = df[df['Country'] == 'ENG']
     eng_df = eng_df.copy()
-
+    score_columns = ['R:0-0', 'R:0-1', 'R:1-0', 'R:0-2', 'R:1-1', 'R:2-0', 'R:0-3',
+       'R:1-2', 'R:2-1', 'R:3-0', 'R:0-4', 'R:1-3', 'R:2-2', 'R:3-1', 'R:4-0',
+       'R:0-5', 'R:1-4', 'R:2-3', 'R:3-2', 'R:4-1', 'R:5-0', 'R:0-6', 'R:1-5',
+       'R:2-4', 'R:3-3', 'R:4-2', 'R:5-1', 'R:6-0']
+    eng_df['Likely Outcome'] = eng_df[score_columns].idxmax(axis=1)
     # Now you can safely assign the new columns
     eng_df.loc[:, 'Away Win'] = eng_df["GD=-5"] + eng_df["GD=-4"] + eng_df["GD=-3"] + eng_df["GD=-2"] + eng_df["GD=-1"]
     eng_df.loc[:, 'Draw'] = eng_df["GD=0"]
@@ -59,6 +63,8 @@ def get_fixtures():
             draw_odds_as_percent = row["Draw"] * 100
 
             away_team_wins_odds_as_percent = row["Away Win"] * 100
+
+            likely_outcome = row["Likely Outcome"].strip("R:")
             broker_profit = (
                 home_team_wins_odds_as_percent
                 + draw_odds_as_percent
@@ -93,6 +99,7 @@ def get_fixtures():
             results[fixture_text]= {
                 "home_team": home_team,
                 "away_team": away_team,
+                "likely_outcome": likely_outcome,
                 "broker_home_win_percentage": broker_home_team_wins_odds_as_percent,
                 "home_goals": round(average_home_score),
                 "likely_home_scorers": top_scorers[top_scorers['team_name'] == home_team].to_dict(orient='records'),
@@ -109,6 +116,7 @@ def get_fixtures():
             results[fixture_text]= {
                 "home_team": home_team,
                 "away_team": away_team,
+                "likely_outcome": "N/A",
                 "home_win_percentage": "N/A",
                 "draw_percentage": "N/A",
                 "away_win_percentage": "N/A",
