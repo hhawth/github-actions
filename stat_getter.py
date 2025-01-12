@@ -19,24 +19,24 @@ def cached_function(ttl=3600, maxsize=100):
 teams = [
     "Arsenal",
     "Aston Villa",
-    "AFC Bournemouth",
+    "Bournemouth",
     "Brentford",
-    "Brighton & Hove Albion",
+    "Brighton",
     "Chelsea",
     "Crystal Palace",
     "Everton",
     "Fulham",
-    "Ipswich Town",
-    "Leicester City",
+    "Ipswich",
+    "Leicester",
     "Liverpool",
-    "Manchester City",
-    "Manchester United",
-    "Newcastle United",
-    "Nottingham Forest",
+    "Man City",
+    "Man United",
+    "Newcastle",
+    "Forest",
     "Southampton",
-    "Tottenham Hotspur",
-    "West Ham United",
-    "Wolverhampton Wanderers",
+    "Tottenham",
+    "West Ham",
+    "Wolves",
 ]
 
 
@@ -107,27 +107,27 @@ def get_stats():
     return scored_data_result
                 
 
-mapped_teams = {
+MAPPED_TEAMS = {
     "Arsenal": "Arsenal",
     "Aston Villa": "Aston Villa",
-    "Bournemouth": "AFC Bournemouth",
+    "Bournemouth": "Bournemouth",
     "Brentford": "Brentford",
-    "Brighton": "Brighton & Hove Albion",
+    "Brighton": "Brighton",
     "Chelsea": "Chelsea",
     "Crystal Palace": "Crystal Palace",
     "Everton": "Everton",
     "Fulham": "Fulham",
-    "Ipswich Town": "Ipswich Town",
-    "Leicester City": "Leicester City",
+    "Ipswich Town": "Ipswich",
+    "Leicester City": "Leicester",
     "Liverpool": "Liverpool",
-    "Manchester City": "Manchester City",
-    "Manchester Utd": "Manchester United",
-    "Newcastle Utd": "Newcastle United",
-    "Nottm Forest": "Nottingham Forest",
+    "Manchester City": "Man City",
+    "Manchester Utd": "Man United",
+    "Newcastle Utd": "Newcastle",
+    "Nottm Forest": "Forest",
     "Southampton": "Southampton",
-    "Tottenham": "Tottenham Hotspur",
-    "West Ham Utd": "West Ham United",
-    "Wolverhampton": "Wolverhampton Wanderers",
+    "Tottenham": "Tottenham",
+    "West Ham Utd": "West Ham",
+    "Wolverhampton": "Wolves",
 }
 @cached_function(ttl=3600, maxsize=100)
 def get_form():
@@ -138,7 +138,7 @@ def get_form():
     results = {}
     for form in form_table:
         team,_,_,_,form_of_team = form.find_all("td")[1:6]
-        results[mapped_teams.get(team.text.strip())] = float(form_of_team.text.strip())
+        results[MAPPED_TEAMS.get(team.text.strip())] = float(form_of_team.text.strip())
     return results
 
 @cached_function(ttl=3600, maxsize=100)
@@ -151,7 +151,7 @@ def get_relative_performance():
     for form in form_table:
         team = form.find_all("td")[1]
         rp = form.find_all("td")[-2]
-        results[mapped_teams.get(team.text.strip())] = float(rp.text.strip("%"))/100
+        results[MAPPED_TEAMS.get(team.text.strip())] = float(rp.text.strip("%"))/100
     return results
 
 
