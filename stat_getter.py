@@ -244,5 +244,3 @@ def get_top_booked():
     top_booked = _get_top_booked(player_stats)
 
     return top_booked
-
-get_relative_performance()

@@ -4,7 +4,7 @@ from io import StringIO
 
 
 import logging
-from stat_getter import get_stats, get_top_booked, get_top_scorers, cached_function, MAPPED_TEAMS
+from stat_getter import get_stats, get_top_booked, get_top_scorers, MAPPED_TEAMS
 from calculations import simulate_multiple_matches
 
 # Random User-Agent
@@ -20,9 +20,8 @@ FIXTURES_LAST_CALL = 0
 
 FIXTURES = None
 
-@cached_function(maxsize=100, ttl=3600)
 def get_fixtures_and_odds():
-    LOGGER.info("Getting sky sports odds")
+    LOGGER.info("Getting elo")
     response = requests.get(
         "http://api.clubelo.com/Fixtures"
     )
@@ -48,8 +47,6 @@ def get_fixtures():
     goal_stats = get_stats()
     top_scorers = get_top_scorers()
     top_booked = get_top_booked()
-    # form = get_form()
-    # performance = get_relative_performance()
 
     for _, row in fixtures.iterrows():
         home_team = row["Home"]
