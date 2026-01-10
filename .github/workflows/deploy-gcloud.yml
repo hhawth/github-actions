@@ -56,10 +56,18 @@ jobs:
         run: |
           gcloud artifacts repositories describe demo --location=europe-west2
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push image
         env:
           GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
           IMAGE_TAG: ${{ github.event.inputs.image_tag || 'latest' }}
+          DOCKER_BUILDKIT: 1
         run: |
-          docker build -t europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:${IMAGE_TAG} .
-          docker push europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:${IMAGE_TAG}
+          docker buildx build \
+            --cache-from=type=gha \
+            --cache-to=type=gha,mode=max \
+            --platform=linux/amd64 \
+            --push \
+            --tag europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:${IMAGE_TAG} .
