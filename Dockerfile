@@ -33,10 +33,9 @@ COPY --chown=app:app requirements.txt ./
 # Switch to non-root user
 USER app
 
-# Configure Streamlit for Cloud Run
-ENV PORT=8501
+# Configure Streamlit for Cloud Run with dynamic port
 ENV HOST=0.0.0.0
 EXPOSE 8501
 
-# Start the Streamlit application
-CMD ["streamlit", "run", "streamlit_app.py", "--server.address", "0.0.0.0", "--server.port", "8501"]
+# Start the Streamlit application with dynamic port support
+CMD streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port ${PORT:-8501} --server.headless true --server.enableCORS false --server.enableXsrfProtection false
