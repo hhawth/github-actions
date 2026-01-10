@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Streamlit smoke test
+        run: |
+          python -c "import streamlit as st; print('Streamlit OK')"
+
+      - name: Lint (optional)
+        run: |
+          pip install pyflakes || true
+          python -m pyflakes . || true
+
+      - name: Build Docker image
+        run: |
+          docker build -t football-betting-app .

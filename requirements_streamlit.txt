@@ -1,0 +1,16 @@
+# Streamlit Multi-Agent Football Prediction System Requirements
+streamlit>=1.28.0
+plotly>=5.15.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Your existing requirements (keeping the ones needed)
+requests>=2.31.0
+beautifulsoup4>=4.12.2
+cachetools>=5.5.0
+scipy>=1.11.0
+difflib2>=0.1.0
+
+# Optional: For enhanced AI capabilities
+# openai>=1.0.0  # Uncomment if you want GPT integration
+# langchain>=0.1.0  # Uncomment if you want more advanced AI features

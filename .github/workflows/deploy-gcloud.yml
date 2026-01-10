@@ -1,0 +1,42 @@
+name: Deploy (GCP Artifact Registry)
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy'
+        required: false
+        default: 'latest'
+  push:
+    branches: [ main ]
+    paths:
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - 'streamlit_app.py'
+      - '.github/workflows/deploy-gcloud.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GOOGLE_PROJECT }}
+          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          export_default_credentials: true
+
+      - name: Configure Docker auth
+        run: |
+          gcloud auth configure-docker europe-west2-docker.pkg.dev -q
+
+      - name: Build and push image
+        env:
+          GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+          IMAGE_TAG: ${{ github.event.inputs.image_tag || 'latest' }}
+        run: |
+          docker build -t europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:${IMAGE_TAG} .
+          docker push europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:${IMAGE_TAG}

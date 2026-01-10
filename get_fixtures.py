@@ -1,10 +1,11 @@
-import requests
-import pandas as pd
-from io import StringIO
 
 
 import logging
-from stat_getter import get_stats, get_top_booked, get_top_scorers, MAPPED_TEAMS
+from stat_getter import (
+    get_stats, get_top_booked, get_top_scorers, 
+    get_soccerstats_team_mapping, get_rankings_from_clubelo, 
+    get_fixtures_from_clubelo
+)
 from calculations import simulate_multiple_matches
 
 # Random User-Agent
@@ -20,29 +21,10 @@ FIXTURES_LAST_CALL = 0
 
 FIXTURES = None
 
-def get_fixtures_and_odds():
-    LOGGER.info("Getting elo")
-    response = requests.get(
-        "http://api.clubelo.com/Fixtures"
-    )
-    df = pd.read_csv(StringIO(response.text))
-    eng_df = df[df['Country'] == 'ENG']
-    eng_df = eng_df.copy()
-    score_columns = ['R:0-0', 'R:0-1', 'R:1-0', 'R:0-2', 'R:1-1', 'R:2-0', 'R:0-3',
-       'R:1-2', 'R:2-1', 'R:3-0', 'R:0-4', 'R:1-3', 'R:2-2', 'R:3-1', 'R:4-0',
-       'R:0-5', 'R:1-4', 'R:2-3', 'R:3-2', 'R:4-1', 'R:5-0', 'R:0-6', 'R:1-5',
-       'R:2-4', 'R:3-3', 'R:4-2', 'R:5-1', 'R:6-0']
-    eng_df['Likely Outcome'] = eng_df[score_columns].idxmax(axis=1)
-    # Now you can safely assign the new columns
-    eng_df.loc[:, 'Away Win'] = eng_df["GD=-5"] + eng_df["GD=-4"] + eng_df["GD=-3"] + eng_df["GD=-2"] + eng_df["GD=-1"]
-    eng_df.loc[:, 'Draw'] = eng_df["GD=0"]
-    eng_df.loc[:, 'Home Win'] = eng_df["GD=5"] + eng_df["GD=4"] + eng_df["GD=3"] + eng_df["GD=2"] + eng_df["GD=1"]
-
-    return eng_df
-
 
 def get_fixtures():
-    fixtures = get_fixtures_and_odds()
+    fixtures = get_fixtures_from_clubelo()
+    rankings = get_rankings_from_clubelo()
     results = {}
     goal_stats = get_stats()
     top_scorers = get_top_scorers()
@@ -51,8 +33,15 @@ def get_fixtures():
     for _, row in fixtures.iterrows():
         home_team = row["Home"]
         away_team = row["Away"]
-        if home_team not in MAPPED_TEAMS.keys() and away_team not in MAPPED_TEAMS.keys():
+        
+        # Get team mapping for validation
+        team_mapping = get_soccerstats_team_mapping()
+        valid_teams = set(team_mapping.values())
+        
+        # Skip if teams aren't in our valid set
+        if home_team not in valid_teams or away_team not in valid_teams:
             continue
+            
         fixture_text = home_team + " vs " + away_team
         try:
             home_team_wins_odds_as_percent = row["Home Win"] * 100

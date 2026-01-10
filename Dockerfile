@@ -6,10 +6,10 @@ WORKDIR /python-docker
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-EXPOSE 5000
+# Streamlit runs on port 8501 by default
+EXPOSE 8501
 
 COPY . .
 
-
-# Start the application (assuming it's a Flask or similar app)
-CMD [ "python3", "app.py"]
+# Start the Streamlit application
+CMD ["streamlit", "run", "streamlit_app.py", "--server.address", "0.0.0.0"]
