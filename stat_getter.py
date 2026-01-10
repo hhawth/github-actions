@@ -204,6 +204,7 @@ def get_soccerstats_team_mapping():
         ]
     
     return create_team_mapping(soccerstats_teams, official_teams)
+
 @cached_function(ttl=3600, maxsize=100)
 def get_form():
     url = "https://www.soccerstats.com/formtable.asp?league=england"
@@ -355,8 +356,8 @@ def get_fixtures_from_soccerstats():
                     # Extract league info
                     league_cell = cells[0].get_text(strip=True) if cells[0] else ''
                     
-                    # Skip rows that don't contain actual fixtures
-                    if not league_cell or 'CUP-' in league_cell:
+                    # Skip rows that don't contain actual fixtures (but keep cup games)
+                    if not league_cell:
                         continue
                         
                     # Extract team names
@@ -378,32 +379,72 @@ def get_fixtures_from_soccerstats():
                             break
                     
                     if home_team and away_team and fixture_time:
-                        # Extract country/league with better fallback
+                        # Extract country/league with better fallback, including cup games
                         country = 'UNKNOWN'
                         if 'ENGLAND' in league_cell or 'ENG' in league_cell:
-                            country = 'ENG'
+                            if 'CUP' in league_cell:
+                                country = 'ENG-CUP'
+                            else:
+                                country = 'ENG'
                         elif 'SPAIN' in league_cell or 'SPA' in league_cell:
-                            country = 'ESP'
+                            if 'CUP' in league_cell:
+                                country = 'ESP-CUP'
+                            else:
+                                country = 'ESP'
                         elif 'ITALY' in league_cell or 'ITA' in league_cell:
-                            country = 'ITA'
+                            if 'CUP' in league_cell:
+                                country = 'ITA-CUP'
+                            else:
+                                country = 'ITA'
                         elif 'GERMANY' in league_cell or 'GER' in league_cell:
-                            country = 'GER'
+                            if 'CUP' in league_cell:
+                                country = 'GER-CUP'
+                            else:
+                                country = 'GER'
                         elif 'FRANCE' in league_cell or 'FRA' in league_cell:
-                            country = 'FRA'
+                            if 'CUP' in league_cell:
+                                country = 'FRA-CUP'
+                            else:
+                                country = 'FRA'
                         elif 'NETHERLANDS' in league_cell or 'NET' in league_cell:
-                            country = 'NED'
+                            if 'CUP' in league_cell:
+                                country = 'NED-CUP'
+                            else:
+                                country = 'NED'
                         elif 'SCOTLAND' in league_cell or 'SCO' in league_cell:
-                            country = 'SCO'
+                            if 'CUP' in league_cell:
+                                country = 'SCO-CUP'
+                            else:
+                                country = 'SCO'
                         elif 'PORTUGAL' in league_cell or 'POR' in league_cell:
-                            country = 'POR'
+                            if 'CUP' in league_cell:
+                                country = 'POR-CUP'
+                            else:
+                                country = 'POR'
                         elif 'BRAZIL' in league_cell or 'BRA' in league_cell:
-                            country = 'BRA'
+                            if 'CUP' in league_cell:
+                                country = 'BRA-CUP'
+                            else:
+                                country = 'BRA'
                         elif 'TURKEY' in league_cell or 'TUR' in league_cell:
-                            country = 'TUR'
+                            if 'CUP' in league_cell:
+                                country = 'TUR-CUP'
+                            else:
+                                country = 'TUR'
                         elif 'GREECE' in league_cell or 'GRE' in league_cell:
-                            country = 'GRE'
+                            if 'CUP' in league_cell:
+                                country = 'GRE-CUP'
+                            else:
+                                country = 'GRE'
                         elif 'CYPRUS' in league_cell or 'CYP' in league_cell:
-                            country = 'CYP'
+                            if 'CUP' in league_cell:
+                                country = 'CYP-CUP'
+                            else:
+                                country = 'CYP'
+                        elif 'CUP' in league_cell:
+                            # Generic cup handling for other leagues
+                            base_country = league_cell.split()[0] if league_cell else 'OTHER'
+                            country = f"{base_country}-CUP"
                         else:
                             # Use league name instead of UNKNOWN
                             country = league_cell.split()[0] if league_cell else 'OTHER'
