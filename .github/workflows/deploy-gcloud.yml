@@ -17,8 +17,6 @@ on:
 
 jobs:
   deploy:
-    # Only run if required GCP secrets are present
-    if: ${{ secrets.GOOGLE_PROJECT != '' && secrets.GOOGLE_APPLICATION_CREDENTIALS != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
