@@ -28,8 +28,6 @@ WORKDIR /app
 
 # Copy application code only
 COPY --chown=app:app *.py ./
-COPY --chown=app:app static/ static/
-COPY --chown=app:app templates/ templates/
 COPY --chown=app:app requirements.txt ./
 
 # Switch to non-root user
