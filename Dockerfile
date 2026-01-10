@@ -1,34 +1,44 @@
-# Multi-stage build for faster rebuilds
-FROM python:3.11-slim AS dependencies
+# Use Alpine for much smaller base image
+FROM python:3.11-alpine AS dependencies
 
-# Install system dependencies in one layer
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+# Install minimal system dependencies
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    && rm -rf /var/cache/apk/*
 
-# Create non-root user
-RUN useradd --create-home --shell /bin/bash app
 WORKDIR /app
 
-# Copy and install Python dependencies (separate layer for caching)
+# Copy and install Python dependencies (cached layer)
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip cache purge
 
-# Runtime stage
-FROM dependencies AS runtime
+# Runtime stage - minimal Alpine
+FROM python:3.11-alpine AS runtime
 
-# Configure Streamlit
-RUN mkdir -p /home/app/.streamlit/
-RUN echo "[server]\\n\\nheadless = true\\n\\nport = 8501\\n\\nenabledCORS = false\\n\\nallowRunOnSave = true\\n\\n" > /home/app/.streamlit/config.toml
+# Copy only installed packages from dependencies stage
+COPY --from=dependencies /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=dependencies /usr/local/bin /usr/local/bin
 
-# Copy application code (this layer changes most frequently)
-COPY --chown=app:app . .
+# Create non-root user
+RUN adduser -D -s /bin/sh app
+WORKDIR /app
+
+# Copy application code only
+COPY --chown=app:app *.py .
+COPY --chown=app:app static/ static/
+COPY --chown=app:app templates/ templates/
+COPY --chown=app:app requirements.txt .
 
 # Switch to non-root user
 USER app
 
-# Streamlit runs on port 8501 by default
+# Configure Streamlit for Cloud Run
+ENV PORT=8501
+ENV HOST=0.0.0.0
 EXPOSE 8501
 
 # Start the Streamlit application
-CMD ["streamlit", "run", "streamlit_app.py", "--server.address", "0.0.0.0"]
+CMD ["streamlit", "run", "streamlit_app.py", "--server.address", "0.0.0.0", "--server.port", "8501"]
