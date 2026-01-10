@@ -707,25 +707,51 @@ def predict_match_score(home_team, away_team, fixtures_df=None):
                 
                 # Try multiple matching strategies
                 for _, row in clubelo_df.iterrows():
-                    club_name = str(row['Club']).lower()
-                    home_lower = home_team.lower()
-                    away_lower = away_team.lower()
-                    
-                    # Check home team matches
-                    if not home_match and (
-                        club_name in home_lower or home_lower in club_name or
-                        any(word in club_name for word in home_lower.split() if len(word) > 3)
-                    ):
-                        home_match = row
-                        home_elo = row['Elo']
-                    
-                    # Check away team matches
-                    if not away_match and (
-                        club_name in away_lower or away_lower in club_name or
-                        any(word in club_name for word in away_lower.split() if len(word) > 3)
-                    ):
-                        away_match = row
-                        away_elo = row['Elo']
+                    try:
+                        club_name = str(row['Club']).lower()
+                        home_lower = home_team.lower()
+                        away_lower = away_team.lower()
+                        
+                        # Check home team matches with explicit boolean checks
+                        if home_match is None:
+                            home_found = False
+                            
+                            # Direct string matching
+                            if club_name in home_lower or home_lower in club_name:
+                                home_found = True
+                            
+                            # Word-based matching
+                            if not home_found:
+                                for word in home_lower.split():
+                                    if len(word) > 3 and word in club_name:
+                                        home_found = True
+                                        break
+                            
+                            if home_found:
+                                home_match = row
+                                home_elo = row['Elo']
+                        
+                        # Check away team matches with explicit boolean checks
+                        if away_match is None:
+                            away_found = False
+                            
+                            # Direct string matching
+                            if club_name in away_lower or away_lower in club_name:
+                                away_found = True
+                            
+                            # Word-based matching
+                            if not away_found:
+                                for word in away_lower.split():
+                                    if len(word) > 3 and word in club_name:
+                                        away_found = True
+                                        break
+                            
+                            if away_found:
+                                away_match = row
+                                away_elo = row['Elo']
+                                
+                    except Exception:
+                        continue  # Skip problematic rows
                 
                 # Apply fallback logic for missing teams
                 if home_elo is None and away_elo is not None:
