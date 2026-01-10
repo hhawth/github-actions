@@ -389,12 +389,23 @@ def get_fixtures_from_soccerstats():
                                     potential_away not in ['total', 'scope', '']):
                                     away_team = potential_away
                             
+                            # Debug specific fixture
+                            if fixture_time == '15:00':
+                                print(f"🕐 15:00 fixture debug - Home: '{potential_home}' Away: '{potential_away}' League: '{league_cell}'")
+                                if 'Manchester City' in str(potential_home) or 'Exeter City' in str(potential_away):
+                                    print(f"🎯 Found Manchester City vs Exeter City components!")
+                            
                             break
                     
                     if home_team and away_team and fixture_time:
-                        # Debug logging for cup games
+                        # Debug logging for cup games and specific fixture
                         if 'CUP' in league_cell:
                             print(f"🏆 Found cup game: {league_cell} - {home_team} vs {away_team} at {fixture_time}")
+                        
+                        # Specific debug for Manchester City fixture
+                        if ('Manchester City' in home_team or 'Exeter City' in away_team or
+                            'City' in home_team and 'Exeter' in away_team):
+                            print(f"🎯 Manchester City fixture: '{home_team}' vs '{away_team}' at {fixture_time}")
                         
                         # Extract country/league with better fallback, including cup games
                         country = 'UNKNOWN'
@@ -493,14 +504,20 @@ def get_fixtures_from_soccerstats():
                         
                         fixtures.append(fixture)
                     else:
-                        # Debug: Log why fixtures are being skipped
+                        # Debug: Log why fixtures are being skipped, especially for 15:00 games
+                        if fixture_time == '15:00':
+                            print(f"🚫 Skipped 15:00 fixture - Home: '{home_team}' Away: '{away_team}' League: '{league_cell}'")
+                        
                         if 'CUP' in league_cell and fixture_time:
-                            print(f"🚫 Skipped cup fixture: {league_cell} - Home: {home_team}, Away: {away_team}, Time: {fixture_time}")
+                            print(f"🚫 Skipped cup fixture: {league_cell} - Home: '{home_team}', Away: '{away_team}', Time: {fixture_time}")
                         
                 except Exception as e:
-                    # Skip problematic rows but log for cup games
-                    if 'CUP' in str(cells):
+                    # Skip problematic rows but log for cup games and 15:00 games
+                    cell_text = ' '.join([cell.get_text(strip=True) for cell in cells])
+                    if 'CUP' in cell_text:
                         print(f"❌ Error parsing potential cup row: {e}")
+                    if '15:00' in cell_text and 'Manchester' in cell_text:
+                        print(f"❌ Error parsing Manchester City 15:00 row: {e}")
                     continue
         
         df = pd.DataFrame(fixtures)

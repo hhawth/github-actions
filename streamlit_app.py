@@ -1212,7 +1212,7 @@ def main():
                         st.metric("⏰ Time Range", f"{fixtures_df['Time'].iloc[0]} → {fixtures_df['Time'].iloc[-1]}")
                 
                 # Add filtering options
-                col1, col2, col3 = st.columns(3)
+                col1, col2, col3, col4 = st.columns(4)
                 
                 with col1:
                     selected_countries = st.multiselect(
@@ -1233,6 +1233,14 @@ def main():
                         "Show fixtures:",
                         [20, 50, 100, "All"],
                         index=0
+                    )
+                
+                with col4:
+                    fixtures_per_timeslot = st.selectbox(
+                        "Per time slot:",
+                        [5, 10, 15, 25, "All"],
+                        index=2,  # Default to 15
+                        help="How many fixtures to show per time slot in Enhanced Predictions"
                     )
                 
                 # Filter data
@@ -1261,7 +1269,13 @@ def main():
                             if len(time_group) > 0:
                                 st.markdown(f"### 🕐 {time_slot} Kickoffs ({len(time_group)} matches)")
                                 
-                                for idx, row in time_group.head(5).iterrows():  # Limit to 5 per time slot
+                                # Use the user-selected limit per time slot
+                                if fixtures_per_timeslot == "All":
+                                    display_group = time_group
+                                else:
+                                    display_group = time_group.head(fixtures_per_timeslot)
+                                
+                                for idx, row in display_group.iterrows():
                                     home_team = row['Home']
                                     away_team = row['Away']
                                     country = row.get('Country', 'Unknown')
@@ -1309,7 +1323,7 @@ def main():
                     # Detailed analysis view
                     st.write("🔍 **Full Analysis Mode** - Detailed predictions with statistics")
                     
-                    analysis_sample = filtered_df.head(5)
+                    analysis_sample = filtered_df.head(10)  # Increased from 5 to 10 for more analysis
                     for idx, row in analysis_sample.iterrows():
                         home_team = row['Home']
                         away_team = row['Away']
