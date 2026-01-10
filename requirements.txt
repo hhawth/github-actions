@@ -6,6 +6,7 @@ feedparser>=6.0.10
 # Data processing and analysis
 pandas==2.2.3
 numpy==1.26.0
+scipy>=1.11.0
 requests==2.31.0
 beautifulsoup4==4.12.2
 bs4==0.0.1
