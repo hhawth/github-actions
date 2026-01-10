@@ -1,0 +1,15 @@
+[server]
+# Cloud Run optimization settings
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+fileWatcherType = "none"
+maxUploadSize = 1
+
+# Performance settings
+runOnSave = false
+allowRunOnSave = false
+
+[theme]
+# Minimal theme to reduce loading time
+base = "light"
