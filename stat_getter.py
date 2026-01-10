@@ -9,6 +9,39 @@ from datetime import datetime
 import re
 
 
+def filter_future_fixtures(df):
+    """Universal function to filter out fixtures that have already started."""
+    if df.empty:
+        return df
+    
+    current_time = datetime.now()
+    current_hour = current_time.hour
+    current_minute = current_time.minute
+    current_time_minutes = current_hour * 60 + current_minute
+    
+    def time_to_minutes(time_str):
+        try:
+            if ':' in str(time_str):
+                h, m = map(int, str(time_str).split(':'))
+                return h * 60 + m
+        except:
+            pass
+        return 9999  # Put invalid times at the end (future)
+    
+    # Filter out started fixtures
+    df_copy = df.copy()
+    df_copy['_time_minutes'] = df_copy['Time'].apply(time_to_minutes)
+    before_filter = len(df_copy)
+    df_filtered = df_copy[df_copy['_time_minutes'] > current_time_minutes].copy()
+    df_filtered = df_filtered.drop('_time_minutes', axis=1)
+    after_filter = len(df_filtered)
+    
+    if before_filter != after_filter:
+        print(f"🕐 Filtered out {before_filter - after_filter} started fixtures")
+    
+    return df_filtered
+
+
 def cached_function(ttl=3600, maxsize=100):
     """Decorator to create a unique cache for each function."""
     def decorator(func):
@@ -389,23 +422,12 @@ def get_fixtures_from_soccerstats():
                                     potential_away not in ['total', 'scope', '']):
                                     away_team = potential_away
                             
-                            # Debug specific fixture
-                            if fixture_time == '15:00':
-                                print(f"🕐 15:00 fixture debug - Home: '{potential_home}' Away: '{potential_away}' League: '{league_cell}'")
-                                if 'Manchester City' in str(potential_home) or 'Exeter City' in str(potential_away):
-                                    print(f"🎯 Found Manchester City vs Exeter City components!")
-                            
                             break
                     
                     if home_team and away_team and fixture_time:
-                        # Debug logging for cup games and specific fixture
+                        # Debug logging for cup games
                         if 'CUP' in league_cell:
                             print(f"🏆 Found cup game: {league_cell} - {home_team} vs {away_team} at {fixture_time}")
-                        
-                        # Specific debug for Manchester City fixture
-                        if ('Manchester City' in home_team or 'Exeter City' in away_team or
-                            'City' in home_team and 'Exeter' in away_team):
-                            print(f"🎯 Manchester City fixture: '{home_team}' vs '{away_team}' at {fixture_time}")
                         
                         # Extract country/league with better fallback, including cup games
                         country = 'UNKNOWN'
@@ -504,41 +526,74 @@ def get_fixtures_from_soccerstats():
                         
                         fixtures.append(fixture)
                     else:
-                        # Debug: Log why fixtures are being skipped, especially for 15:00 games
-                        if fixture_time == '15:00':
-                            print(f"🚫 Skipped 15:00 fixture - Home: '{home_team}' Away: '{away_team}' League: '{league_cell}'")
-                        
+                        # Debug: Log why fixtures are being skipped
                         if 'CUP' in league_cell and fixture_time:
-                            print(f"🚫 Skipped cup fixture: {league_cell} - Home: '{home_team}', Away: '{away_team}', Time: {fixture_time}")
+                            print(f"🚫 Skipped cup fixture: {league_cell} - Home: {home_team}, Away: {away_team}, Time: {fixture_time}")
                         
                 except Exception as e:
-                    # Skip problematic rows but log for cup games and 15:00 games
-                    cell_text = ' '.join([cell.get_text(strip=True) for cell in cells])
-                    if 'CUP' in cell_text:
+                    # Skip problematic rows but log for cup games
+                    if 'CUP' in str(cells):
                         print(f"❌ Error parsing potential cup row: {e}")
-                    if '15:00' in cell_text and 'Manchester' in cell_text:
-                        print(f"❌ Error parsing Manchester City 15:00 row: {e}")
                     continue
         
         df = pd.DataFrame(fixtures)
         
         if not df.empty:
-            # Sort by time for better organization
-            def time_to_minutes(time_str):
-                try:
-                    if ':' in str(time_str):
-                        h, m = map(int, str(time_str).split(':'))
-                        return h * 60 + m
-                except:
-                    pass
-                return 9999  # Put invalid times at the end
+            # Apply universal time filtering
+            df = filter_future_fixtures(df)
             
-            df['_time_sort'] = df['Time'].apply(time_to_minutes)
-            df = df.sort_values('_time_sort').drop('_time_sort', axis=1).reset_index(drop=True)
+            # Check ClubElo mappings and filter teams
+            try:
+                clubelo_df = get_rankings_from_clubelo()
+                if not clubelo_df.empty:
+                    clubelo_teams = set(clubelo_df['Club'].str.lower())
+                    lowest_elo = clubelo_df['Elo'].min()
+                    
+                    valid_fixtures = []
+                    for _, row in df.iterrows():
+                        home_team = str(row['Home']).lower()
+                        away_team = str(row['Away']).lower()
+                        
+                        # Check if teams can be found in ClubElo
+                        home_found = any(team_name in home_team or home_team in team_name 
+                                       for team_name in clubelo_teams)
+                        away_found = any(team_name in away_team or away_team in team_name 
+                                       for team_name in clubelo_teams)
+                        
+                        # Only include if at least one team is found
+                        if home_found or away_found:
+                            valid_fixtures.append(row)
+                        else:
+                            print(f"❌ Excluded fixture (no ClubElo match): {row['Home']} vs {row['Away']}")
+                    
+                    if valid_fixtures:
+                        df = pd.DataFrame(valid_fixtures).reset_index(drop=True)
+                        print(f"✅ {len(df)} fixtures have ClubElo coverage")
+                    else:
+                        print("❌ No fixtures have ClubElo coverage")
+                        df = pd.DataFrame()
+                        
+            except Exception as e:
+                print(f"⚠️ ClubElo filtering failed: {e}")
             
-            print(f"📊 Found {len(df)} fixtures from SoccerStats.com across {df['Country'].nunique()} countries")
-            print(f"Countries: {', '.join(df['Country'].unique())}")
-            print(f"🕐 Fixtures sorted by time: {df['Time'].iloc[0]} → {df['Time'].iloc[-1]}")
+            if not df.empty:
+                # Sort by time for better organization  
+                def time_to_minutes_sort(time_str):
+                    try:
+                        if ':' in str(time_str):
+                            h, m = map(int, str(time_str).split(':'))
+                            return h * 60 + m
+                    except:
+                        pass
+                    return 9999
+                
+                df['_time_sort'] = df['Time'].apply(time_to_minutes_sort)
+                df = df.sort_values('_time_sort').drop(['_time_sort'], axis=1).reset_index(drop=True)
+                
+                print(f"📊 Found {len(df)} valid fixtures from SoccerStats.com across {df['Country'].nunique()} countries")
+                print(f"Countries: {', '.join(df['Country'].unique())}")
+                if len(df) > 0:
+                    print(f"🕐 Fixtures sorted by time: {df['Time'].iloc[0]} → {df['Time'].iloc[-1]}")
         else:
             print("⚠️ No fixtures found on SoccerStats.com")
             
@@ -558,9 +613,8 @@ def get_fixtures_from_clubelo():
         
         # Show all fixtures from all countries
         if df.empty:
-            print("⚠️ No fixtures available from ClubElo, generating mock data for demo...")
-            from mock_data import generate_mock_fixtures
-            df = generate_mock_fixtures()
+            print("⚠️ No fixtures available from ClubElo")
+            return pd.DataFrame()
         else:
             print(f"📊 Found {len(df)} fixtures from {df['Country'].nunique()} countries: {', '.join(df['Country'].unique())}")
             
@@ -585,18 +639,14 @@ def get_fixtures_from_clubelo():
             df.loc[:, 'Draw'] = df["GD=0"]
             df.loc[:, 'Home Win'] = df["GD=5"] + df["GD=4"] + df["GD=3"] + df["GD=2"] + df["GD=1"]
         
+        # Filter out started fixtures
+        df = filter_future_fixtures(df)
+        
         return df
         
     except Exception as e:
         print(f"❌ Error in get_fixtures_from_clubelo: {e}")
-        # Fallback to mock data
-        try:
-            from mock_data import generate_mock_fixtures
-            print("🔄 Using mock data as fallback...")
-            return generate_mock_fixtures()
-        except:
-            print("❌ Could not generate mock data, returning empty DataFrame")
-            return pd.DataFrame()
+        return pd.DataFrame()
 
 @cached_function(ttl=1800, maxsize=100)  # 30 minute cache
 def get_todays_fixtures():
@@ -614,14 +664,9 @@ def get_todays_fixtures():
     if not clubelo_df.empty:
         return clubelo_df
     
-    # Final fallback to mock data
-    print("🎲 Using mock data as final fallback...")
-    try:
-        from mock_data import generate_mock_fixtures
-        return generate_mock_fixtures()
-    except:
-        print("❌ Could not generate mock data")
-        return pd.DataFrame()
+    # Final fallback - return empty if no sources work
+    print("❌ All fixture sources failed, returning empty DataFrame")
+    return pd.DataFrame()
 
 def predict_match_score(home_team, away_team, fixtures_df=None):
     """
@@ -646,23 +691,59 @@ def predict_match_score(home_team, away_team, fixtures_df=None):
             'away_win_prob': 0.33
         }
         
-        # Get ClubElo ratings if available
+        # Get ClubElo ratings with enhanced validation
         try:
             clubelo_df = get_rankings_from_clubelo()
             home_elo = None
             away_elo = None
+            lowest_elo = None
             
             if not clubelo_df.empty:
-                home_match = clubelo_df[clubelo_df['Club'].str.contains(home_team[:8], case=False, na=False)]
-                away_match = clubelo_df[clubelo_df['Club'].str.contains(away_team[:8], case=False, na=False)]
+                lowest_elo = clubelo_df['Elo'].min()
                 
-                if not home_match.empty:
-                    home_elo = home_match['Elo'].iloc[0]
-                if not away_match.empty:
-                    away_elo = away_match['Elo'].iloc[0]
-        except:
+                # Enhanced team matching for ClubElo
+                home_match = None
+                away_match = None
+                
+                # Try multiple matching strategies
+                for _, row in clubelo_df.iterrows():
+                    club_name = str(row['Club']).lower()
+                    home_lower = home_team.lower()
+                    away_lower = away_team.lower()
+                    
+                    # Check home team matches
+                    if not home_match and (
+                        club_name in home_lower or home_lower in club_name or
+                        any(word in club_name for word in home_lower.split() if len(word) > 3)
+                    ):
+                        home_match = row
+                        home_elo = row['Elo']
+                    
+                    # Check away team matches
+                    if not away_match and (
+                        club_name in away_lower or away_lower in club_name or
+                        any(word in club_name for word in away_lower.split() if len(word) > 3)
+                    ):
+                        away_match = row
+                        away_elo = row['Elo']
+                
+                # Apply fallback logic for missing teams
+                if home_elo is None and away_elo is not None:
+                    home_elo = lowest_elo
+                    prediction['reasoning'].append(f"{home_team} not in ClubElo - assigned lowest rating ({int(lowest_elo)})")
+                elif away_elo is None and home_elo is not None:
+                    away_elo = lowest_elo  
+                    prediction['reasoning'].append(f"{away_team} not in ClubElo - assigned lowest rating ({int(lowest_elo)})")
+                elif home_elo is None and away_elo is None:
+                    # Both teams missing - this match should have been filtered out
+                    prediction['reasoning'].append("Both teams missing from ClubElo - basic prediction only")
+                    prediction['confidence'] = 0.3
+                    return prediction
+                    
+        except Exception as e:
             home_elo = None
             away_elo = None
+            prediction['reasoning'].append(f"ClubElo lookup failed: {str(e)[:50]}")
         
         # Get SoccerStats data for more detailed prediction
         home_stats = None
