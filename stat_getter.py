@@ -365,20 +365,37 @@ def get_fixtures_from_soccerstats():
                     away_team = None
                     fixture_time = None
                     
-                    # Look for team names and time in the row
+                    # Look for team names and time in the row - specific for SoccerStats format
                     for i, cell in enumerate(cells):
                         text = cell.get_text(strip=True)
                         # Look for time pattern (HH:MM)
                         if re.match(r'\d{1,2}:\d{2}', text):
                             fixture_time = text
-                            # Teams are usually around the time
-                            if i > 1:
-                                home_team = cells[i-1].get_text(strip=True)
+                            
+                            # Based on SoccerStats format: Home Team | Time | Away Team
+                            # Home team is directly before time
+                            if i > 0:
+                                potential_home = cells[i-1].get_text(strip=True)
+                                if (potential_home and len(potential_home) > 2 and 
+                                    not re.match(r'^\d+\.?\d*$', potential_home) and
+                                    potential_home not in ['total', 'scope', '']):
+                                    home_team = potential_home
+                            
+                            # Away team is directly after time
                             if i < len(cells) - 1:
-                                away_team = cells[i+1].get_text(strip=True)
+                                potential_away = cells[i+1].get_text(strip=True)
+                                if (potential_away and len(potential_away) > 2 and 
+                                    not re.match(r'^\d+\.?\d*$', potential_away) and
+                                    potential_away not in ['total', 'scope', '']):
+                                    away_team = potential_away
+                            
                             break
                     
                     if home_team and away_team and fixture_time:
+                        # Debug logging for cup games
+                        if 'CUP' in league_cell:
+                            print(f"🏆 Found cup game: {league_cell} - {home_team} vs {away_team} at {fixture_time}")
+                        
                         # Extract country/league with better fallback, including cup games
                         country = 'UNKNOWN'
                         if 'ENGLAND' in league_cell or 'ENG' in league_cell:
@@ -475,9 +492,15 @@ def get_fixtures_from_soccerstats():
                         }
                         
                         fixtures.append(fixture)
+                    else:
+                        # Debug: Log why fixtures are being skipped
+                        if 'CUP' in league_cell and fixture_time:
+                            print(f"🚫 Skipped cup fixture: {league_cell} - Home: {home_team}, Away: {away_team}, Time: {fixture_time}")
                         
-                except Exception:
-                    # Skip problematic rows
+                except Exception as e:
+                    # Skip problematic rows but log for cup games
+                    if 'CUP' in str(cells):
+                        print(f"❌ Error parsing potential cup row: {e}")
                     continue
         
         df = pd.DataFrame(fixtures)
@@ -627,6 +650,7 @@ def predict_match_score(home_team, away_team, fixtures_df=None):
         # Get SoccerStats data for more detailed prediction
         home_stats = None
         away_stats = None
+        is_cup_game = False
         
         if fixtures_df is not None and not fixtures_df.empty:
             # Find the fixture
@@ -637,11 +661,22 @@ def predict_match_score(home_team, away_team, fixtures_df=None):
             
             if not fixture_match.empty:
                 fixture = fixture_match.iloc[0]
-                prediction['home_win_prob'] = fixture.get('Home Win', 0.33)
-                prediction['draw_prob'] = fixture.get('Draw', 0.34)
-                prediction['away_win_prob'] = fixture.get('Away Win', 0.33)
                 
-                # Extract team stats if available
+                # Check if this is a cup game
+                country = fixture.get('Country', '')
+                if 'CUP' in str(country).upper():
+                    is_cup_game = True
+                    prediction['reasoning'].append(f"Cup game detected: {country}")
+                
+                # Use SoccerStats probabilities if available
+                if 'Home Win' in fixture and pd.notna(fixture['Home Win']):
+                    prediction['home_win_prob'] = fixture.get('Home Win', 0.33)
+                    prediction['draw_prob'] = fixture.get('Draw', 0.34)
+                    prediction['away_win_prob'] = fixture.get('Away Win', 0.33)
+                    prediction['reasoning'].append("Using SoccerStats probabilities")
+                    prediction['confidence'] += 0.2
+                
+                # Extract team stats if available (less likely for cup games)
                 home_stats = {
                     'win_pct': fixture.get('Home_W%'),
                     'goals_for': fixture.get('Home_GF'),
@@ -657,29 +692,107 @@ def predict_match_score(home_team, away_team, fixtures_df=None):
         home_expected_goals = 1.2  # Base expectation
         away_expected_goals = 1.0  # Base expectation
         
-        # Adjust based on ClubElo ratings
+        # Enhanced ClubElo usage, especially important for cup games
         if home_elo and away_elo:
             elo_diff = home_elo - away_elo
-            rating_factor = min(1.5, max(0.5, 1 + (elo_diff / 400)))
+            
+            # For cup games, make Elo ratings more influential since other stats may be missing
+            elo_weight = 1.5 if is_cup_game else 1.0
+            rating_factor = min(2.0, max(0.4, 1 + (elo_diff * elo_weight / 400)))
+            
             home_expected_goals *= rating_factor
-            away_expected_goals *= (2 - rating_factor) 
+            away_expected_goals *= (2.5 - rating_factor) 
+            
             prediction['reasoning'].append(f"ClubElo: {home_team} {int(home_elo)} vs {away_team} {int(away_elo)}")
-            prediction['confidence'] += 0.2
+            
+            # Higher confidence boost for cup games when we have Elo ratings
+            confidence_boost = 0.3 if is_cup_game else 0.2
+            prediction['confidence'] += confidence_boost
+            
+            # For cup games, also adjust win probabilities based on Elo
+            if is_cup_game and abs(elo_diff) > 100:
+                # Significant Elo difference in cup game
+                elo_prob_home = 1 / (1 + 10**((away_elo - home_elo) / 400))
+                elo_prob_away = 1 - elo_prob_home
+                elo_prob_draw = 0.25  # Cup games can still draw
+                
+                # Normalize
+                total_prob = elo_prob_home + elo_prob_away + elo_prob_draw
+                prediction['home_win_prob'] = elo_prob_home / total_prob
+                prediction['away_win_prob'] = elo_prob_away / total_prob  
+                prediction['draw_prob'] = elo_prob_draw / total_prob
+                
+                prediction['reasoning'].append(f"Cup game probabilities adjusted for {abs(elo_diff):.0f} point Elo difference")
         
-        # Adjust based on SoccerStats performance data
-        if home_stats and home_stats['goals_for']:
+        elif is_cup_game:
+            # Cup game but no Elo ratings - try to get more aggressive with team name matching
+            prediction['reasoning'].append("Cup game: Attempting enhanced team matching for ClubElo")
+            
+            try:
+                clubelo_df = get_rankings_from_clubelo()
+                if not clubelo_df.empty:
+                    # Try more flexible matching for cup games
+                    possible_home_matches = []
+                    possible_away_matches = []
+                    
+                    # Split team names and try partial matches
+                    home_words = home_team.split()
+                    away_words = away_team.split()
+                    
+                    for _, row in clubelo_df.iterrows():
+                        club_name = str(row['Club']).lower()
+                        
+                        # Check home team matches
+                        for word in home_words:
+                            if len(word) > 3 and word.lower() in club_name:
+                                possible_home_matches.append((row['Club'], row['Elo']))
+                                break
+                        
+                        # Check away team matches
+                        for word in away_words:
+                            if len(word) > 3 and word.lower() in club_name:
+                                possible_away_matches.append((row['Club'], row['Elo']))
+                                break
+                    
+                    # Use best matches if found
+                    if possible_home_matches:
+                        home_elo = possible_home_matches[0][1]
+                        prediction['reasoning'].append(f"Found {home_team} → {possible_home_matches[0][0]} (Elo: {int(home_elo)})")
+                    
+                    if possible_away_matches:
+                        away_elo = possible_away_matches[0][1]
+                        prediction['reasoning'].append(f"Found {away_team} → {possible_away_matches[0][0]} (Elo: {int(away_elo)})")
+                    
+                    # Apply Elo calculations if we found matches
+                    if home_elo and away_elo:
+                        elo_diff = home_elo - away_elo
+                        rating_factor = min(2.0, max(0.4, 1 + (elo_diff * 1.5 / 400)))
+                        home_expected_goals *= rating_factor
+                        away_expected_goals *= (2.5 - rating_factor)
+                        prediction['confidence'] += 0.25
+                        
+            except Exception as e:
+                prediction['reasoning'].append(f"Enhanced Elo matching failed: {str(e)[:50]}")
+        
+        # Adjust based on SoccerStats performance data (if available)
+        if home_stats and home_stats.get('goals_for') and pd.notna(home_stats['goals_for']):
             home_expected_goals = (home_expected_goals + home_stats['goals_for']) / 2
-            prediction['reasoning'].append(f"{home_team} averages {home_stats['goals_for']:.1f} goals at home")
+            prediction['reasoning'].append(f"{home_team} averages {home_stats['goals_for']:.1f} goals")
             prediction['confidence'] += 0.15
             
-        if away_stats and away_stats['goals_for']:
+        if away_stats and away_stats.get('goals_for') and pd.notna(away_stats['goals_for']):
             away_expected_goals = (away_expected_goals + away_stats['goals_for']) / 2  
-            prediction['reasoning'].append(f"{away_team} averages {away_stats['goals_for']:.1f} goals away")
+            prediction['reasoning'].append(f"{away_team} averages {away_stats['goals_for']:.1f} goals")
             prediction['confidence'] += 0.15
         
-        # Add home advantage
-        home_expected_goals *= 1.2
-        prediction['reasoning'].append("Home advantage factor applied")
+        # Add home advantage (reduced for cup games as they can be at neutral venues)
+        home_advantage = 1.1 if is_cup_game else 1.2
+        home_expected_goals *= home_advantage
+        prediction['reasoning'].append(f"Home advantage factor: {home_advantage}")
+        
+        # Cup games can be more unpredictable - add slight randomness
+        if is_cup_game:
+            prediction['reasoning'].append("Cup game unpredictability factor applied")
         
         # Convert expected goals to actual prediction
         import random
