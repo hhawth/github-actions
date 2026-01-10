@@ -9,6 +9,10 @@ import logging
 import requests
 import feedparser
 from bs4 import BeautifulSoup
+import os
+import threading
+import time
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Import your existing modules
 from get_fixtures import get_fixtures
@@ -1880,5 +1884,31 @@ def main():
     st.sidebar.markdown("• 📰 News Impact Analysis")
     st.sidebar.markdown("• 💰 Kelly Criterion Staking")
 
+# Health check endpoint for Cloud Run
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'OK')
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+def start_health_check_server():
+    """Start health check server on port 8080 for Cloud Run"""
+    try:
+        server = HTTPServer(('0.0.0.0', 8080), HealthCheckHandler)
+        server.serve_forever()
+    except Exception as e:
+        logger.error(f"Health check server error: {e}")
+
 if __name__ == "__main__":
+    # Start health check server in background thread for Cloud Run
+    if os.getenv('PORT', '8501') == '8501':  # Only in Cloud Run environment
+        health_thread = threading.Thread(target=start_health_check_server, daemon=True)
+        health_thread.start()
+        time.sleep(0.1)  # Give health server time to start
+    
     main()
