@@ -1,4 +1,4 @@
-name: CI Build & Docker
+name: Deploy Nginx
 
 on:
   push:
@@ -6,27 +6,25 @@ on:
     - 'main'
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    - name: code checkout
+      uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: install the gcloud cli
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        project_id: ${{ secrets.GOOGLE_PROJECT }}
+        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        export_default_credentials: true
 
-      - name: Streamlit smoke test
-        run: |
-          python -c "import streamlit as st; print('Streamlit OK')"
-
-      - name: Build Docker image
-        run: |
-          docker build -t football-betting-app .
+    - name: build and push the docker image
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        gcloud auth configure-docker europe-west2-docker.pkg.dev
+        docker build -t europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:latest .
+        docker push europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:latest
 
