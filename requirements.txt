@@ -24,6 +24,10 @@ idna==3.4
 urllib3==2.0.6
 soupsieve==2.5
 
+# Web scraping and browser automation
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+
 # Utility packages
 click==8.1.7
 colorama==0.4.6

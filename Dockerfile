@@ -8,7 +8,17 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
+    wget \
+    gnupg \
+    unzip \
+    curl \
+    chromium \
+    chromium-driver \
     && rm -rf /var/lib/apt/lists/*
+
+# Set Chrome options for headless operation
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
 # Copy and install Python dependencies
 COPY requirements.txt .
