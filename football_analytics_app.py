@@ -1,0 +1,773 @@
+import streamlit as st
+import json
+from datetime import datetime
+import sys
+
+# Add current directory to path to import our betting system
+sys.path.append('.')
+from working_betting_system import convert_fractional_to_decimal, AccumulatorBettingModel
+from football_prediction_model import FootballPredictionModel
+from best_match_outcomes import BestMatchOutcomeSelector
+
+# Configure the page
+st.set_page_config(
+    page_title="Football Analytics & Betting",
+    page_icon="⚽",
+    layout="wide"
+)
+
+# Load data functions
+@st.cache_data(ttl=3600)
+def load_merged_data():
+    """Load merged match data"""
+    try:
+        with open('merged_match_data.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        st.error("merged_match_data.json not found. Please run the data merger first.")
+        return []
+
+@st.cache_data(ttl=3600)
+def load_predictions():
+    """Load match predictions"""
+    try:
+        with open('match_predictions.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        st.warning("match_predictions.json not found. Only showing basic match data.")
+        return []
+
+@st.cache_data(ttl=3600)
+def load_best_match_outcomes():
+    """Load best match outcomes data"""
+    try:
+        selector = BestMatchOutcomeSelector()
+        ranked_outcomes = selector.select_best_outcomes_per_match()
+        return ranked_outcomes
+    except Exception as e:
+        st.error(f"Error loading best outcomes: {e}")
+        return []
+
+@st.cache_data(ttl=3600)    
+def load_match_data():
+    from soccerway_scraper import main as soccerway_main
+    soccerway_main()
+    from soccerstats_scraper import main as soccerstats_main
+    soccerstats_main()
+    from match_data_merger import main as merger_main
+    merger_main()
+    from football_prediction_model import main as prediction_main
+    prediction_main()
+    from best_match_outcomes import main as best_outcomes_main
+    best_outcomes_main()
+
+def main():
+    """Main Streamlit app"""
+    
+    # App title  
+    st.title("⚽ Football Analytics & Betting Platform")
+    
+    # Initialize data loading
+    if 'data_loaded' not in st.session_state:
+        with st.spinner("🚀 Loading match data and generating predictions..."):
+            load_match_data()
+            st.session_state.data_loaded = True
+            st.success("✅ Ready!")
+    
+    st.markdown("---")
+    
+    # Create tabs
+    tab1, tab2 = st.tabs(["🏆 Match Predictions", "💰 Betting Accumulators"])
+    
+    with tab1:
+        display_match_predictions()
+    
+    with tab2:
+        display_betting_accumulators()
+    
+    # Footer
+    st.markdown("---")
+    st.markdown("*Data updated: " + datetime.now().strftime("%Y-%m-%d %H:%M") + "*")
+def generate_betting_analysis():
+    """Generate betting analysis using our system"""
+    try:
+        merged_data = load_merged_data()
+        if not merged_data:
+            return None
+            
+        betting_model = AccumulatorBettingModel(min_probability=0.25, max_odds=6.0)
+        selections = []
+        
+        for match in merged_data:
+            if not isinstance(match, dict):
+                continue
+                
+            home_team = match.get('home_team', 'Unknown')
+            away_team = match.get('away_team', 'Unknown')
+            league = match.get('league', 'Unknown')
+            
+            # Convert odds
+            odds_1_decimal = convert_fractional_to_decimal(match.get('odds_1'))
+            odds_x_decimal = convert_fractional_to_decimal(match.get('odds_x'))
+            odds_2_decimal = convert_fractional_to_decimal(match.get('odds_2'))
+            
+            # Create selections for each outcome
+            outcomes = [
+                ('home_win', odds_1_decimal, '1'),
+                ('draw', odds_x_decimal, 'X'), 
+                ('away_win', odds_2_decimal, '2')
+            ]
+            
+            for outcome_name, decimal_odds, symbol in outcomes:
+                if decimal_odds and decimal_odds > 1.0:
+                    implied_prob = 1.0 / decimal_odds
+                    
+                    selection = {
+                        'outcome': outcome_name,
+                        'probability': implied_prob,
+                        'odds': decimal_odds,
+                        'confidence': 0.4,
+                        'source': 'odds_only',
+                        'expected_value': (implied_prob * decimal_odds) - 1,
+                        'risk_score': betting_model._calculate_risk_score(implied_prob, 0.4, decimal_odds),
+                        'match_info': {
+                            'home_team': home_team,
+                            'away_team': away_team,
+                            'league': league,
+                            'time': match.get('time', 'TBD'),
+                            'date': match.get('date', 'TBD')
+                        },
+                        'selection_symbol': symbol
+                    }
+                    
+                    if (selection['probability'] >= betting_model.min_probability and 
+                        selection['odds'] <= betting_model.max_odds):
+                        selections.append(selection)
+        
+        # Add confidence score for ranking
+        for selection in selections:
+            selection['confidence_score'] = selection['confidence']
+        
+        # Rank selections and generate accumulators
+        ranked_selections = betting_model.rank_selections(selections)
+        accumulators = betting_model.generate_multiple_accumulators(ranked_selections, max_fold=6)
+        
+        return {
+            'total_matches': len(merged_data),
+            'total_selections': len(selections),
+            'ranked_selections': ranked_selections,
+            'accumulators': accumulators,
+            'best_single_bet': ranked_selections[0] if ranked_selections else None,
+            'best_accumulator': accumulators[0] if accumulators else None
+        }
+    except Exception as e:
+        st.error(f"Error generating betting analysis: {e}")
+        return None
+
+@st.cache_data(ttl=3600)
+def generate_live_prediction(match_data):
+    """Generate prediction for a single match using the football prediction model"""
+    try:
+        prediction_model = FootballPredictionModel()
+        prediction = prediction_model.ensemble_prediction(match_data)
+        
+        # Extract expected goals from statistical prediction
+        if 'statistical' in prediction.get('predictions', {}):
+            stat_pred = prediction['predictions']['statistical']
+            
+            # Calculate expected goals from the model
+            home_stats = match_data.get('home_team_stats', {})
+            away_stats = match_data.get('away_team_stats', {})
+            
+            if home_stats and away_stats:
+                home_xg, away_xg = prediction_model.calculate_expected_goals(home_stats, away_stats)
+                
+                # Add score prediction and xG analysis to the prediction
+                prediction['score_prediction'] = {
+                    'predicted_home_goals': home_xg,
+                    'predicted_away_goals': away_xg
+                }
+                
+                prediction['xg_analysis'] = {
+                    'home_xg': home_xg,
+                    'away_xg': away_xg
+                }
+                
+                # Add most likely score from probabilities
+                if 'score_probabilities' in stat_pred:
+                    sorted_scores = sorted(stat_pred['score_probabilities'].items(), 
+                                         key=lambda x: x[1], reverse=True)
+                    if sorted_scores:
+                        most_likely_score = sorted_scores[0][0]  # e.g., "2-1"
+                        home_score, away_score = most_likely_score.split('-')
+                        prediction['most_likely_score'] = {
+                            'home_goals': int(home_score),
+                            'away_goals': int(away_score),
+                            'probability': sorted_scores[0][1]
+                        }
+        
+        return prediction
+    except Exception as e:
+        st.error(f"Error generating prediction: {e}")
+        return None
+
+def format_team_stats_table(stats, team_name):
+    """Format team statistics as a nice table display"""
+    if not stats or stats == 'N/A':
+        st.write("No stats available")
+        return
+    
+    if isinstance(stats, dict):
+        # Key statistics to highlight
+        key_stats = {
+            'Games Played': stats.get('gp', 'N/A'),
+            'Win %': stats.get('w%', 'N/A'),
+            'Points/Game': stats.get('points_per_game', 'N/A'),
+            'Goals For': stats.get('gf', 'N/A'),
+            'Goals Against': stats.get('ga', 'N/A'),
+            'Total Goals': stats.get('tg', 'N/A'),
+            'Clean Sheets %': stats.get('cs', 'N/A'),
+            'Both Teams Score %': stats.get('bts', 'N/A'),
+            'Over 2.5 Goals %': stats.get('2.5+', 'N/A')
+        }
+        
+        # Create two columns for stats
+        col1, col2 = st.columns(2)
+        
+        stats_items = list(key_stats.items())
+        mid_point = len(stats_items) // 2
+        
+        with col1:
+            for key, value in stats_items[:mid_point]:
+                if value and value != 'N/A':
+                    st.metric(key, value)
+        
+        with col2:
+            for key, value in stats_items[mid_point:]:
+                if value and value != 'N/A':
+                    st.metric(key, value)
+    else:
+        st.write("No structured stats available")
+
+def display_match_predictions():
+    """Display matches with predictions and stats"""
+    st.header("⚽ Match Predictions & Statistics")
+    
+    merged_data = load_merged_data()
+    predictions = load_predictions()
+    
+    # Create predictions lookup
+    predictions_dict = {}
+    for pred in predictions:
+        if isinstance(pred, dict):
+            key = f"{pred.get('home_team', '')} vs {pred.get('away_team', '')}"
+            predictions_dict[key] = pred
+    
+    if not merged_data:
+        st.error("No match data available")
+        return
+    
+    # Filter controls
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Create combined region-league options
+        league_combinations = []
+        for match in merged_data:
+            if isinstance(match, dict):
+                region = match.get('region', 'Unknown')
+                league = match.get('league', 'Unknown')
+                combination = f"{region} - {league}"
+                if combination not in league_combinations:
+                    league_combinations.append(combination)
+        
+        league_combinations.sort()
+        selected_league_combinations = st.multiselect(
+            "Filter by Region - League", 
+            league_combinations, 
+            default=league_combinations  # Show ALL leagues by default
+        )
+    
+    with col2:
+        show_only_with_predictions = st.checkbox("Only matches with predictions", value=False)
+    
+    # Filter matches
+    filtered_matches = []
+    for match in merged_data:
+        if not isinstance(match, dict):
+            continue
+            
+        league = match.get('league', 'Unknown')
+        region = match.get('region', 'Unknown')
+        combination = f"{region} - {league}"
+        
+        if combination not in selected_league_combinations:
+            continue
+            
+        match_key = f"{match.get('home_team', '')} vs {match.get('away_team', '')}"
+        has_prediction = match_key in predictions_dict
+        
+        if show_only_with_predictions and not has_prediction:
+            continue
+            
+        filtered_matches.append(match)
+    
+    st.write(f"Showing {len(filtered_matches)} matches")
+    
+    # Group matches by time segments
+    def get_time_segment(time_str):
+        """Convert time string to time segment"""
+        if not time_str or time_str == 'TBD':
+            return "⏰ Time TBD"
+        
+        try:
+            # Handle different time formats
+            time_str = time_str.strip()
+            if ':' in time_str:
+                hour = int(time_str.split(':')[0])
+            else:
+                # If just a number, assume it's hour
+                hour = int(time_str)
+        except (ValueError, TypeError):
+            return "⏰ Time TBD"
+        
+        # Create time segments
+        if 6 <= hour < 12:
+            return "🌅 Morning (06:00 - 11:59)"
+        elif 12 <= hour < 15:
+            return "☀️ Early Afternoon (12:00 - 14:59)"
+        elif 15 <= hour < 18:
+            return "🌤️ Late Afternoon (15:00 - 17:59)"
+        elif 18 <= hour < 21:
+            return "🌆 Evening (18:00 - 20:59)"
+        elif 21 <= hour < 24:
+            return "🌙 Night (21:00 - 23:59)"
+        else:  # 0-5
+            return "🌌 Late Night (00:00 - 05:59)"
+    
+    # Group matches by time
+    time_groups = {}
+    for match in filtered_matches:
+        time_segment = get_time_segment(match.get('time'))
+        if time_segment not in time_groups:
+            time_groups[time_segment] = []
+        time_groups[time_segment].append(match)
+    
+    # Sort time groups in chronological order
+    time_order = [
+        "🌅 Morning (06:00 - 11:59)",
+        "☀️ Early Afternoon (12:00 - 14:59)", 
+        "🌤️ Late Afternoon (15:00 - 17:59)",
+        "🌆 Evening (18:00 - 20:59)",
+        "🌙 Night (21:00 - 23:59)",
+        "🌌 Late Night (00:00 - 05:59)",
+        "⏰ Time TBD"
+    ]
+    
+    # Display matches grouped by time
+    for time_segment in time_order:
+        if time_segment in time_groups:
+            matches_in_segment = time_groups[time_segment]
+            
+            # Sort matches within segment by actual time
+            matches_in_segment.sort(key=lambda m: m.get('time', 'ZZ:ZZ'))
+            
+            st.subheader(f"{time_segment} ({len(matches_in_segment)} matches)")
+            
+            # Display matches in this time segment
+            for match in matches_in_segment:
+                home_team = match.get('home_team', 'Unknown')
+                away_team = match.get('away_team', 'Unknown')
+                league = match.get('league', 'Unknown')
+                region = match.get('region', 'Unknown')
+                time = match.get('time', 'TBD')
+                
+                match_key = f"{home_team} vs {away_team}"
+                prediction = predictions_dict.get(match_key)
+                
+                # Create expandable match card
+                with st.expander(f"🏆 {home_team} vs {away_team} ({league}) - {time}"):
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        st.subheader("Match Info")
+                        st.write(f"**League:** {league}")
+                        st.write(f"**Region:** {region}")
+                        st.write(f"**Time:** {time}")
+                        
+                        # Show scores if available
+                        home_score = match.get('home_score')
+                        away_score = match.get('away_score')
+                        if home_score is not None and away_score is not None:
+                            st.write(f"**Score:** {home_score} - {away_score}")
+                        
+                        # Show odds
+                        odds_1 = match.get('odds_1')
+                        odds_x = match.get('odds_x')
+                        odds_2 = match.get('odds_2')
+                        
+                        if odds_1 or odds_x or odds_2:
+                            st.write("**Odds:**")
+                            if odds_1: st.write(f"Home: {odds_1}")
+                            if odds_x: st.write(f"Draw: {odds_x}")
+                            if odds_2: st.write(f"Away: {odds_2}")
+                    
+                    with col2:
+                        st.subheader("Team Statistics")
+                        
+                        home_stats = match.get('home_team_stats', {})
+                        away_stats = match.get('away_team_stats', {})
+                        
+                        # Home team stats
+                        st.write(f"**🏠 {home_team}**")
+                        if home_stats and home_stats != 'N/A':
+                            format_team_stats_table(home_stats, home_team)
+                        else:
+                            st.write("No stats available")
+                        
+                        st.markdown("---")
+                        
+                        # Away team stats
+                        st.write(f"**✈️ {away_team}**")
+                        if away_stats and away_stats != 'N/A':
+                            format_team_stats_table(away_stats, away_team)
+                        else:
+                            st.write("No stats available")
+                    
+                    with col3:
+                        st.subheader("Predictions")
+                        
+                        match_key = f"{home_team} vs {away_team}"
+                        prediction = predictions_dict.get(match_key)
+                        
+                        # If no prediction exists but we have team stats, generate one
+                        if not prediction and match.get('home_team_stats') and match.get('away_team_stats'):
+                            with st.spinner("Generating live prediction..."):
+                                prediction = generate_live_prediction(match)
+                                if prediction:
+                                    st.success("✨ Live prediction generated!")
+                        
+                        if prediction:
+                            # Show score prediction prominently at top
+                            if 'score_prediction' in prediction:
+                                score_pred = prediction['score_prediction']
+                                pred_home = score_pred.get('predicted_home_goals', 'N/A')
+                                pred_away = score_pred.get('predicted_away_goals', 'N/A')
+                                if pred_home != 'N/A' and pred_away != 'N/A':
+                                    st.success(f"⚽ **Predicted Score: {pred_home:.1f} - {pred_away:.1f}**")
+                            
+                            # Show most likely exact score
+                            if 'most_likely_score' in prediction:
+                                likely_score = prediction['most_likely_score']
+                                home_goals = likely_score['home_goals']
+                                away_goals = likely_score['away_goals']
+                                probability = likely_score['probability']
+                                st.info(f"🎯 **Most Likely Score: {home_goals}-{away_goals}** ({probability:.1%} chance)")
+                            
+                            # Show expected goals prominently
+                            if 'xg_analysis' in prediction:
+                                xg = prediction['xg_analysis']
+                                home_xg = xg.get('home_xg', 'N/A')
+                                away_xg = xg.get('away_xg', 'N/A')
+                                if isinstance(home_xg, (int, float)) and isinstance(away_xg, (int, float)):
+                                    st.info(f"📊 **Expected Goals: {home_xg:.2f} - {away_xg:.2f}**")
+                            
+                            # Show prediction results
+                            preds = prediction.get('predictions', {})
+                            
+                            if 'ensemble' in preds:
+                                ensemble = preds['ensemble']
+                                st.write("**📊 Outcome Probabilities:**")
+                                
+                                outcomes = ensemble.get('outcome_probabilities', {})
+                                
+                                # Use columns for probabilities
+                                prob_col1, prob_col2, prob_col3 = st.columns(3)
+                                
+                                with prob_col1:
+                                    if 'home_win' in outcomes:
+                                        st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
+                                
+                                with prob_col2:
+                                    if 'draw' in outcomes:
+                                        st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
+                                
+                                with prob_col3:
+                                    if 'away_win' in outcomes:
+                                        st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
+                                
+                                confidence = ensemble.get('confidence_score', 0)
+                                if confidence > 0:
+                                    st.write(f"**🎯 Confidence:** {confidence:.1%}")
+                            
+                            elif 'statistical' in preds:
+                                stats_pred = preds['statistical']
+                                st.write("**📈 Statistical Prediction:**")
+                                
+                                outcomes = stats_pred.get('outcome_probabilities', {})
+                                prob_col1, prob_col2, prob_col3 = st.columns(3)
+                                
+                                with prob_col1:
+                                    if 'home_win' in outcomes:
+                                        st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
+                                with prob_col2:
+                                    if 'draw' in outcomes:
+                                        st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
+                                with prob_col3:
+                                    if 'away_win' in outcomes:
+                                        st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
+                            
+                            elif 'odds_based' in preds:
+                                odds_pred = preds['odds_based']
+                                st.write("**💰 Odds-based Prediction:**")
+                                
+                                outcomes = odds_pred.get('outcome_probabilities', {})
+                                prob_col1, prob_col2, prob_col3 = st.columns(3)
+                                
+                                with prob_col1:
+                                    if 'home_win' in outcomes:
+                                        st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
+                                with prob_col2:
+                                    if 'draw' in outcomes:
+                                        st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
+                                with prob_col3:
+                                    if 'away_win' in outcomes:
+                                        st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
+                        
+                        else:
+                            if not match.get('home_team_stats') or not match.get('away_team_stats'):
+                                st.write("❌ No team statistics available for prediction")
+                            else:
+                                st.write("🔄 Click to generate prediction")
+
+def display_betting_accumulators():
+    """Display betting accumulator recommendations with slider"""
+    st.header("💰 Smart Accumulator Builder")
+    st.markdown("Build accumulators from the best match opportunities using our quality ranking system.")
+    
+    # Load best match outcomes
+    with st.spinner("Loading best match opportunities..."):
+        best_outcomes = load_best_match_outcomes()
+    
+    if not best_outcomes:
+        st.error("Unable to load match outcomes. Please ensure merged_match_data.json exists.")
+        return
+    
+    # Accumulator Controls
+    st.subheader("🎯 Accumulator Settings")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        fold_size = st.slider(
+            "Select Accumulator Size",
+            min_value=2,
+            max_value=len(best_outcomes),
+            value=3,
+            help="Choose how many selections for your accumulator"
+        )
+    
+    with col2:
+        min_quality = st.slider(
+            "Minimum Quality Score",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.6,
+            step=0.05,
+            help="Filter outcomes by quality score"
+        )
+    
+    with col3:
+        stake = st.number_input(
+            "Stake Amount (£)",
+            min_value=1.0,
+            max_value=1000.0,
+            value=10.0,
+            step=1.0
+        )
+    
+    # Filter outcomes based on quality
+    filtered_outcomes = [outcome for outcome in best_outcomes if outcome['quality_score'] >= min_quality]
+    
+    if len(filtered_outcomes) < fold_size:
+        st.warning(f"Only {len(filtered_outcomes)} outcomes meet your quality criteria. Lowering minimum quality or accumulator size.")
+        filtered_outcomes = best_outcomes[:fold_size]  # Take top outcomes anyway
+    
+    # Summary metrics
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total Matches", len(best_outcomes))
+    with col2:
+        st.metric("Quality Filtered", len(filtered_outcomes))
+    with col3:
+        st.metric("Selected for Accumulator", fold_size)
+    with col4:
+        avg_quality = sum(o['quality_score'] for o in filtered_outcomes[:fold_size]) / fold_size
+        st.metric("Avg Quality Score", f"{avg_quality:.3f}")
+    
+    # Build accumulator from top filtered outcomes
+    accumulator_selections = filtered_outcomes[:fold_size]
+    
+    if accumulator_selections:
+        st.subheader(f"🎯 Your {fold_size}-Fold Accumulator")
+        
+        # Calculate accumulator metrics
+        total_odds = 1.0
+        combined_probability = 1.0
+        total_edge = 0.0
+        
+        for selection in accumulator_selections:
+            total_odds *= selection['odds']
+            combined_probability *= selection['probability']
+            total_edge += max(0, selection['edge'])
+        
+        expected_value = (combined_probability * total_odds) - 1
+        total_return = stake * total_odds
+        profit = total_return - stake
+        expected_profit = stake * expected_value
+        
+        # Accumulator summary
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.metric("Total Odds", f"{total_odds:.2f}")
+            st.metric("Win Probability", f"{combined_probability:.2%}")
+            st.metric("Expected Value", f"{expected_value:.3f}")
+            
+        with col2:
+            st.metric("Potential Return", f"£{total_return:.2f}")
+            st.metric("Potential Profit", f"£{profit:.2f}")
+            st.metric("Expected Profit", f"£{expected_profit:.2f}")
+        
+        # Risk assessment
+        if combined_probability > 0.15:
+            risk_level = "🟢 Low Risk"
+        elif combined_probability > 0.05:
+            risk_level = "🟡 Medium Risk"
+        else:
+            risk_level = "🔴 High Risk"
+        
+        st.write(f"**Risk Level:** {risk_level}")
+        
+        # Recommendation
+        if expected_value > 0.1 and combined_probability > 0.1:
+            recommendation = "✅ Recommended - Good value with reasonable win chance"
+        elif expected_value > 0:
+            recommendation = "⚠️ Moderate - Positive expected value but lower win probability"
+        else:
+            recommendation = "❌ Not Recommended - Negative expected value"
+        
+        st.write(f"**Recommendation:** {recommendation}")
+        
+        # Show individual selections
+        st.subheader("📋 Individual Selections")
+        
+        for i, selection in enumerate(accumulator_selections, 1):
+            with st.expander(f"{i}. {selection['match_description']} - {selection['outcome_display']}"):
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.write(f"**Match:** {selection['match_description']}")
+                    st.write(f"**Selection:** {selection['outcome_display']} ({selection['symbol']})")
+                    st.write(f"**League:** {selection['match_info']['league']}")
+                    st.write(f"**Time:** {selection['match_info'].get('date', 'TBD')} {selection['match_info'].get('time', 'TBD')}")
+                
+                with col2:
+                    st.write(f"**Odds:** {selection['odds']:.2f}")
+                    st.write(f"**Probability:** {selection['probability']:.1%}")
+                    st.write(f"**Quality Score:** {selection['quality_score']:.3f}")
+                    st.write(f"**Strength:** {selection['recommendation_strength']}")
+                    if selection['edge'] > 0:
+                        st.write(f"**Value Edge:** +{selection['edge']:.1%}")
+        
+        # Quick copy format for betting slip
+        st.subheader("📝 Betting Slip Format")
+        slip_text = f"{fold_size}-Fold Accumulator (£{stake:.2f})\n"
+        for selection in accumulator_selections:
+            slip_text += f"• {selection['match_description']} - {selection['outcome_display']} @ {selection['odds']:.2f}\n"
+        slip_text += f"\nTotal Odds: {total_odds:.2f} | Potential Return: £{total_return:.2f}"
+        
+        st.code(slip_text, language=None)
+    
+    else:
+        st.warning("No suitable outcomes found for accumulator building.")
+
+@st.cache_data(ttl=3600)
+def generate_betting_analysis():
+    """Generate betting analysis using our system"""
+    try:
+        merged_data = load_merged_data()
+        if not merged_data:
+            return None
+            
+        betting_model = AccumulatorBettingModel(min_probability=0.25, max_odds=6.0)
+        selections = []
+        
+        for match in merged_data:
+            if not isinstance(match, dict):
+                continue
+                
+            home_team = match.get('home_team', 'Unknown')
+            away_team = match.get('away_team', 'Unknown')
+            league = match.get('league', 'Unknown')
+            
+            # Convert odds
+            odds_1_decimal = convert_fractional_to_decimal(match.get('odds_1'))
+            odds_x_decimal = convert_fractional_to_decimal(match.get('odds_x'))
+            odds_2_decimal = convert_fractional_to_decimal(match.get('odds_2'))
+            
+            # Create selections for each outcome
+            outcomes = [
+                ('home_win', odds_1_decimal, '1'),
+                ('draw', odds_x_decimal, 'X'), 
+                ('away_win', odds_2_decimal, '2')
+            ]
+            
+            for outcome_name, decimal_odds, symbol in outcomes:
+                if decimal_odds and decimal_odds > 1.0:
+                    implied_prob = 1.0 / decimal_odds
+                    
+                    selection = {
+                        'outcome': outcome_name,
+                        'probability': implied_prob,
+                        'odds': decimal_odds,
+                        'confidence': 0.4,
+                        'source': 'odds_only',
+                        'expected_value': (implied_prob * decimal_odds) - 1,
+                        'risk_score': betting_model._calculate_risk_score(implied_prob, 0.4, decimal_odds),
+                        'match_info': {
+                            'home_team': home_team,
+                            'away_team': away_team,
+                            'league': league,
+                            'time': match.get('time', 'TBD'),
+                            'date': match.get('date', 'TBD')
+                        },
+                        'selection_symbol': symbol
+                    }
+                    
+                    if (selection['probability'] >= betting_model.min_probability and 
+                        selection['odds'] <= betting_model.max_odds):
+                        selections.append(selection)
+        
+        # Add confidence score for ranking
+        for selection in selections:
+            selection['confidence_score'] = selection['confidence']
+        
+        # Rank selections and generate accumulators
+        ranked_selections = betting_model.rank_selections(selections)
+        accumulators = betting_model.generate_multiple_accumulators(ranked_selections, max_fold=6)
+        
+        return {
+            'total_matches': len(merged_data),
+            'total_selections': len(selections),
+            'ranked_selections': ranked_selections,
+            'accumulators': accumulators,
+            'best_single_bet': ranked_selections[0] if ranked_selections else None,
+            'best_accumulator': accumulators[0] if accumulators else None
+        }
+    except Exception as e:
+        st.error(f"Error generating betting analysis: {e}")
+        return None
+
+if __name__ == "__main__":
+    main()

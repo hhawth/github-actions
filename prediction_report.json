@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "total_matches": 147,
+    "with_statistics": 0,
+    "with_odds": 147,
+    "ensemble_predictions": 0,
+    "coverage_percentage": 0.0
+  },
+  "confidence_distribution": {
+    "High": 0,
+    "Medium": 0,
+    "Low": 0,
+    "None": 147
+  },
+  "high_confidence_predictions": 0,
+  "sample_predictions": []
+}

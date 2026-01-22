@@ -1,0 +1,3689 @@
+{
+  "generated_at": "2026-01-22T23:34:36.646031",
+  "total_matches": 147,
+  "matches_with_stats": 0,
+  "model_info": {
+    "home_advantage": 0.3,
+    "weights": {
+      "statistical": 0.6,
+      "odds_based": 0.4
+    }
+  },
+  "predictions": [
+    {
+      "match_info": {
+        "home_team": "Bologna",
+        "away_team": "Celtic",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5608856088560886,
+            "draw": 0.23837638376383766,
+            "away_win": 0.2007380073800738
+          },
+          "expected_goals": {
+            "home": 1.341328413284133,
+            "away": 0.8011070110701107
+          },
+          "bookmaker_margin": 0.04876160990712064
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Brann",
+        "away_team": "Midtjylland",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.2559414990859232,
+            "draw": 0.2705667276051188,
+            "away_win": 0.473491773308958
+          },
+          "expected_goals": {
+            "home": 0.8839122486288847,
+            "away": 1.210237659963437
+          },
+          "bookmaker_margin": 0.055984555984555984
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Fenerbahce",
+        "away_team": "Aston Villa",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4015464844452437,
+            "draw": 0.27117424923574895,
+            "away_win": 0.3272792663190074
+          },
+          "expected_goals": {
+            "home": 1.1023197266678655,
+            "away": 0.9909188994785111
+          },
+          "bookmaker_margin": 0.05361879499810529
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Feyenoord",
+        "away_team": "Sturm Graz",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.7250755287009064,
+            "draw": 0.1570996978851964,
+            "away_win": 0.1178247734138973
+          },
+          "expected_goals": {
+            "home": 1.5876132930513596,
+            "away": 0.676737160120846
+          },
+          "bookmaker_margin": 0.06089743589743568
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Freiburg",
+        "away_team": "M. Tel Aviv",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.759124087591241,
+            "draw": 0.14598540145985403,
+            "away_win": 0.09489051094890512
+          },
+          "expected_goals": {
+            "home": 1.6386861313868615,
+            "away": 0.6423357664233577
+          },
+          "bookmaker_margin": 0.05384615384615388
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Malmo FF",
+        "away_team": "Red Star",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.19965911857803748,
+            "draw": 0.23131239347455565,
+            "away_win": 0.5690284879474069
+          },
+          "expected_goals": {
+            "home": 0.7994886778670562,
+            "away": 1.3535427319211104
+          },
+          "bookmaker_margin": 0.054428754813864
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "PAOK",
+        "away_team": "Betis",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.45092838196286467,
+            "draw": 0.2705570291777188,
+            "away_win": 0.27851458885941643
+          },
+          "expected_goals": {
+            "home": 1.176392572944297,
+            "away": 0.9177718832891246
+          },
+          "bookmaker_margin": 0.05602240896358546
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Plzen",
+        "away_team": "FC Porto",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.18018018018018017,
+            "draw": 0.25225225225225223,
+            "away_win": 0.5675675675675677
+          },
+          "expected_goals": {
+            "home": 0.7702702702702703,
+            "away": 1.3513513513513515
+          },
+          "bookmaker_margin": 0.05714285714285716
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Young Boys",
+        "away_team": "Lyon",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.21799307958477504,
+            "draw": 0.24221453287197234,
+            "away_win": 0.5397923875432525
+          },
+          "expected_goals": {
+            "home": 0.8269896193771625,
+            "away": 1.3096885813148789
+          },
+          "bookmaker_margin": 0.05860805860805862
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "AS Roma",
+        "away_team": "Stuttgart",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.42285270112708895,
+            "draw": 0.27982899339292655,
+            "away_win": 0.29731830547998445
+          },
+          "expected_goals": {
+            "home": 1.1342790516906334,
+            "away": 0.9459774582199767
+          },
+          "bookmaker_margin": 0.051062091503268014
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Braga",
+        "away_team": "Nottm Forest",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3252276218666867,
+            "draw": 0.3042451946494811,
+            "away_win": 0.37052718348383235
+          },
+          "expected_goals": {
+            "home": 0.98784143280003,
+            "away": 1.0557907752257485
+          },
+          "bookmaker_margin": 0.060265374225329627
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Celta Vigo",
+        "away_team": "Lille",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.42307692307692313,
+            "draw": 0.2884615384615385,
+            "away_win": 0.2884615384615385
+          },
+          "expected_goals": {
+            "home": 1.1346153846153846,
+            "away": 0.9326923076923077
+          },
+          "bookmaker_margin": 0.050505050505050386
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Din. Zagreb",
+        "away_team": "FCSB",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5535483870967742,
+            "draw": 0.2451612903225807,
+            "away_win": 0.20129032258064516
+          },
+          "expected_goals": {
+            "home": 1.3303225806451613,
+            "away": 0.8019354838709678
+          },
+          "bookmaker_margin": 0.045883940620782715
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Ferencvaros",
+        "away_team": "Panathinaikos",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3870601589103292,
+            "draw": 0.30646992054483546,
+            "away_win": 0.30646992054483546
+          },
+          "expected_goals": {
+            "home": 1.0805902383654937,
+            "away": 0.9597048808172532
+          },
+          "bookmaker_margin": 0.05256869772998796
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Nice",
+        "away_team": "G.A. Eagles",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4558724832214765,
+            "draw": 0.2508389261744966,
+            "away_win": 0.29328859060402684
+          },
+          "expected_goals": {
+            "home": 1.1838087248322147,
+            "away": 0.9399328859060403
+          },
+          "bookmaker_margin": 0.04911107199436726
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Rangers",
+        "away_team": "Ludogorets",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5057034220532319,
+            "draw": 0.24714828897338403,
+            "away_win": 0.24714828897338403
+          },
+          "expected_goals": {
+            "home": 1.258555133079848,
+            "away": 0.870722433460076
+          },
+          "bookmaker_margin": 0.06477732793522262
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Salzburg",
+        "away_team": "Basel",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4120836560805577,
+            "draw": 0.249419054996127,
+            "away_win": 0.3384972889233152
+          },
+          "expected_goals": {
+            "home": 1.1181254841208366,
+            "away": 1.0077459333849728
+          },
+          "bookmaker_margin": 0.05508336057535157
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Utrecht",
+        "away_team": "Genk",
+        "league": "Europa League - League phase",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.2785145888594165,
+            "draw": 0.27055702917771884,
+            "away_win": 0.4509283819628648
+          },
+          "expected_goals": {
+            "home": 0.9177718832891247,
+            "away": 1.1763925729442972
+          },
+          "bookmaker_margin": 0.056022408963585235
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Aldosivi",
+        "away_team": "Defensa y Justicia",
+        "league": "Liga Profesional - Apertura",
+        "region": "ARGENTINA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3540887660543001,
+            "draw": 0.3630304015607219,
+            "away_win": 0.2828808323849781
+          },
+          "expected_goals": {
+            "home": 1.0311331490814502,
+            "away": 0.9243212485774671
+          },
+          "bookmaker_margin": 0.07122953674677812
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Banfield",
+        "away_team": "Huracan",
+        "league": "Liga Profesional - Apertura",
+        "region": "ARGENTINA",
+        "time": "35"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3886010362694301,
+            "draw": 0.3626943005181348,
+            "away_win": 0.24870466321243523
+          },
+          "expected_goals": {
+            "home": 1.0829015544041452,
+            "away": 0.8730569948186528
+          },
+          "bookmaker_margin": 0.07222222222222219
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Union Santa Fe",
+        "away_team": "Platense",
+        "league": "Liga Profesional - Apertura",
+        "region": "ARGENTINA",
+        "time": "35"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4899425287356322,
+            "draw": 0.3318965517241379,
+            "away_win": 0.17816091954022986
+          },
+          "expected_goals": {
+            "home": 1.2349137931034484,
+            "away": 0.7672413793103448
+          },
+          "bookmaker_margin": 0.06912442396313367
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Argentinos Jrs",
+        "away_team": "Midland",
+        "league": "Copa Argentina",
+        "region": "ARGENTINA",
+        "time": "Pen"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.7511488158359844,
+            "draw": 0.17674089784376104,
+            "away_win": 0.0721102863202545
+          },
+          "expected_goals": {
+            "home": 1.6267232237539766,
+            "away": 0.6081654294803818
+          },
+          "bookmaker_margin": 0.10941176470588254
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al-Gharafa",
+        "away_team": "Al Sharjah",
+        "league": "Super Cup UAE / Qatar",
+        "region": "ASIA",
+        "time": "Pen"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.39358069656271344,
+            "draw": 0.260414295470066,
+            "away_win": 0.34600500796722056
+          },
+          "expected_goals": {
+            "home": 1.0903710448440702,
+            "away": 1.0190075119508308
+          },
+          "bookmaker_margin": 0.11158906882591091
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Flamengo",
+        "away_team": "Vasco",
+        "league": "Carioca - Taca Guanabara",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5293532338308456,
+            "draw": 0.2626865671641791,
+            "away_win": 0.20796019900497514
+          },
+          "expected_goals": {
+            "home": 1.2940298507462684,
+            "away": 0.8119402985074627
+          },
+          "bookmaker_margin": 0.10197368421052633
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Madureira",
+        "away_team": "Sampaio Correa FE",
+        "league": "Carioca - Taca Guanabara",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.42633009027960383,
+            "draw": 0.31142080813392936,
+            "away_win": 0.26224910158646686
+          },
+          "expected_goals": {
+            "home": 1.1394951354194056,
+            "away": 0.8933736523797002
+          },
+          "bookmaker_margin": 0.10381191950464386
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Boavista",
+        "away_team": "Portuguesa RJ",
+        "league": "Carioca - Taca Guanabara",
+        "region": "BRAZIL",
+        "time": "74"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.41473864610111394,
+            "draw": 0.31105398457583544,
+            "away_win": 0.27420736932305056
+          },
+          "expected_goals": {
+            "home": 1.1221079691516709,
+            "away": 0.9113110539845759
+          },
+          "bookmaker_margin": 0.10511363636363646
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Avai",
+        "away_team": "Chapecoense-SC",
+        "league": "Catarinense",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.30804248861911987,
+            "draw": 0.3399089529590288,
+            "away_win": 0.3520485584218513
+          },
+          "expected_goals": {
+            "home": 0.9620637329286799,
+            "away": 1.0280728376327768
+          },
+          "bookmaker_margin": 0.11591748768472909
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Marcilio Dias",
+        "away_team": "Barra FC",
+        "league": "Catarinense",
+        "region": "BRAZIL",
+        "time": "78"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4071246819338422,
+            "draw": 0.3078880407124682,
+            "away_win": 0.28498727735368956
+          },
+          "expected_goals": {
+            "home": 1.1106870229007633,
+            "away": 0.9274809160305344
+          },
+          "bookmaker_margin": 0.11647727272727271
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Concordia",
+        "away_team": "Figueirense",
+        "league": "Catarinense",
+        "region": "BRAZIL",
+        "time": "19"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.2522255192878338,
+            "draw": 0.29376854599406527,
+            "away_win": 0.45400593471810086
+          },
+          "expected_goals": {
+            "home": 0.8783382789317508,
+            "away": 1.1810089020771513
+          },
+          "bookmaker_margin": 0.10130718954248374
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Avenida",
+        "away_team": "Ypiranga FC",
+        "league": "Gaucho",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.2549889135254989,
+            "draw": 0.30598669623059865,
+            "away_win": 0.4390243902439025
+          },
+          "expected_goals": {
+            "home": 0.8824833702882484,
+            "away": 1.1585365853658538
+          },
+          "bookmaker_margin": 0.08937198067632846
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Guarany de Bage",
+        "away_team": "Gremio",
+        "league": "Gaucho",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.17250126839167934,
+            "draw": 0.24150177574835108,
+            "away_win": 0.5859969558599696
+          },
+          "expected_goals": {
+            "home": 0.758751902587519,
+            "away": 1.3789954337899544
+          },
+          "bookmaker_margin": 0.10420168067226898
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Juventude",
+        "away_team": "SER Caxias",
+        "league": "Gaucho",
+        "region": "BRAZIL",
+        "time": "73"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5172413793103449,
+            "draw": 0.30172413793103453,
+            "away_win": 0.18103448275862072
+          },
+          "expected_goals": {
+            "home": 1.2758620689655173,
+            "away": 0.771551724137931
+          },
+          "bookmaker_margin": 0.10476190476190461
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "America MG",
+        "away_team": "Atletico-MG",
+        "league": "Mineiro",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.22812913738669932,
+            "draw": 0.3058356248090437,
+            "away_win": 0.4660352378042571
+          },
+          "expected_goals": {
+            "home": 0.842193706080049,
+            "away": 1.1990528567063856
+          },
+          "bookmaker_margin": 0.12396978021978011
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Cruzeiro",
+        "away_team": "Democrata GV",
+        "league": "Mineiro",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.7636363636363638,
+            "draw": 0.16115702479338845,
+            "away_win": 0.07520661157024794
+          },
+          "expected_goals": {
+            "home": 1.6454545454545457,
+            "away": 0.6128099173553719
+          },
+          "bookmaker_margin": 0.1080586080586079
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Ponte Preta",
+        "away_team": "Sao Bernardo",
+        "league": "Paulista",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.263456090651558,
+            "draw": 0.29745042492917845,
+            "away_win": 0.4390934844192634
+          },
+          "expected_goals": {
+            "home": 0.895184135977337,
+            "away": 1.158640226628895
+          },
+          "bookmaker_margin": 0.08448540706605234
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Santos",
+        "away_team": "Corinthians",
+        "league": "Paulista",
+        "region": "BRAZIL",
+        "time": "HT"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4247787610619469,
+            "draw": 0.2920353982300885,
+            "away_win": 0.2831858407079646
+          },
+          "expected_goals": {
+            "home": 1.1371681415929205,
+            "away": 0.9247787610619469
+          },
+          "bookmaker_margin": 0.07007575757575757
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Botafogo SP",
+        "away_team": "Primavera",
+        "league": "Paulista",
+        "region": "BRAZIL",
+        "time": "34"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4049281314168378,
+            "draw": 0.3211498973305955,
+            "away_win": 0.27392197125256673
+          },
+          "expected_goals": {
+            "home": 1.1073921971252567,
+            "away": 0.9108829568788501
+          },
+          "bookmaker_margin": 0.07372784196137228
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Gremio U20",
+        "away_team": "Cruzeiro U20",
+        "league": "Copinha - Play Offs",
+        "region": "BRAZIL",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.23409363745498196,
+            "draw": 0.2509003601440576,
+            "away_win": 0.5150060024009604
+          },
+          "expected_goals": {
+            "home": 0.8511404561824729,
+            "away": 1.2725090036014406
+          },
+          "bookmaker_margin": 0.12415654520917685
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Renaissance",
+        "away_team": "Colombe",
+        "league": "Premiere Division - LPFN",
+        "region": "CHAD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Santa Fe",
+        "away_team": "Junior",
+        "league": "Super Cup",
+        "region": "COLOMBIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.504,
+            "draw": 0.28800000000000003,
+            "away_win": 0.208
+          },
+          "expected_goals": {
+            "home": 1.256,
+            "away": 0.812
+          },
+          "bookmaker_margin": 0.06837606837606836
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Groupe Bazano",
+        "away_team": "Malole",
+        "league": "Ligue 1",
+        "region": "CONGO DR",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "San Carlos",
+        "away_team": "Puntarenas FC",
+        "league": "Primera Division - Clausura",
+        "region": "COSTA RICA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.35009230100988165,
+            "draw": 0.2964491258551417,
+            "away_win": 0.35345857313497664
+          },
+          "expected_goals": {
+            "home": 1.0251384515148225,
+            "away": 1.030187859702465
+          },
+          "bookmaker_margin": 0.08814841072905577
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Cartagines",
+        "away_team": "Alajuelense",
+        "league": "Primera Division - Clausura",
+        "region": "COSTA RICA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3098927294398093,
+            "draw": 0.3098927294398093,
+            "away_win": 0.38021454112038144
+          },
+          "expected_goals": {
+            "home": 0.9648390941597139,
+            "away": 1.0703218116805722
+          },
+          "bookmaker_margin": 0.11273209549071628
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Haras El Hodood",
+        "away_team": "Kahrabaa Ismailia",
+        "league": "Premier League",
+        "region": "EGYPT",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.35574587754058545,
+            "draw": 0.3292854403681452,
+            "away_win": 0.3149686820912693
+          },
+          "expected_goals": {
+            "home": 1.0336188163108782,
+            "away": 0.972453023136904
+          },
+          "bookmaker_margin": 0.10431959345002828
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Wadi Degla",
+        "away_team": "Ghazl El Mahallah",
+        "league": "Premier League",
+        "region": "EGYPT",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.41875087327092353,
+            "draw": 0.3360346513902473,
+            "away_win": 0.2452144753388291
+          },
+          "expected_goals": {
+            "home": 1.1281263099063854,
+            "away": 0.8678217130082436
+          },
+          "bookmaker_margin": 0.10217910217910209
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Ismaily",
+        "away_team": "Arab Contractors",
+        "league": "Premier League",
+        "region": "EGYPT",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.25752343364578195,
+            "draw": 0.3418845584607795,
+            "away_win": 0.4005920078934386
+          },
+          "expected_goals": {
+            "home": 0.886285150468673,
+            "away": 1.1008880118401578
+          },
+          "bookmaker_margin": 0.1094690749863163
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Luis Angel Firpo",
+        "away_team": "Zacatecoluca",
+        "league": "Primera Division - Clausura",
+        "region": "EL SALVADOR",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.6637931034482759,
+            "draw": 0.21551724137931036,
+            "away_win": 0.12068965517241381
+          },
+          "expected_goals": {
+            "home": 1.495689655172414,
+            "away": 0.6810344827586208
+          },
+          "bookmaker_margin": 0.10476190476190461
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Hercules",
+        "away_team": "FAS",
+        "league": "Primera Division - Clausura",
+        "region": "EL SALVADOR",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.15552054154995332,
+            "draw": 0.2200046685340803,
+            "away_win": 0.6244747899159663
+          },
+          "expected_goals": {
+            "home": 0.7332808123249299,
+            "away": 1.4367121848739495
+          },
+          "bookmaker_margin": 0.10862392443553093
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Metapan",
+        "away_team": "Aguila",
+        "league": "Primera Division - Clausura",
+        "region": "EL SALVADOR",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.37109600092197764,
+            "draw": 0.31347239829434137,
+            "away_win": 0.315431600783681
+          },
+          "expected_goals": {
+            "home": 1.0566440013829665,
+            "away": 0.9731474011755215
+          },
+          "bookmaker_margin": 0.10959079283887463
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Inter F.A",
+        "away_team": "Fuerte San Francisco",
+        "league": "Primera Division - Clausura",
+        "region": "EL SALVADOR",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4709409351496345,
+            "draw": 0.2860674275495714,
+            "away_win": 0.24299163730079415
+          },
+          "expected_goals": {
+            "home": 1.2064114027244517,
+            "away": 0.8644874559511913
+          },
+          "bookmaker_margin": 0.11226161226161224
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Lincoln",
+        "away_team": "Burton",
+        "league": "League One",
+        "region": "ENGLAND",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.6264236902050114,
+            "draw": 0.22779043280182235,
+            "away_win": 0.1457858769931663
+          },
+          "expected_goals": {
+            "home": 1.4396355353075172,
+            "away": 0.7186788154897494
+          },
+          "bookmaker_margin": 0.09749999999999992
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Bournemouth U21",
+        "away_team": "Reading U21",
+        "league": "Premier League Cup",
+        "region": "ENGLAND",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3275716694772344,
+            "draw": 0.24346543001686335,
+            "away_win": 0.42896290050590213
+          },
+          "expected_goals": {
+            "home": 0.9913575042158516,
+            "away": 1.1434443507588532
+          },
+          "bookmaker_margin": 0.1100971100971102
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Oxford Utd U18",
+        "away_team": "Colchester U18",
+        "league": "FA Youth Cup",
+        "region": "ENGLAND",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Newcastle Utd U18",
+        "away_team": "Crystal Palace U18",
+        "league": "FA Youth Cup",
+        "region": "ENGLAND",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Southend U18",
+        "away_team": "Wrexham U18",
+        "league": "FA Youth Cup",
+        "region": "ENGLAND",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Dire Dawa",
+        "away_team": "Ethiopian Insurance",
+        "league": "Premier League",
+        "region": "ETHIOPIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.28530259365994237,
+            "draw": 0.3216138328530259,
+            "away_win": 0.39308357348703166
+          },
+          "expected_goals": {
+            "home": 0.9279538904899136,
+            "away": 1.0896253602305475
+          },
+          "bookmaker_margin": 0.13066145324209844
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Mechal",
+        "away_team": "St. George",
+        "league": "Premier League",
+        "region": "ETHIOPIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3685942642219088,
+            "draw": 0.3516690173953926,
+            "away_win": 0.27973671838269865
+          },
+          "expected_goals": {
+            "home": 1.0528913963328632,
+            "away": 0.919605077574048
+          },
+          "bookmaker_margin": 0.11712184873949583
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Sidama Bunna",
+        "away_team": "Ethiopia Bunna",
+        "league": "Premier League",
+        "region": "ETHIOPIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4960212201591511,
+            "draw": 0.2917771883289125,
+            "away_win": 0.21220159151193632
+          },
+          "expected_goals": {
+            "home": 1.2440318302387268,
+            "away": 0.8183023872679045
+          },
+          "bookmaker_margin": 0.10882352941176476
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Leeds U21",
+        "away_team": "Anderlecht 2",
+        "league": "Premier League International Cup",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.2470341023508296,
+            "draw": 0.2328941032263713,
+            "away_win": 0.5200717944227992
+          },
+          "expected_goals": {
+            "home": 0.8705511535262445,
+            "away": 1.2801076916341987
+          },
+          "bookmaker_margin": 0.11320662768031187
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Southampton U21",
+        "away_team": "Jong PSV",
+        "league": "Premier League International Cup",
+        "region": "EUROPE",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.42146057890274913,
+            "draw": 0.2388276613782245,
+            "away_win": 0.33971175971902623
+          },
+          "expected_goals": {
+            "home": 1.1321908683541237,
+            "away": 1.0095676395785393
+          },
+          "bookmaker_margin": 0.11656524678837066
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Malacateco",
+        "away_team": "Marquense",
+        "league": "Liga Nacional - Clausura",
+        "region": "GUATEMALA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5568934376881397,
+            "draw": 0.26490066225165565,
+            "away_win": 0.1782059000602047
+          },
+          "expected_goals": {
+            "home": 1.3353401565322096,
+            "away": 0.767308850090307
+          },
+          "bookmaker_margin": 0.12229729729729732
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Municipal",
+        "away_team": "Mictlan",
+        "league": "Liga Nacional - Clausura",
+        "region": "GUATEMALA",
+        "time": "73"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.7403189066059226,
+            "draw": 0.17084282460136674,
+            "away_win": 0.08883826879271071
+          },
+          "expected_goals": {
+            "home": 1.6104783599088839,
+            "away": 0.6332574031890661
+          },
+          "bookmaker_margin": 0.12564102564102564
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Tractor",
+        "away_team": "Mes Rafsanjan",
+        "league": "Persian Gulf Pro League",
+        "region": "IRAN",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.6501784803671595,
+            "draw": 0.2427332993370729,
+            "away_win": 0.10708822029576745
+          },
+          "expected_goals": {
+            "home": 1.4752677205507392,
+            "away": 0.6606323304436512
+          },
+          "bookmaker_margin": 0.09859943977591046
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Kheybar Khorramabad",
+        "away_team": "Aluminium Arak",
+        "league": "Persian Gulf Pro League",
+        "region": "IRAN",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.41248016922263353,
+            "draw": 0.3781068217874141,
+            "away_win": 0.20941300898995238
+          },
+          "expected_goals": {
+            "home": 1.1187202538339502,
+            "away": 0.8141195134849286
+          },
+          "bookmaker_margin": 0.10198135198135194
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Malavan",
+        "away_team": "Foolad",
+        "league": "Persian Gulf Pro League",
+        "region": "IRAN",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3614130434782609,
+            "draw": 0.3804347826086956,
+            "away_win": 0.25815217391304346
+          },
+          "expected_goals": {
+            "home": 1.0421195652173914,
+            "away": 0.8872282608695652
+          },
+          "bookmaker_margin": 0.10676691729323307
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al Karkh",
+        "away_team": "Newroz",
+        "league": "Stars League",
+        "region": "IRAQ",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3814148548725307,
+            "draw": 0.33550380752676306,
+            "away_win": 0.28308133760070636
+          },
+          "expected_goals": {
+            "home": 1.0721222823087961,
+            "away": 0.9246220064010595
+          },
+          "bookmaker_margin": 0.10392300194931758
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al Quwa Al Jawiya",
+        "away_team": "Al-Qassim",
+        "league": "Stars League",
+        "region": "IRAQ",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.8073089700996677,
+            "draw": 0.132890365448505,
+            "away_win": 0.059800664451827246
+          },
+          "expected_goals": {
+            "home": 1.7109634551495017,
+            "away": 0.5897009966777409
+          },
+          "bookmaker_margin": 0.1148148148148147
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Diala",
+        "away_team": "Al Gharraf",
+        "league": "Stars League",
+        "region": "IRAQ",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.36127297176154194,
+            "draw": 0.347377857463021,
+            "away_win": 0.291349170775437
+          },
+          "expected_goals": {
+            "home": 1.041909457642313,
+            "away": 0.9370237561631555
+          },
+          "bookmaker_margin": 0.10719602977667497
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al-Karma",
+        "away_team": "Baghdad",
+        "league": "Stars League",
+        "region": "IRAQ",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5772847168347556,
+            "draw": 0.2532816136539953,
+            "away_win": 0.16943366951124905
+          },
+          "expected_goals": {
+            "home": 1.3659270752521333,
+            "away": 0.7541505042668736
+          },
+          "bookmaker_margin": 0.11358767019144378
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al Zawraa",
+        "away_team": "Al Najaf",
+        "league": "Stars League",
+        "region": "IRAQ",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.6563373126746254,
+            "draw": 0.23749047498094997,
+            "away_win": 0.10617221234442469
+          },
+          "expected_goals": {
+            "home": 1.484505969011938,
+            "away": 0.659258318516637
+          },
+          "bookmaker_margin": 0.10807768083309877
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Verona U20",
+        "away_team": "Cagliari U20",
+        "league": "Primavera 1",
+        "region": "ITALY",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4843808806925103,
+            "draw": 0.27098231087692887,
+            "away_win": 0.2446368084305608
+          },
+          "expected_goals": {
+            "home": 1.2265713210387654,
+            "away": 0.8669552126458412
+          },
+          "bookmaker_margin": 0.13547008547008543
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Bologna U20",
+        "away_team": "Cesena U20",
+        "league": "Primavera 1",
+        "region": "ITALY",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4366197183098592,
+            "draw": 0.28169014084507044,
+            "away_win": 0.28169014084507044
+          },
+          "expected_goals": {
+            "home": 1.1549295774647887,
+            "away": 0.9225352112676056
+          },
+          "bookmaker_margin": 0.14516129032258052
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Torino U20",
+        "away_team": "AS Roma U20",
+        "league": "Primavera 1",
+        "region": "ITALY",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.26238532110091745,
+            "draw": 0.26238532110091745,
+            "away_win": 0.4752293577981651
+          },
+          "expected_goals": {
+            "home": 0.8935779816513761,
+            "away": 1.2128440366972477
+          },
+          "bookmaker_margin": 0.13305613305613306
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Napoli W",
+        "away_team": "Juventus W",
+        "league": "Coppa Italia Women",
+        "region": "ITALY",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.11293634496919917,
+            "draw": 0.16427104722792607,
+            "away_win": 0.7227926078028747
+          },
+          "expected_goals": {
+            "home": 0.6694045174537988,
+            "away": 1.584188911704312
+          },
+          "bookmaker_margin": 0.10681818181818192
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Chapelton",
+        "away_team": "Waterhouse",
+        "league": "Premier League",
+        "region": "JAMAICA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.22771941714672994,
+            "draw": 0.30599796679091834,
+            "away_win": 0.4662826160623518
+          },
+          "expected_goals": {
+            "home": 0.8415791257200949,
+            "away": 1.1994239240935276
+          },
+          "bookmaker_margin": 0.12337347729789583
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Harbour View",
+        "away_team": "Treasure Beach",
+        "league": "Premier League",
+        "region": "JAMAICA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.445945945945946,
+            "draw": 0.2837837837837838,
+            "away_win": 0.2702702702702703
+          },
+          "expected_goals": {
+            "home": 1.1689189189189189,
+            "away": 0.9054054054054055
+          },
+          "bookmaker_margin": 0.1212121212121211
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Portmore",
+        "away_team": "Molynes",
+        "league": "Premier League",
+        "region": "JAMAICA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4743083003952569,
+            "draw": 0.30039525691699603,
+            "away_win": 0.22529644268774704
+          },
+          "expected_goals": {
+            "home": 1.2114624505928853,
+            "away": 0.8379446640316206
+          },
+          "bookmaker_margin": 0.10964912280701755
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Tivoli",
+        "away_team": "Racing United",
+        "league": "Premier League",
+        "region": "JAMAICA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.2837507280139778,
+            "draw": 0.3075131042516016,
+            "away_win": 0.4087361677344205
+          },
+          "expected_goals": {
+            "home": 0.9256260920209667,
+            "away": 1.1131042516016307
+          },
+          "bookmaker_margin": 0.12134273772204818
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al Shamiya",
+        "away_team": "Al Sahel",
+        "league": "Division 1",
+        "region": "KUWAIT",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.10086455331412103,
+            "draw": 0.17291066282420747,
+            "away_win": 0.7262247838616714
+          },
+          "expected_goals": {
+            "home": 0.6512968299711815,
+            "away": 1.5893371757925072
+          },
+          "bookmaker_margin": 0.10158730158730167
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Burgan",
+        "away_team": "Yarmouk",
+        "league": "Division 1",
+        "region": "KUWAIT",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.2011834319526627,
+            "draw": 0.2662721893491124,
+            "away_win": 0.5325443786982248
+          },
+          "expected_goals": {
+            "home": 0.8017751479289941,
+            "away": 1.2988165680473371
+          },
+          "bookmaker_margin": 0.10457516339869288
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Sporty",
+        "away_team": "Al Sulaibikhat",
+        "league": "Division 1",
+        "region": "KUWAIT",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.10086455331412103,
+            "draw": 0.17291066282420747,
+            "away_win": 0.7262247838616714
+          },
+          "expected_goals": {
+            "home": 0.6512968299711815,
+            "away": 1.5893371757925072
+          },
+          "bookmaker_margin": 0.10158730158730167
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al Murooj",
+        "away_team": "Al Tahaddi",
+        "league": "Premier League",
+        "region": "LIBYA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Ittihad Gharyan",
+        "away_team": "Abi Al Ashar",
+        "league": "Premier League",
+        "region": "LIBYA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al-Nasr",
+        "away_team": "Wefaq Ajdabiya",
+        "league": "Premier League",
+        "region": "LIBYA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Shabab Al-Ghar",
+        "away_team": "Al Ittihad",
+        "league": "Premier League",
+        "region": "LIBYA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Sabah",
+        "away_team": "Melaka FC",
+        "league": "Malaysia Cup",
+        "region": "MALAYSIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5572755417956656,
+            "draw": 0.2414860681114551,
+            "away_win": 0.20123839009287922
+          },
+          "expected_goals": {
+            "home": 1.3359133126934983,
+            "away": 0.8018575851393188
+          },
+          "bookmaker_margin": 0.10427350427350435
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Necaxa W",
+        "away_team": "U.N.A.M. W",
+        "league": "Liga MX Women - Clausura",
+        "region": "MEXICO",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.060606060606060615,
+            "draw": 0.12121212121212123,
+            "away_win": 0.8181818181818182
+          },
+          "expected_goals": {
+            "home": 0.5909090909090909,
+            "away": 1.7272727272727273
+          },
+          "bookmaker_margin": 0.09999999999999987
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Toluca W",
+        "away_team": "Tigres W",
+        "league": "Liga MX Women - Clausura",
+        "region": "MEXICO",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.27237354085603116,
+            "draw": 0.25680933852140075,
+            "away_win": 0.47081712062256814
+          },
+          "expected_goals": {
+            "home": 0.9085603112840468,
+            "away": 1.2062256809338523
+          },
+          "bookmaker_margin": 0.11255411255411252
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Santos Laguna W",
+        "away_team": "Leon W",
+        "league": "Liga MX Women - Clausura",
+        "region": "MEXICO",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.31654676258992803,
+            "draw": 0.28776978417266186,
+            "away_win": 0.39568345323741005
+          },
+          "expected_goals": {
+            "home": 0.974820143884892,
+            "away": 1.093525179856115
+          },
+          "bookmaker_margin": 0.10568181818181821
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Guadalajara W",
+        "away_team": "Queretaro W",
+        "league": "Liga MX Women - Clausura",
+        "region": "MEXICO",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.7812499999999999,
+            "draw": 0.14583333333333334,
+            "away_win": 0.07291666666666667
+          },
+          "expected_goals": {
+            "home": 1.6718749999999998,
+            "away": 0.609375
+          },
+          "bookmaker_margin": 0.0971428571428572
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Monterrey W",
+        "away_team": "Cruz Azul W",
+        "league": "Liga MX Women - Clausura",
+        "region": "MEXICO",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.47081712062256814,
+            "draw": 0.25680933852140075,
+            "away_win": 0.27237354085603116
+          },
+          "expected_goals": {
+            "home": 1.2062256809338523,
+            "away": 0.9085603112840468
+          },
+          "bookmaker_margin": 0.11255411255411252
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Mazatlan FC W",
+        "away_team": "Atlas W",
+        "league": "Liga MX Women - Clausura",
+        "region": "MEXICO",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.18685152878523553,
+            "draw": 0.24240198328895415,
+            "away_win": 0.5707464879258103
+          },
+          "expected_goals": {
+            "home": 0.7802772931778533,
+            "away": 1.3561197318887155
+          },
+          "bookmaker_margin": 0.1149672399672399
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Rakhine United",
+        "away_team": "Thitsar Arman",
+        "league": "National League",
+        "region": "MYANMAR",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.31135022561610554,
+            "draw": 0.2554668517875738,
+            "away_win": 0.43318292259632074
+          },
+          "expected_goals": {
+            "home": 0.9670253384241583,
+            "away": 1.1497743838944812
+          },
+          "bookmaker_margin": 0.10406215161649945
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Yadanarbon",
+        "away_team": "Yarmanya United",
+        "league": "National League",
+        "region": "MYANMAR",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.6626506024096386,
+            "draw": 0.17670682730923695,
+            "away_win": 0.1606425702811245
+          },
+          "expected_goals": {
+            "home": 1.4939759036144578,
+            "away": 0.7409638554216867
+          },
+          "bookmaker_margin": 0.13181818181818183
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Rancho Santana",
+        "away_team": "Diriangen",
+        "league": "Liga Primera - Clausura",
+        "region": "NICARAGUA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.07051909892262488,
+            "draw": 0.11459353574926544,
+            "away_win": 0.8148873653281097
+          },
+          "expected_goals": {
+            "home": 0.6057786483839374,
+            "away": 1.7223310479921645
+          },
+          "bookmaker_margin": 0.09081196581196571
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al-Taawon",
+        "away_team": "Al Hazem",
+        "league": "Saudi Professional League",
+        "region": "SAUDI ARABIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4960567823343849,
+            "draw": 0.2626182965299685,
+            "away_win": 0.24132492113564666
+          },
+          "expected_goals": {
+            "home": 1.2440851735015772,
+            "away": 0.86198738170347
+          },
+          "bookmaker_margin": 0.11994347288464935
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al Qadsiah",
+        "away_team": "Al-Ittihad",
+        "league": "Saudi Professional League",
+        "region": "SAUDI ARABIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4733590172275932,
+            "draw": 0.2442392963582176,
+            "away_win": 0.2824016864141891
+          },
+          "expected_goals": {
+            "home": 1.21003852584139,
+            "away": 0.9236025296212836
+          },
+          "bookmaker_margin": 0.10657979407979412
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al-Hilal",
+        "away_team": "Al Fayha",
+        "league": "Saudi Professional League",
+        "region": "SAUDI ARABIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.7832635983263598,
+            "draw": 0.14058577405857742,
+            "away_win": 0.07615062761506276
+          },
+          "expected_goals": {
+            "home": 1.6748953974895398,
+            "away": 0.6142259414225941
+          },
+          "bookmaker_margin": 0.09432234432234421
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al-Raed",
+        "away_team": "Al Adalah",
+        "league": "Division 1",
+        "region": "SAUDI ARABIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.6247578457962031,
+            "draw": 0.23085367428645232,
+            "away_win": 0.14438847991734471
+          },
+          "expected_goals": {
+            "home": 1.4371367686943046,
+            "away": 0.7165827198760171
+          },
+          "bookmaker_margin": 0.10812164579606431
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al-Ula",
+        "away_team": "Al-Wehda",
+        "league": "Division 1",
+        "region": "SAUDI ARABIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.6226415094339622,
+            "draw": 0.21563342318059298,
+            "away_win": 0.16172506738544473
+          },
+          "expected_goals": {
+            "home": 1.4339622641509433,
+            "away": 0.7425876010781671
+          },
+          "bookmaker_margin": 0.10416666666666674
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Bazar Brothers",
+        "away_team": "Foresters FC",
+        "league": "Premier League",
+        "region": "SEYCHELLES",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3813046402151984,
+            "draw": 0.24209818426361804,
+            "away_win": 0.37659717552118366
+          },
+          "expected_goals": {
+            "home": 1.0719569603227976,
+            "away": 1.0648957632817755
+          },
+          "bookmaker_margin": 0.18015873015872996
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Penarol",
+        "away_team": "Colo Colo",
+        "league": "Serie Rio de la Plata",
+        "region": "SOUTH AMERICA",
+        "time": "Pen"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.44821731748726656,
+            "draw": 0.28013582342954163,
+            "away_win": 0.27164685908319186
+          },
+          "expected_goals": {
+            "home": 1.1723259762309,
+            "away": 0.9074702886247878
+          },
+          "bookmaker_margin": 0.11553030303030298
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Al-Ahly Merowe",
+        "away_team": "Alfalah Atbra",
+        "league": "Premier League",
+        "region": "SUDAN",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Kober",
+        "away_team": "Al Shorta",
+        "league": "Premier League",
+        "region": "SUDAN",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Rabita Kosti",
+        "away_team": "Madani",
+        "league": "Premier League",
+        "region": "SUDAN",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Dodoma Jiji",
+        "away_team": "Tanzania Prisons",
+        "league": "Ligi Kuu Bara",
+        "region": "TANZANIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.35000000000000003,
+            "draw": 0.3466666666666667,
+            "away_win": 0.30333333333333334
+          },
+          "expected_goals": {
+            "home": 1.025,
+            "away": 0.9550000000000001
+          },
+          "bookmaker_margin": 0.09890109890109877
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Central FC",
+        "away_team": "Defence Force",
+        "league": "TT Premier League",
+        "region": "TRINIDAD AND TOBAGO",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.16134751773049646,
+            "draw": 0.20478723404255314,
+            "away_win": 0.6338652482269503
+          },
+          "expected_goals": {
+            "home": 0.7420212765957447,
+            "away": 1.4507978723404256
+          },
+          "bookmaker_margin": 0.1268731268731269
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Club Africain",
+        "away_team": "Etoile Sahel",
+        "league": "Ligue Professionnelle 1",
+        "region": "TUNISIA",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4837948057523073,
+            "draw": 0.3208843099377549,
+            "away_win": 0.19532088430993777
+          },
+          "expected_goals": {
+            "home": 1.225692208628461,
+            "away": 0.7929813264649066
+          },
+          "bookmaker_margin": 0.1129956999522217
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Nacional",
+        "away_team": "Progreso",
+        "league": "Copa de la Liga AUF",
+        "region": "URUGUAY",
+        "time": "5"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.32171922685656157,
+            "draw": 0.2866225839267548,
+            "away_win": 0.39165818921668366
+          },
+          "expected_goals": {
+            "home": 0.9825788402848423,
+            "away": 1.0874872838250256
+          },
+          "bookmaker_margin": 0.11010728402032743
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Aberystwyth W",
+        "away_team": "Briton Ferry W",
+        "league": "Premier Women",
+        "region": "WALES",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.2505966587112172,
+            "draw": 0.23389021479713604,
+            "away_win": 0.5155131264916468
+          },
+          "expected_goals": {
+            "home": 0.8758949880668259,
+            "away": 1.2732696897374702
+          },
+          "bookmaker_margin": 0.10846560846560838
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Spain U17",
+        "away_team": "Italy U17",
+        "league": "Friendly International",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Turkey U17",
+        "away_team": "North Macedonia U17",
+        "league": "Friendly International",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Yokohama M. (Jpn)",
+        "away_team": "Zweigen Kanazawa (Jpn)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Jablonec (Cze)",
+        "away_team": "Michalovce (Svk)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Cumberland Utd. (Aus)",
+        "away_team": "FK Beograd (Aus)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.310106137517305,
+            "draw": 0.31841255191508994,
+            "away_win": 0.37148131056760497
+          },
+          "expected_goals": {
+            "home": 0.9651592062759575,
+            "away": 1.0572219658514075
+          },
+          "bookmaker_margin": 0.12163561076604568
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Kudrivka (Ukr)",
+        "away_team": "Trencin (Svk)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.3947368421052632,
+            "draw": 0.24210526315789474,
+            "away_win": 0.3631578947368421
+          },
+          "expected_goals": {
+            "home": 1.0921052631578947,
+            "away": 1.0447368421052632
+          },
+          "bookmaker_margin": 0.10144927536231885
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Sepsi Sf. Gheorghe (Rou)",
+        "away_team": "Kecskemeti (Hun)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Veres-Rivne (Ukr)",
+        "away_team": "Bohemians (Cze)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Widzew Lodz (Pol)",
+        "away_team": "Ostrava (Cze)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Pakhtakor (Uzb)",
+        "away_team": "Struga (Mkd)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Lechia (Pol)",
+        "away_team": "Mladost (Srb)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Karpaty Lviv (Ukr)",
+        "away_team": "Real Murcia B (Esp)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Legia (Pol)",
+        "away_team": "Sparta Prague (Cze)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Legnica II (Pol)",
+        "away_team": "Wikielec (Pol)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.40748898678414097,
+            "draw": 0.2665198237885463,
+            "away_win": 0.32599118942731276
+          },
+          "expected_goals": {
+            "home": 1.1112334801762116,
+            "away": 0.9889867841409692
+          },
+          "bookmaker_margin": 0.11547911547911549
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Mallorca B (Esp)",
+        "away_team": "Celje (Slo)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Napredak (Srb)",
+        "away_team": "Lok. Plovdiv (Bul)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Viborg (Den)",
+        "away_team": "Piast (Pol)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4672800756728868,
+            "draw": 0.25823372602975325,
+            "away_win": 0.2744861982973601
+          },
+          "expected_goals": {
+            "home": 1.2009201135093304,
+            "away": 0.9117292974460401
+          },
+          "bookmaker_margin": 0.12097551571235776
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "CSKA 1948 Sofia (Bul)",
+        "away_team": "Trnava (Svk)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4133232399697199,
+            "draw": 0.24602573807721426,
+            "away_win": 0.34065102195306585
+          },
+          "expected_goals": {
+            "home": 1.1199848599545799,
+            "away": 1.0109765329295988
+          },
+          "bookmaker_margin": 0.12905982905982905
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Primorje (Slo)",
+        "away_team": "Budafoki (Hun)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.42114858705560615,
+            "draw": 0.2506836827711941,
+            "away_win": 0.3281677301731996
+          },
+          "expected_goals": {
+            "home": 1.1317228805834092,
+            "away": 0.9922515952597994
+          },
+          "bookmaker_margin": 0.10808080808080822
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Videoton (Hun)",
+        "away_team": "III. Keruleti TVE (Hun)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Xanthi (Gre)",
+        "away_team": "Brera Strumica (Mkd)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Rabotnicki (Mkd)",
+        "away_team": "Ohrid (Mkd)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5114476928495949,
+            "draw": 0.220852412821416,
+            "away_win": 0.2676998943289891
+          },
+          "expected_goals": {
+            "home": 1.2671715392743923,
+            "away": 0.9015498414934837
+          },
+          "bookmaker_margin": 0.13197767145135564
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Akron Togliatti (Rus)",
+        "away_team": "CSKA Moscow (Rus)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.16400732409102797,
+            "draw": 0.24457232539890136,
+            "away_win": 0.5914203505100706
+          },
+          "expected_goals": {
+            "home": 0.7460109861365419,
+            "away": 1.3871305257651059
+          },
+          "bookmaker_margin": 0.07599211933577266
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Legia (Pol)",
+        "away_team": "Sparta Prague (Cze)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Petrovac (Mne)",
+        "away_team": "Rodange (Lux)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5283018867924529,
+            "draw": 0.25157232704402516,
+            "away_win": 0.22012578616352202
+          },
+          "expected_goals": {
+            "home": 1.2924528301886795,
+            "away": 0.8301886792452831
+          },
+          "bookmaker_margin": 0.13571428571428568
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Zeleznicar Pancevo (Srb)",
+        "away_team": "Dynamo Makhachkala (Rus)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Arsenal Tula (Rus)",
+        "away_team": "OFK Beograd Mozzart Bet (Srb)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Canc"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4480161163177718,
+            "draw": 0.2498029254620303,
+            "away_win": 0.3021809582201979
+          },
+          "expected_goals": {
+            "home": 1.1720241744766575,
+            "away": 0.9532714373302968
+          },
+          "bookmaker_margin": 0.06750818139317438
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Partizan (Srb)",
+        "away_team": "Gangwon (Kor)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Canc"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.46885245901639344,
+            "draw": 0.2754098360655738,
+            "away_win": 0.25573770491803277
+          },
+          "expected_goals": {
+            "home": 1.2032786885245903,
+            "away": 0.8836065573770492
+          },
+          "bookmaker_margin": 0.11721611721611724
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Widzew Lodz (Pol)",
+        "away_team": "Zaglebie (Pol)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Zenit (Rus)",
+        "away_team": "Shanghai Port (Chn)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.7264150943396226,
+            "draw": 0.16981132075471694,
+            "away_win": 0.10377358490566035
+          },
+          "expected_goals": {
+            "home": 1.5896226415094339,
+            "away": 0.6556603773584906
+          },
+          "bookmaker_margin": 0.07070707070707094
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Randers (Den)",
+        "away_team": "Real Salt Lake (Usa)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.5720530599939704,
+            "draw": 0.23575520048236354,
+            "away_win": 0.19219173952366594
+          },
+          "expected_goals": {
+            "home": 1.3580795899909557,
+            "away": 0.7882876092854989
+          },
+          "bookmaker_margin": 0.13111679454390468
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Odense (Den)",
+        "away_team": "Piast (Pol)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.6940874035989718,
+            "draw": 0.16709511568123395,
+            "away_win": 0.13881748071979438
+          },
+          "expected_goals": {
+            "home": 1.5411311053984578,
+            "away": 0.7082262210796916
+          },
+          "bookmaker_margin": 0.10826210826210803
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "V\u00e4rnamo (Swe)",
+        "away_team": "Jonkoping (Swe)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.553213909378293,
+            "draw": 0.23603793466807166,
+            "away_win": 0.21074815595363539
+          },
+          "expected_goals": {
+            "home": 1.3298208640674394,
+            "away": 0.816122233930453
+          },
+          "bookmaker_margin": 0.12976190476190474
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "VSK Aarhus (Den)",
+        "away_team": "Vendsyssel (Den)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.26508972267536707,
+            "draw": 0.2542142468733007,
+            "away_win": 0.4806960304513322
+          },
+          "expected_goals": {
+            "home": 0.8976345840130506,
+            "away": 1.2210440456769982
+          },
+          "bookmaker_margin": 0.10950226244343897
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Sprockhovel (Ger)",
+        "away_team": "Uerdingen (Ger)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.35325602140945583,
+            "draw": 0.24531668153434433,
+            "away_win": 0.4014272970561998
+          },
+          "expected_goals": {
+            "home": 1.0298840321141838,
+            "away": 1.1021409455842996
+          },
+          "bookmaker_margin": 0.1323232323232324
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Grand-Saconnex (Sui)",
+        "away_team": "Servette U21 (Sui)",
+        "league": "Club Friendly",
+        "region": "WORLD",
+        "time": "Full-time"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.4109059682267067,
+            "draw": 0.249033920137398,
+            "away_win": 0.34006011163589517
+          },
+          "expected_goals": {
+            "home": 1.11635895234006,
+            "away": 1.0100901674538427
+          },
+          "bookmaker_margin": 0.11542145593869746
+        }
+      }
+    },
+    {
+      "match_info": {
+        "home_team": "Austria Vienna W (Aut)",
+        "away_team": "Slovacko W (Cze)",
+        "league": "Club Friendly Women",
+        "region": "WORLD",
+        "time": "Canc"
+      },
+      "has_stats": false,
+      "has_odds": true,
+      "predictions": {
+        "odds_based": {
+          "outcome_probabilities": {
+            "home_win": 0.0,
+            "draw": 0.0,
+            "away_win": 0.0
+          },
+          "expected_goals": {
+            "home": 0.5,
+            "away": 0.5
+          },
+          "bookmaker_margin": 0
+        }
+      }
+    }
+  ]
+}

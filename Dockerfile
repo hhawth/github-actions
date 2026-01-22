@@ -7,6 +7,7 @@ WORKDIR /app
 # Install system dependencies efficiently
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    g++ \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and install Python dependencies
@@ -24,16 +25,17 @@ USER app
 
 # Set environment variables for Cloud Run
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
 # Expose port (Cloud Run will set PORT env var)
 EXPOSE 8080
 
-# Start Streamlit with Cloud Run optimizations
-CMD streamlit run streamlit_app.py \
+# Start Streamlit with Cloud Run optimizations for football analytics app
+CMD streamlit run football_analytics_app.py \
     --server.address=0.0.0.0 \
     --server.port=${PORT:-8080} \
     --server.headless=true \
     --server.enableCORS=false \
     --server.enableXsrfProtection=false \
     --server.fileWatcherType=none \
-    --server.maxUploadSize=1
+    --server.maxUploadSize=10
