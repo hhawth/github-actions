@@ -1127,23 +1127,7 @@
             "3.5+": "50%",
             "Points Per Game": "1.00"
           },
-          "team2": {
-            "Name": "Wellington",
-            "Time": "",
-            "Scope": "away",
-            "GP": "6",
-            "W%": "33%",
-            "FTS": "0%",
-            "CS": "33%",
-            "BTS": "67%",
-            "TG": "3.50",
-            "GF": "1.67",
-            "GA": "1.83",
-            "1.5+": "100%",
-            "2.5+": "67%",
-            "3.5+": "50%",
-            "Points Per Game": "1.33"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -1185,23 +1169,7 @@
             "3.5+": "50%",
             "Points Per Game": "1.25"
           },
-          "team2": {
-            "Name": "Canberra Utd W",
-            "Time": "",
-            "Scope": "away",
-            "GP": "5",
-            "W%": "40%",
-            "FTS": "0%",
-            "CS": "20%",
-            "BTS": "80%",
-            "TG": "2.40",
-            "GF": "1.40",
-            "GA": "1.00",
-            "1.5+": "80%",
-            "2.5+": "40%",
-            "3.5+": "20%",
-            "Points Per Game": "1.60"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -1244,25 +1212,6 @@
             "Points Per Game": "0.57"
           },
           "team2": {
-            "Name": "Araz",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "25%",
-            "FTS": "0%",
-            "CS": "12%",
-            "BTS": "88%",
-            "TG": "3.38",
-            "GF": "1.50",
-            "GA": "1.88",
-            "1.5+": "100%",
-            "2.5+": "62%",
-            "3.5+": "38%",
-            "Points Per Game": "1.13"
-          }
-        },
-        {
-          "team1": {
             "Name": "Neftci",
             "Time": "15:00",
             "Scope": "home",
@@ -1278,23 +1227,6 @@
             "2.5+": "50%",
             "3.5+": "50%",
             "Points Per Game": "1.00"
-          },
-          "team2": {
-            "Name": "Zira",
-            "Time": "",
-            "Scope": "away",
-            "GP": "7",
-            "W%": "43%",
-            "FTS": "14%",
-            "CS": "14%",
-            "BTS": "71%",
-            "TG": "2.86",
-            "GF": "1.43",
-            "GA": "1.43",
-            "1.5+": "100%",
-            "2.5+": "57%",
-            "3.5+": "14%",
-            "Points Per Game": "1.57"
           }
         }
       ],
@@ -1337,23 +1269,7 @@
             "3.5+": "10%",
             "Points Per Game": "1.20"
           },
-          "team2": {
-            "Name": "Gent",
-            "Time": "",
-            "Scope": "away",
-            "GP": "10",
-            "W%": "20%",
-            "FTS": "30%",
-            "CS": "10%",
-            "BTS": "70%",
-            "TG": "3.00",
-            "GF": "1.10",
-            "GA": "1.90",
-            "1.5+": "80%",
-            "2.5+": "60%",
-            "3.5+": "40%",
-            "Points Per Game": "0.90"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -1396,25 +1312,6 @@
             "Points Per Game": "2.44"
           },
           "team2": {
-            "Name": "KRC Genk B",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "22%",
-            "FTS": "33%",
-            "CS": "11%",
-            "BTS": "67%",
-            "TG": "2.67",
-            "GF": "1.00",
-            "GA": "1.67",
-            "1.5+": "78%",
-            "2.5+": "67%",
-            "3.5+": "22%",
-            "Points Per Game": "1.00"
-          }
-        },
-        {
-          "team1": {
             "Name": "OC Charleroi",
             "Time": "19:00",
             "Scope": "home",
@@ -1430,23 +1327,6 @@
             "2.5+": "50%",
             "3.5+": "20%",
             "Points Per Game": "0.20"
-          },
-          "team2": {
-            "Name": "Club Brugge B",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "0%",
-            "FTS": "22%",
-            "CS": "0%",
-            "BTS": "78%",
-            "TG": "2.89",
-            "GF": "1.00",
-            "GA": "1.89",
-            "1.5+": "78%",
-            "2.5+": "67%",
-            "3.5+": "33%",
-            "Points Per Game": "0.22"
           }
         }
       ],
@@ -1490,25 +1370,6 @@
             "Points Per Game": "1.43"
           },
           "team2": {
-            "Name": "Beerschot U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "7",
-            "W%": "14%",
-            "FTS": "14%",
-            "CS": "0%",
-            "BTS": "86%",
-            "TG": "5.00",
-            "GF": "1.71",
-            "GA": "3.29",
-            "1.5+": "100%",
-            "2.5+": "100%",
-            "3.5+": "86%",
-            "Points Per Game": "0.43"
-          }
-        },
-        {
-          "team1": {
             "Name": "O. Charleroi",
             "Time": "19:00",
             "Scope": "home",
@@ -1524,23 +1385,6 @@
             "2.5+": "100%",
             "3.5+": "67%",
             "Points Per Game": "0.67"
-          },
-          "team2": {
-            "Name": "RFC Liege U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "6",
-            "W%": "17%",
-            "FTS": "50%",
-            "CS": "0%",
-            "BTS": "50%",
-            "TG": "6.00",
-            "GF": "1.00",
-            "GA": "5.00",
-            "1.5+": "100%",
-            "2.5+": "100%",
-            "3.5+": "67%",
-            "Points Per Game": "0.50"
           }
         },
         {
@@ -1562,25 +1406,6 @@
             "Points Per Game": "2.29"
           },
           "team2": {
-            "Name": "Patro Eisden U2",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "25%",
-            "FTS": "25%",
-            "CS": "25%",
-            "BTS": "62%",
-            "TG": "2.63",
-            "GF": "1.25",
-            "GA": "1.38",
-            "1.5+": "75%",
-            "2.5+": "50%",
-            "3.5+": "38%",
-            "Points Per Game": "1.13"
-          }
-        },
-        {
-          "team1": {
             "Name": "Daring B. U21",
             "Time": "19:00",
             "Scope": "home",
@@ -1596,23 +1421,6 @@
             "2.5+": "75%",
             "3.5+": "12%",
             "Points Per Game": "2.13"
-          },
-          "team2": {
-            "Name": "Westerlo U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "7",
-            "W%": "57%",
-            "FTS": "14%",
-            "CS": "14%",
-            "BTS": "71%",
-            "TG": "4.57",
-            "GF": "2.14",
-            "GA": "2.43",
-            "1.5+": "86%",
-            "2.5+": "86%",
-            "3.5+": "86%",
-            "Points Per Game": "1.71"
           }
         },
         {
@@ -1634,25 +1442,6 @@
             "Points Per Game": "1.00"
           },
           "team2": {
-            "Name": "Lierse K. U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "6",
-            "W%": "50%",
-            "FTS": "0%",
-            "CS": "0%",
-            "BTS": "100%",
-            "TG": "5.33",
-            "GF": "3.00",
-            "GA": "2.33",
-            "1.5+": "100%",
-            "2.5+": "100%",
-            "3.5+": "67%",
-            "Points Per Game": "1.67"
-          }
-        },
-        {
-          "team1": {
             "Name": "RAAL LL U21",
             "Time": "19:30",
             "Scope": "home",
@@ -1668,255 +1457,6 @@
             "2.5+": "83%",
             "3.5+": "50%",
             "Points Per Game": "2.00"
-          },
-          "team2": {
-            "Name": "Lommel U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "6",
-            "W%": "50%",
-            "FTS": "17%",
-            "CS": "17%",
-            "BTS": "67%",
-            "TG": "3.17",
-            "GF": "1.83",
-            "GA": "1.33",
-            "1.5+": "100%",
-            "2.5+": "50%",
-            "3.5+": "33%",
-            "Points Per Game": "1.83"
-          }
-        }
-      ],
-      "field_definitions": {
-        "Name": "Team name",
-        "Time": "Match time",
-        "Scope": "Home/Away designation",
-        "GP": "Number of matches played",
-        "W%": "Percentage of matches won",
-        "FTS": "% Failed to score",
-        "CS": "% Clean sheet",
-        "BTS": "% of matches where both teams scored",
-        "TG": "Average total goals scored + conceded per match",
-        "GF": "Goals scored per match",
-        "GA": "Goals conceded per match",
-        "1.5+": "% of matches over 1.5 goals (scored + conceded)",
-        "2.5+": "% of matches over 2.5 goals (scored + conceded)",
-        "3.5+": "% of matches over 3.5 goals (scored + conceded)",
-        "Points Per Game": "Points per game"
-      }
-    },
-    {
-      "league_name": "Brazil - Paulista A1",
-      "matches": [
-        {
-          "team1": {
-            "Name": "Velo Clube",
-            "Time": "00:30",
-            "Scope": "home",
-            "GP": "1",
-            "W%": "0%",
-            "FTS": "100%",
-            "CS": "100%",
-            "BTS": "0%",
-            "TG": "0.00",
-            "GF": "0.00",
-            "GA": "0.00",
-            "1.5+": "0%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "1.00"
-          },
-          "team2": {
-            "Name": "Guarani",
-            "Time": "",
-            "Scope": "away",
-            "GP": "1",
-            "W%": "0%",
-            "FTS": "100%",
-            "CS": "0%",
-            "BTS": "0%",
-            "TG": "2.00",
-            "GF": "0.00",
-            "GA": "2.00",
-            "1.5+": "100%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "0.00"
-          }
-        }
-      ],
-      "field_definitions": {
-        "Name": "Team name",
-        "Time": "Match time",
-        "Scope": "Home/Away designation",
-        "GP": "Number of matches played",
-        "W%": "Percentage of matches won",
-        "FTS": "% Failed to score",
-        "CS": "% Clean sheet",
-        "BTS": "% of matches where both teams scored",
-        "TG": "Average total goals scored + conceded per match",
-        "GF": "Goals scored per match",
-        "GA": "Goals conceded per match",
-        "1.5+": "% of matches over 1.5 goals (scored + conceded)",
-        "2.5+": "% of matches over 2.5 goals (scored + conceded)",
-        "3.5+": "% of matches over 3.5 goals (scored + conceded)",
-        "Points Per Game": "Points per game"
-      }
-    },
-    {
-      "league_name": "Brazil - Catarinense",
-      "matches": [
-        {
-          "team1": {
-            "Name": "Camboriú",
-            "Time": "00:30",
-            "Scope": "home",
-            "GP": "2",
-            "W%": "100%",
-            "FTS": "0%",
-            "CS": "100%",
-            "BTS": "0%",
-            "TG": "1.50",
-            "GF": "1.50",
-            "GA": "0.00",
-            "1.5+": "50%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "3.00"
-          },
-          "team2": {
-            "Name": "Criciuma",
-            "Time": "",
-            "Scope": "away",
-            "GP": "2",
-            "W%": "0%",
-            "FTS": "100%",
-            "CS": "50%",
-            "BTS": "0%",
-            "TG": "1.00",
-            "GF": "0.00",
-            "GA": "1.00",
-            "1.5+": "50%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "0.50"
-          }
-        }
-      ],
-      "field_definitions": {
-        "Name": "Team name",
-        "Time": "Match time",
-        "Scope": "Home/Away designation",
-        "GP": "Number of matches played",
-        "W%": "Percentage of matches won",
-        "FTS": "% Failed to score",
-        "CS": "% Clean sheet",
-        "BTS": "% of matches where both teams scored",
-        "TG": "Average total goals scored + conceded per match",
-        "GF": "Goals scored per match",
-        "GA": "Goals conceded per match",
-        "1.5+": "% of matches over 1.5 goals (scored + conceded)",
-        "2.5+": "% of matches over 2.5 goals (scored + conceded)",
-        "3.5+": "% of matches over 3.5 goals (scored + conceded)",
-        "Points Per Game": "Points per game"
-      }
-    },
-    {
-      "league_name": "Brazil - Gaucho",
-      "matches": [
-        {
-          "team1": {
-            "Name": "EC Sao Jose",
-            "Time": "00:30",
-            "Scope": "home",
-            "GP": "1",
-            "W%": "0%",
-            "FTS": "100%",
-            "CS": "100%",
-            "BTS": "0%",
-            "TG": "0.00",
-            "GF": "0.00",
-            "GA": "0.00",
-            "1.5+": "0%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "1.00"
-          },
-          "team2": {
-            "Name": "Monsoon",
-            "Time": "",
-            "Scope": "away",
-            "GP": "1",
-            "W%": "0%",
-            "FTS": "0%",
-            "CS": "0%",
-            "BTS": "100%",
-            "TG": "2.00",
-            "GF": "1.00",
-            "GA": "1.00",
-            "1.5+": "100%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "1.00"
-          }
-        }
-      ],
-      "field_definitions": {
-        "Name": "Team name",
-        "Time": "Match time",
-        "Scope": "Home/Away designation",
-        "GP": "Number of matches played",
-        "W%": "Percentage of matches won",
-        "FTS": "% Failed to score",
-        "CS": "% Clean sheet",
-        "BTS": "% of matches where both teams scored",
-        "TG": "Average total goals scored + conceded per match",
-        "GF": "Goals scored per match",
-        "GA": "Goals conceded per match",
-        "1.5+": "% of matches over 1.5 goals (scored + conceded)",
-        "2.5+": "% of matches over 2.5 goals (scored + conceded)",
-        "3.5+": "% of matches over 3.5 goals (scored + conceded)",
-        "Points Per Game": "Points per game"
-      }
-    },
-    {
-      "league_name": "Costa Rica - Primera Div. - Clausura",
-      "matches": [
-        {
-          "team1": {
-            "Name": "Sporting SJ",
-            "Time": "02:00",
-            "Scope": "home",
-            "GP": "1",
-            "W%": "0%",
-            "FTS": "100%",
-            "CS": "0%",
-            "BTS": "0%",
-            "TG": "2.00",
-            "GF": "0.00",
-            "GA": "2.00",
-            "1.5+": "100%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "0.00"
-          },
-          "team2": {
-            "Name": "Saprissa",
-            "Time": "",
-            "Scope": "away",
-            "GP": "1",
-            "W%": "0%",
-            "FTS": "100%",
-            "CS": "0%",
-            "BTS": "0%",
-            "TG": "2.00",
-            "GF": "0.00",
-            "GA": "2.00",
-            "1.5+": "100%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "0.00"
           }
         }
       ],
@@ -1959,23 +1499,7 @@
             "3.5+": "44%",
             "Points Per Game": "1.67"
           },
-          "team2": {
-            "Name": "Gorica",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "22%",
-            "FTS": "33%",
-            "CS": "0%",
-            "BTS": "67%",
-            "TG": "2.44",
-            "GF": "1.11",
-            "GA": "1.33",
-            "1.5+": "78%",
-            "2.5+": "44%",
-            "3.5+": "22%",
-            "Points Per Game": "1.00"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -2017,23 +1541,7 @@
             "3.5+": "22%",
             "Points Per Game": "1.89"
           },
-          "team2": {
-            "Name": "O. Aradippou",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "22%",
-            "FTS": "56%",
-            "CS": "33%",
-            "BTS": "22%",
-            "TG": "1.78",
-            "GF": "0.56",
-            "GA": "1.22",
-            "1.5+": "44%",
-            "2.5+": "22%",
-            "3.5+": "22%",
-            "Points Per Game": "0.89"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -2076,25 +1584,6 @@
             "Points Per Game": "1.75"
           },
           "team2": {
-            "Name": "Burnley U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "5",
-            "W%": "40%",
-            "FTS": "0%",
-            "CS": "0%",
-            "BTS": "100%",
-            "TG": "5.40",
-            "GF": "2.20",
-            "GA": "3.20",
-            "1.5+": "100%",
-            "2.5+": "100%",
-            "3.5+": "80%",
-            "Points Per Game": "1.20"
-          }
-        },
-        {
-          "team1": {
             "Name": "Fulham U21",
             "Time": "19:00",
             "Scope": "home",
@@ -2110,23 +1599,6 @@
             "2.5+": "40%",
             "3.5+": "40%",
             "Points Per Game": "1.40"
-          },
-          "team2": {
-            "Name": "Middlesb. U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "4",
-            "W%": "25%",
-            "FTS": "0%",
-            "CS": "25%",
-            "BTS": "75%",
-            "TG": "2.75",
-            "GF": "1.25",
-            "GA": "1.50",
-            "1.5+": "75%",
-            "2.5+": "25%",
-            "3.5+": "25%",
-            "Points Per Game": "1.25"
           }
         },
         {
@@ -2148,25 +1620,6 @@
             "Points Per Game": "1.75"
           },
           "team2": {
-            "Name": "Tottenham U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "6",
-            "W%": "50%",
-            "FTS": "0%",
-            "CS": "0%",
-            "BTS": "100%",
-            "TG": "5.17",
-            "GF": "3.00",
-            "GA": "2.17",
-            "1.5+": "100%",
-            "2.5+": "67%",
-            "3.5+": "67%",
-            "Points Per Game": "1.83"
-          }
-        },
-        {
-          "team1": {
             "Name": "West Ham U21",
             "Time": "19:00",
             "Scope": "home",
@@ -2182,23 +1635,6 @@
             "2.5+": "67%",
             "3.5+": "33%",
             "Points Per Game": "2.17"
-          },
-          "team2": {
-            "Name": "Norwich U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "5",
-            "W%": "40%",
-            "FTS": "20%",
-            "CS": "20%",
-            "BTS": "60%",
-            "TG": "3.80",
-            "GF": "2.00",
-            "GA": "1.80",
-            "1.5+": "80%",
-            "2.5+": "80%",
-            "3.5+": "60%",
-            "Points Per Game": "1.40"
           }
         }
       ],
@@ -2241,23 +1677,7 @@
             "3.5+": "40%",
             "Points Per Game": "0.00"
           },
-          "team2": {
-            "Name": "Brighton W",
-            "Time": "",
-            "Scope": "away",
-            "GP": "6",
-            "W%": "17%",
-            "FTS": "33%",
-            "CS": "17%",
-            "BTS": "50%",
-            "TG": "1.83",
-            "GF": "0.67",
-            "GA": "1.17",
-            "1.5+": "50%",
-            "2.5+": "33%",
-            "3.5+": "0%",
-            "Points Per Game": "0.67"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -2300,25 +1720,6 @@
             "Points Per Game": "0.29"
           },
           "team2": {
-            "Name": "Brentford U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "7",
-            "W%": "71%",
-            "FTS": "0%",
-            "CS": "43%",
-            "BTS": "57%",
-            "TG": "3.14",
-            "GF": "2.29",
-            "GA": "0.86",
-            "1.5+": "100%",
-            "2.5+": "86%",
-            "3.5+": "14%",
-            "Points Per Game": "2.29"
-          }
-        },
-        {
-          "team1": {
             "Name": "QP Rangers U21",
             "Time": "13:30",
             "Scope": "home",
@@ -2334,23 +1735,6 @@
             "2.5+": "71%",
             "3.5+": "57%",
             "Points Per Game": "0.57"
-          },
-          "team2": {
-            "Name": "Charlton U21",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "50%",
-            "FTS": "12%",
-            "CS": "12%",
-            "BTS": "75%",
-            "TG": "4.13",
-            "GF": "2.00",
-            "GA": "2.13",
-            "1.5+": "100%",
-            "2.5+": "88%",
-            "3.5+": "62%",
-            "Points Per Game": "1.63"
           }
         }
       ],
@@ -2394,25 +1778,6 @@
             "Points Per Game": "1.56"
           },
           "team2": {
-            "Name": "Aubagne",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "62%",
-            "FTS": "38%",
-            "CS": "38%",
-            "BTS": "38%",
-            "TG": "2.88",
-            "GF": "1.75",
-            "GA": "1.13",
-            "1.5+": "88%",
-            "2.5+": "62%",
-            "3.5+": "25%",
-            "Points Per Game": "2.00"
-          }
-        },
-        {
-          "team1": {
             "Name": "Bourg-en-Bresse",
             "Time": "18:30",
             "Scope": "home",
@@ -2428,23 +1793,6 @@
             "2.5+": "57%",
             "3.5+": "29%",
             "Points Per Game": "0.29"
-          },
-          "team2": {
-            "Name": "Chateauroux",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "25%",
-            "FTS": "38%",
-            "CS": "38%",
-            "BTS": "50%",
-            "TG": "2.00",
-            "GF": "1.13",
-            "GA": "0.88",
-            "1.5+": "62%",
-            "2.5+": "50%",
-            "3.5+": "12%",
-            "Points Per Game": "1.25"
           }
         },
         {
@@ -2466,25 +1814,6 @@
             "Points Per Game": "1.63"
           },
           "team2": {
-            "Name": "Quevilly Rouen",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "22%",
-            "FTS": "33%",
-            "CS": "11%",
-            "BTS": "56%",
-            "TG": "2.78",
-            "GF": "1.00",
-            "GA": "1.78",
-            "1.5+": "78%",
-            "2.5+": "67%",
-            "3.5+": "22%",
-            "Points Per Game": "0.67"
-          }
-        },
-        {
-          "team1": {
             "Name": "Le Puy",
             "Time": "18:30",
             "Scope": "home",
@@ -2500,23 +1829,6 @@
             "2.5+": "56%",
             "3.5+": "11%",
             "Points Per Game": "1.44"
-          },
-          "team2": {
-            "Name": "Valenciennes",
-            "Time": "",
-            "Scope": "away",
-            "GP": "7",
-            "W%": "0%",
-            "FTS": "29%",
-            "CS": "29%",
-            "BTS": "71%",
-            "TG": "2.14",
-            "GF": "0.71",
-            "GA": "1.43",
-            "1.5+": "71%",
-            "2.5+": "43%",
-            "3.5+": "14%",
-            "Points Per Game": "0.57"
           }
         },
         {
@@ -2538,25 +1850,6 @@
             "Points Per Game": "2.00"
           },
           "team2": {
-            "Name": "Sochaux",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "44%",
-            "FTS": "33%",
-            "CS": "33%",
-            "BTS": "44%",
-            "TG": "2.00",
-            "GF": "1.11",
-            "GA": "0.89",
-            "1.5+": "44%",
-            "2.5+": "33%",
-            "3.5+": "33%",
-            "Points Per Game": "1.56"
-          }
-        },
-        {
-          "team1": {
             "Name": "Paris 13 A.",
             "Time": "18:30",
             "Scope": "home",
@@ -2572,23 +1865,6 @@
             "2.5+": "44%",
             "3.5+": "22%",
             "Points Per Game": "2.00"
-          },
-          "team2": {
-            "Name": "Versailles",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "50%",
-            "FTS": "38%",
-            "CS": "50%",
-            "BTS": "25%",
-            "TG": "1.75",
-            "GF": "1.00",
-            "GA": "0.75",
-            "1.5+": "62%",
-            "2.5+": "12%",
-            "3.5+": "12%",
-            "Points Per Game": "1.75"
           }
         },
         {
@@ -2609,23 +1885,7 @@
             "3.5+": "12%",
             "Points Per Game": "0.63"
           },
-          "team2": {
-            "Name": "Fleury-Merogis",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "44%",
-            "FTS": "22%",
-            "CS": "56%",
-            "BTS": "33%",
-            "TG": "1.89",
-            "GF": "1.22",
-            "GA": "0.67",
-            "1.5+": "56%",
-            "2.5+": "33%",
-            "3.5+": "11%",
-            "Points Per Game": "1.67"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -2667,23 +1927,7 @@
             "3.5+": "40%",
             "Points Per Game": "1.70"
           },
-          "team2": {
-            "Name": "Saarbrucken",
-            "Time": "",
-            "Scope": "away",
-            "GP": "10",
-            "W%": "10%",
-            "FTS": "30%",
-            "CS": "0%",
-            "BTS": "70%",
-            "TG": "2.80",
-            "GF": "1.10",
-            "GA": "1.70",
-            "1.5+": "100%",
-            "2.5+": "40%",
-            "3.5+": "20%",
-            "Points Per Game": "0.70"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -2725,23 +1969,7 @@
             "3.5+": "43%",
             "Points Per Game": "1.29"
           },
-          "team2": {
-            "Name": "Leverkusen W",
-            "Time": "",
-            "Scope": "away",
-            "GP": "7",
-            "W%": "43%",
-            "FTS": "29%",
-            "CS": "29%",
-            "BTS": "43%",
-            "TG": "2.71",
-            "GF": "1.43",
-            "GA": "1.29",
-            "1.5+": "71%",
-            "2.5+": "43%",
-            "3.5+": "29%",
-            "Points Per Game": "1.43"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -2783,23 +2011,7 @@
             "3.5+": "89%",
             "Points Per Game": "2.67"
           },
-          "team2": {
-            "Name": "College 1975",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "33%",
-            "FTS": "44%",
-            "CS": "33%",
-            "BTS": "33%",
-            "TG": "2.56",
-            "GF": "1.00",
-            "GA": "1.56",
-            "1.5+": "56%",
-            "2.5+": "33%",
-            "3.5+": "33%",
-            "Points Per Game": "1.22"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -2842,25 +2054,6 @@
             "Points Per Game": "0.29"
           },
           "team2": {
-            "Name": "Borneo",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "50%",
-            "FTS": "12%",
-            "CS": "25%",
-            "BTS": "62%",
-            "TG": "3.25",
-            "GF": "1.75",
-            "GA": "1.50",
-            "1.5+": "88%",
-            "2.5+": "62%",
-            "3.5+": "62%",
-            "Points Per Game": "1.63"
-          }
-        },
-        {
-          "team1": {
             "Name": "Persija",
             "Time": "12:00",
             "Scope": "home",
@@ -2876,23 +2069,6 @@
             "2.5+": "50%",
             "3.5+": "38%",
             "Points Per Game": "2.50"
-          },
-          "team2": {
-            "Name": "Madura Utd",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "25%",
-            "FTS": "38%",
-            "CS": "25%",
-            "BTS": "50%",
-            "TG": "2.25",
-            "GF": "1.00",
-            "GA": "1.25",
-            "1.5+": "62%",
-            "2.5+": "38%",
-            "3.5+": "25%",
-            "Points Per Game": "1.13"
           }
         }
       ],
@@ -2936,25 +2112,6 @@
             "Points Per Game": "1.75"
           },
           "team2": {
-            "Name": "Sepahan",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "75%",
-            "FTS": "0%",
-            "CS": "75%",
-            "BTS": "25%",
-            "TG": "1.63",
-            "GF": "1.38",
-            "GA": "0.25",
-            "1.5+": "50%",
-            "2.5+": "12%",
-            "3.5+": "0%",
-            "Points Per Game": "2.50"
-          }
-        },
-        {
-          "team1": {
             "Name": "E. Khuzestan",
             "Time": "11:30",
             "Scope": "home",
@@ -2970,23 +2127,6 @@
             "2.5+": "0%",
             "3.5+": "0%",
             "Points Per Game": "1.38"
-          },
-          "team2": {
-            "Name": "Paykan",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "25%",
-            "FTS": "25%",
-            "CS": "25%",
-            "BTS": "50%",
-            "TG": "2.13",
-            "GF": "0.88",
-            "GA": "1.25",
-            "1.5+": "62%",
-            "2.5+": "38%",
-            "3.5+": "12%",
-            "Points Per Game": "1.00"
           }
         },
         {
@@ -3008,25 +2148,6 @@
             "Points Per Game": "2.00"
           },
           "team2": {
-            "Name": "Shams A. Qazvin",
-            "Time": "",
-            "Scope": "away",
-            "GP": "7",
-            "W%": "14%",
-            "FTS": "71%",
-            "CS": "71%",
-            "BTS": "14%",
-            "TG": "0.57",
-            "GF": "0.29",
-            "GA": "0.29",
-            "1.5+": "14%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "1.14"
-          }
-        },
-        {
-          "team1": {
             "Name": "Gol Gohar",
             "Time": "12:00",
             "Scope": "home",
@@ -3041,23 +2162,6 @@
             "1.5+": "62%",
             "2.5+": "25%",
             "3.5+": "12%",
-            "Points Per Game": "1.38"
-          },
-          "team2": {
-            "Name": "Fajr Sepasi",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "25%",
-            "FTS": "25%",
-            "CS": "38%",
-            "BTS": "50%",
-            "TG": "2.13",
-            "GF": "1.25",
-            "GA": "0.88",
-            "1.5+": "75%",
-            "2.5+": "25%",
-            "3.5+": "25%",
             "Points Per Game": "1.38"
           }
         },
@@ -3079,23 +2183,7 @@
             "3.5+": "0%",
             "Points Per Game": "1.00"
           },
-          "team2": {
-            "Name": "Esteghlal",
-            "Time": "",
-            "Scope": "away",
-            "GP": "8",
-            "W%": "38%",
-            "FTS": "25%",
-            "CS": "38%",
-            "BTS": "50%",
-            "TG": "1.75",
-            "GF": "1.13",
-            "GA": "0.63",
-            "1.5+": "62%",
-            "2.5+": "25%",
-            "3.5+": "0%",
-            "Points Per Game": "1.63"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -3137,23 +2225,7 @@
             "3.5+": "22%",
             "Points Per Game": "0.56"
           },
-          "team2": {
-            "Name": "H. Petah Tikva",
-            "Time": "",
-            "Scope": "away",
-            "GP": "9",
-            "W%": "33%",
-            "FTS": "22%",
-            "CS": "22%",
-            "BTS": "67%",
-            "TG": "3.89",
-            "GF": "2.11",
-            "GA": "1.78",
-            "1.5+": "89%",
-            "2.5+": "67%",
-            "3.5+": "67%",
-            "Points Per Game": "1.44"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -3195,23 +2267,7 @@
             "3.5+": "10%",
             "Points Per Game": "1.60"
           },
-          "team2": {
-            "Name": "Lumezzane",
-            "Time": "",
-            "Scope": "away",
-            "GP": "11",
-            "W%": "36%",
-            "FTS": "36%",
-            "CS": "45%",
-            "BTS": "27%",
-            "TG": "2.18",
-            "GF": "0.91",
-            "GA": "1.27",
-            "1.5+": "55%",
-            "2.5+": "27%",
-            "3.5+": "18%",
-            "Points Per Game": "1.36"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {
@@ -3253,81 +2309,7 @@
             "3.5+": "18%",
             "Points Per Game": "0.55"
           },
-          "team2": {
-            "Name": "Cavese",
-            "Time": "",
-            "Scope": "away",
-            "GP": "11",
-            "W%": "18%",
-            "FTS": "36%",
-            "CS": "27%",
-            "BTS": "55%",
-            "TG": "2.73",
-            "GF": "1.09",
-            "GA": "1.64",
-            "1.5+": "82%",
-            "2.5+": "64%",
-            "3.5+": "36%",
-            "Points Per Game": "0.82"
-          }
-        }
-      ],
-      "field_definitions": {
-        "Name": "Team name",
-        "Time": "Match time",
-        "Scope": "Home/Away designation",
-        "GP": "Number of matches played",
-        "W%": "Percentage of matches won",
-        "FTS": "% Failed to score",
-        "CS": "% Clean sheet",
-        "BTS": "% of matches where both teams scored",
-        "TG": "Average total goals scored + conceded per match",
-        "GF": "Goals scored per match",
-        "GA": "Goals conceded per match",
-        "1.5+": "% of matches over 1.5 goals (scored + conceded)",
-        "2.5+": "% of matches over 2.5 goals (scored + conceded)",
-        "3.5+": "% of matches over 3.5 goals (scored + conceded)",
-        "Points Per Game": "Points per game"
-      }
-    },
-    {
-      "league_name": "Jamaica - Premier League",
-      "matches": [
-        {
-          "team1": {
-            "Name": "Arnett Gardens",
-            "Time": "00:00",
-            "Scope": "home",
-            "GP": "8",
-            "W%": "38%",
-            "FTS": "25%",
-            "CS": "25%",
-            "BTS": "50%",
-            "TG": "2.25",
-            "GF": "1.13",
-            "GA": "1.13",
-            "1.5+": "62%",
-            "2.5+": "38%",
-            "3.5+": "12%",
-            "Points Per Game": "1.25"
-          },
-          "team2": {
-            "Name": "Mount Pleasant",
-            "Time": "",
-            "Scope": "away",
-            "GP": "6",
-            "W%": "33%",
-            "FTS": "50%",
-            "CS": "67%",
-            "BTS": "17%",
-            "TG": "1.00",
-            "GF": "0.67",
-            "GA": "0.33",
-            "1.5+": "33%",
-            "2.5+": "0%",
-            "3.5+": "0%",
-            "Points Per Game": "1.50"
-          }
+          "team2": null
         }
       ],
       "field_definitions": {

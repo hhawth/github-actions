@@ -1,71 +1,119 @@
 {
   "summary": {
-    "total_matches": 147,
-    "matches_with_stats": 0,
-    "coverage_percentage": 0.0
+    "total_matches": 273,
+    "matches_with_stats": 33,
+    "coverage_percentage": 12.09
   },
   "by_league": {
-    "Europa League - League phase": {
-      "total": 18,
+    "Championship": {
+      "total": 2,
+      "with_stats": 2
+    },
+    "Ligue 1": {
+      "total": 8,
       "with_stats": 0
     },
-    "Liga Profesional - Apertura": {
+    "Bundesliga": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Serie A": {
+      "total": 1,
+      "with_stats": 1
+    },
+    "NIFL Premiership": {
+      "total": 2,
+      "with_stats": 2
+    },
+    "LaLiga": {
+      "total": 1,
+      "with_stats": 1
+    },
+    "Cymru Premier - Relegation Group": {
       "total": 3,
       "with_stats": 0
     },
-    "Copa Argentina": {
-      "total": 1,
+    "CAF Champions League": {
+      "total": 2,
+      "with_stats": 0
+    },
+    "Liga Profesional - Apertura": {
+      "total": 4,
       "with_stats": 0
     },
     "Super Cup UAE / Qatar": {
       "total": 1,
       "with_stats": 0
     },
-    "Carioca - Taca Guanabara": {
-      "total": 3,
+    "AFC Asian Cup U23 - Play Offs": {
+      "total": 1,
       "with_stats": 0
     },
-    "Catarinense": {
-      "total": 3,
+    "A-League": {
+      "total": 1,
       "with_stats": 0
     },
-    "Gaucho": {
-      "total": 3,
+    "A-League Women": {
+      "total": 1,
       "with_stats": 0
     },
-    "Mineiro": {
+    "OFC Pro League": {
       "total": 2,
       "with_stats": 0
     },
+    "Premier League": {
+      "total": 27,
+      "with_stats": 2
+    },
+    "Jupiler Pro League": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Challenger Pro League": {
+      "total": 2,
+      "with_stats": 0
+    },
+    "Carioca - Taca Guanabara": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Catarinense": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Gaucho": {
+      "total": 1,
+      "with_stats": 0
+    },
     "Paulista": {
-      "total": 3,
+      "total": 1,
       "with_stats": 0
     },
     "Copinha - Play Offs": {
       "total": 1,
       "with_stats": 0
     },
-    "Premiere Division - LPFN": {
+    "Primus League": {
       "total": 1,
       "with_stats": 0
     },
-    "Super Cup": {
-      "total": 1,
-      "with_stats": 0
-    },
-    "Ligue 1": {
+    "Primera A - Apertura": {
       "total": 1,
       "with_stats": 0
     },
     "Primera Division - Clausura": {
-      "total": 6,
+      "total": 2,
       "with_stats": 0
     },
-    "Premier League": {
-      "total": 18,
+    "HNL": {
+      "total": 1,
       "with_stats": 0
     },
-    "League One": {
+    "Cyprus League": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Tipsport liga": {
       "total": 1,
       "with_stats": 0
     },
@@ -74,79 +122,179 @@
       "with_stats": 0
     },
     "FA Youth Cup": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "WSL": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Ligue 2": {
+      "total": 5,
+      "with_stats": 5
+    },
+    "National": {
+      "total": 6,
+      "with_stats": 0
+    },
+    "GFA League": {
       "total": 3,
       "with_stats": 0
     },
-    "Premier League International Cup": {
+    "2. Bundesliga": {
+      "total": 2,
+      "with_stats": 2
+    },
+    "3. Liga": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Bundesliga Women": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Division One League": {
       "total": 2,
       "with_stats": 0
     },
+    "National League": {
+      "total": 4,
+      "with_stats": 0
+    },
     "Liga Nacional - Clausura": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Super League": {
       "total": 2,
       "with_stats": 0
     },
     "Persian Gulf Pro League": {
-      "total": 3,
+      "total": 5,
       "with_stats": 0
     },
     "Stars League": {
       "total": 5,
       "with_stats": 0
     },
-    "Primavera 1": {
-      "total": 3,
+    "Ligat ha'Al": {
+      "total": 1,
       "with_stats": 0
     },
-    "Coppa Italia Women": {
+    "Leumit League": {
+      "total": 5,
+      "with_stats": 0
+    },
+    "Serie B": {
+      "total": 1,
+      "with_stats": 1
+    },
+    "Serie C - Group A": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Serie C - Group C": {
       "total": 1,
       "with_stats": 0
     },
     "Division 1": {
-      "total": 5,
-      "with_stats": 0
-    },
-    "Malaysia Cup": {
-      "total": 1,
-      "with_stats": 0
-    },
-    "Liga MX Women - Clausura": {
-      "total": 6,
-      "with_stats": 0
-    },
-    "National League": {
-      "total": 2,
-      "with_stats": 0
-    },
-    "Liga Primera - Clausura": {
-      "total": 1,
-      "with_stats": 0
-    },
-    "Saudi Professional League": {
       "total": 3,
       "with_stats": 0
     },
-    "Serie Rio de la Plata": {
+    "Elite League": {
       "total": 1,
       "with_stats": 0
+    },
+    "Malaysia Cup": {
+      "total": 2,
+      "with_stats": 0
+    },
+    "Premiere Division": {
+      "total": 3,
+      "with_stats": 0
+    },
+    "Premier League - Second stage - Main": {
+      "total": 2,
+      "with_stats": 0
+    },
+    "Eerste Divisie": {
+      "total": 7,
+      "with_stats": 6
+    },
+    "Super Ligue": {
+      "total": 2,
+      "with_stats": 0
+    },
+    "OBOS Supercup": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Copa de Primera - Apertura": {
+      "total": 2,
+      "with_stats": 0
+    },
+    "Liga Portugal": {
+      "total": 1,
+      "with_stats": 0
+    },
+    "Liga Portugal 2": {
+      "total": 1,
+      "with_stats": 1
+    },
+    "Superliga": {
+      "total": 2,
+      "with_stats": 1
+    },
+    "Betway Premiership": {
+      "total": 1,
+      "with_stats": 1
+    },
+    "Motsepe Foundation Championship": {
+      "total": 2,
+      "with_stats": 2
+    },
+    "Serie Rio de la Plata": {
+      "total": 2,
+      "with_stats": 0
+    },
+    "LaLiga2": {
+      "total": 1,
+      "with_stats": 1
+    },
+    "Primera RFEF - Group 1": {
+      "total": 2,
+      "with_stats": 2
+    },
+    "Challenge League": {
+      "total": 2,
+      "with_stats": 1
     },
     "Ligi Kuu Bara": {
-      "total": 1,
-      "with_stats": 0
-    },
-    "TT Premier League": {
-      "total": 1,
+      "total": 2,
       "with_stats": 0
     },
     "Ligue Professionnelle 1": {
-      "total": 1,
+      "total": 3,
       "with_stats": 0
+    },
+    "Super Lig": {
+      "total": 1,
+      "with_stats": 1
+    },
+    "1. Lig": {
+      "total": 1,
+      "with_stats": 1
     },
     "Copa de la Liga AUF": {
       "total": 1,
       "with_stats": 0
     },
-    "Premier Women": {
-      "total": 1,
+    "Cymru South": {
+      "total": 5,
+      "with_stats": 0
+    },
+    "Cymru North": {
+      "total": 3,
       "with_stats": 0
     },
     "Friendly International": {
@@ -154,13 +302,13 @@
       "with_stats": 0
     },
     "Club Friendly": {
-      "total": 34,
+      "total": 93,
       "with_stats": 0
     },
     "Club Friendly Women": {
-      "total": 1,
+      "total": 4,
       "with_stats": 0
     }
   },
-  "timestamp": "2026-01-22T23:34:36.644808"
+  "timestamp": "2026-01-23T09:55:46.526818"
 }

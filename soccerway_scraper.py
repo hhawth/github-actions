@@ -36,15 +36,31 @@ class SoccerwayScraper:
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument("--disable-web-security")
+        chrome_options.add_argument("--allow-running-insecure-content")
         chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         
         try:
-            # Use webdriver_manager to automatically download chromedriver
+            # Clear webdriver cache to force fresh download
+            import os
+            import shutil
+            
+            cache_dir = os.path.expanduser("~/.wdm")
+            if os.path.exists(cache_dir):
+                try:
+                    shutil.rmtree(cache_dir)
+                    logger.info("Cleared webdriver cache")
+                except Exception:
+                    pass  # Ignore cache clear errors
+            
+            # Use webdriver_manager to automatically download latest chromedriver
             service = Service(ChromeDriverManager().install())
             self.driver = webdriver.Chrome(service=service, options=chrome_options)
-            logger.info("Selenium driver initialized")
+            logger.info("Selenium driver initialized successfully")
+            
         except Exception as e:
             logger.error(f"Error initializing driver: {e}")
+            logger.info("Try: pip install --upgrade webdriver-manager selenium")
             raise
     
     def close_driver(self):
