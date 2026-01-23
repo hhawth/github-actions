@@ -2,6 +2,7 @@ import streamlit as st
 import json
 from datetime import datetime
 import sys
+import os
 
 # Add current directory to path to import our betting system
 sys.path.append('.')
@@ -61,18 +62,80 @@ def load_match_data():
     from best_match_outcomes import main as best_outcomes_main
     best_outcomes_main()
 
+def check_data_freshness(max_age_hours=1):
+    """Check if cached data files exist and are fresh enough"""
+    data_files = [
+        'merged_match_data.json',
+        'match_predictions.json',
+        'best_match_outcomes_report.json'
+    ]
+    
+    current_time = datetime.now()
+    
+    for file_path in data_files:
+        if not os.path.exists(file_path):
+            return False, f"Missing data file: {file_path}"
+        
+        # Check file age
+        file_time = datetime.fromtimestamp(os.path.getmtime(file_path))
+        age_hours = (current_time - file_time).total_seconds() / 3600
+        
+        if age_hours > max_age_hours:
+            return False, f"Data is {age_hours:.1f} hours old (max: {max_age_hours}h)"
+    
+    return True, "Data is fresh"
+
 def main():
     """Main Streamlit app"""
     
     # App title  
     st.title("⚽ Football Analytics & Betting Platform")
     
-    # Initialize data loading
-    if 'data_loaded' not in st.session_state:
+    # Data freshness controls
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        max_age = st.selectbox(
+            "Data refresh frequency:",
+            options=[0.5, 1, 2, 6, 12, 24],
+            index=1,  # Default to 1 hour
+            format_func=lambda x: f"Refresh if older than {x} hour{'s' if x != 1 else ''}"
+        )
+    
+    with col2:
+        if st.button("🔄 Force Refresh", type="secondary"):
+            st.session_state.data_loaded = False
+            st.session_state.force_refresh = True
+            st.rerun()
+    
+    with col3:
+        # Show data status
+        is_fresh, status_msg = check_data_freshness(max_age)
+        if is_fresh:
+            st.success("✅ Data Fresh")
+        else:
+            st.warning("⚠️ Data Stale")
+    
+    # Initialize data loading with freshness check
+    force_refresh = st.session_state.get('force_refresh', False)
+    
+    if 'data_loaded' not in st.session_state or not is_fresh or force_refresh:
         with st.spinner("🚀 Loading match data and generating predictions..."):
+            # Show what's being refreshed
+            if not is_fresh:
+                st.info(f"🔄 Refreshing data: {status_msg}")
+            elif force_refresh:
+                st.info("🔄 Force refreshing data...")
+            
             load_match_data()
             st.session_state.data_loaded = True
+            st.session_state.force_refresh = False
             st.success("✅ Ready!")
+            
+            # Show file timestamps after refresh
+            if os.path.exists('merged_match_data.json'):
+                file_time = datetime.fromtimestamp(os.path.getmtime('merged_match_data.json'))
+                st.info(f"📊 Data updated: {file_time.strftime('%Y-%m-%d %H:%M:%S')}")
     
     st.markdown("---")
     
@@ -288,9 +351,6 @@ def display_match_predictions():
             default=league_combinations  # Show ALL leagues by default
         )
     
-    with col2:
-        show_only_with_predictions = st.checkbox("Only matches with predictions", value=False)
-    
     # Filter matches
     filtered_matches = []
     for match in merged_data:
@@ -305,11 +365,7 @@ def display_match_predictions():
             continue
             
         match_key = f"{match.get('home_team', '')} vs {match.get('away_team', '')}"
-        has_prediction = match_key in predictions_dict
         
-        if show_only_with_predictions and not has_prediction:
-            continue
-            
         filtered_matches.append(match)
     
     st.write(f"Showing {len(filtered_matches)} matches")
