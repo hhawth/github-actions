@@ -400,9 +400,15 @@ class SoccerwayScraper:
             odds_2_elem = match_element.find('div', class_=lambda x: x and 'event__odd--odd3' in x)
             if odds_2_elem:
                 match_data['odds_2'] = odds_2_elem.get_text(strip=True)
+
+            if match_data['odds_1'] == "-" and match_data['odds_x'] == "-" and match_data['odds_2'] == "-":
+                match_data["time"] = "Full-time"
+
             
             # Fallback: if specific odds not found, try generic search
             if not match_data['odds_1'] or not match_data['odds_x'] or not match_data['odds_2']:
+                if match_data['odds_1'] == "-" and match_data['odds_x'] == "-" and match_data['odds_2'] == "-":
+                    raise ValueError("Odds are all '-'")
                 odds_elements = match_element.find_all('div', class_=lambda x: x and 'odd' in x.lower())
                 if odds_elements:
                     odds_list = [odd.get_text(strip=True) for odd in odds_elements[:3]]
@@ -412,6 +418,10 @@ class SoccerwayScraper:
                         match_data['odds_x'] = odds_list[1]
                     if len(odds_list) >= 3 and not match_data['odds_2']:
                         match_data['odds_2'] = odds_list[2]
+            else:
+                if match_data['odds_1'] == "-" and match_data['odds_x'] == "-" and match_data['odds_2'] == "-":
+                    match_data["time"] = "Full-time"
+                    match_data["status"] = "Full-time"
             
             return match_data
         except Exception as e:

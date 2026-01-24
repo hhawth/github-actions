@@ -309,31 +309,21 @@ def display_match_predictions():
         """Convert time string to time segment"""
         if not time_str or time_str == 'TBD':
             return "⏰ Time TBD"
+        if time_str == 'Canc' or time_str == 'Postp':
+            return "❌ Cancelled"
+        if time_str == 'Full-time':
+            return "✅ Finished"
         
         try:
             # Handle different time formats
-            time_str = time_str.strip()
-            if ':' in time_str:
-                hour = int(time_str.split(':')[0])
+            time_str_stripped = time_str.strip()
+            if ':' in time_str_stripped:
+                return time_str
             else:
-                # If just a number, assume it's hour
-                hour = int(time_str)
+                return "Live Match"
         except (ValueError, TypeError):
             return "⏰ Time TBD"
-        
-        # Create time segments
-        if 6 <= hour < 12:
-            return "🌅 Morning (06:00 - 11:59)"
-        elif 12 <= hour < 15:
-            return "☀️ Early Afternoon (12:00 - 14:59)"
-        elif 15 <= hour < 18:
-            return "🌤️ Late Afternoon (15:00 - 17:59)"
-        elif 18 <= hour < 21:
-            return "🌆 Evening (18:00 - 20:59)"
-        elif 21 <= hour < 24:
-            return "🌙 Night (21:00 - 23:59)"
-        else:  # 0-5
-            return "🌌 Late Night (00:00 - 05:59)"
+
     
     # Group matches by time
     time_groups = {}
@@ -343,192 +333,180 @@ def display_match_predictions():
             time_groups[time_segment] = []
         time_groups[time_segment].append(match)
     
-    # Sort time groups in chronological order
-    time_order = [
-        "🌅 Morning (06:00 - 11:59)",
-        "☀️ Early Afternoon (12:00 - 14:59)", 
-        "🌤️ Late Afternoon (15:00 - 17:59)",
-        "🌆 Evening (18:00 - 20:59)",
-        "🌙 Night (21:00 - 23:59)",
-        "🌌 Late Night (00:00 - 05:59)",
-        "⏰ Time TBD"
-    ]
-    
-    # Display matches grouped by time
-    for time_segment in time_order:
-        if time_segment in time_groups:
-            matches_in_segment = time_groups[time_segment]
+    time_groups = dict(sorted(time_groups.items(), key=lambda x: x[0]))
+    for time_key in time_groups.keys():
+        matches_in_segment = time_groups[time_key]
+        
+        # Sort matches within segment by actual time
+        matches_in_segment.sort(key=lambda m: m.get('time', 'ZZ:ZZ'))
+        
+        st.subheader(f"{time_key} ({len(matches_in_segment)} matches)")
+        
+        # Display matches in this time segment
+        for match in matches_in_segment:
+            home_team = match.get('home_team', 'Unknown')
+            away_team = match.get('away_team', 'Unknown')
+            league = match.get('league', 'Unknown')
+            region = match.get('region', 'Unknown')
+            time = match.get('time', 'TBD')
             
-            # Sort matches within segment by actual time
-            matches_in_segment.sort(key=lambda m: m.get('time', 'ZZ:ZZ'))
+            match_key = f"{home_team} vs {away_team}"
+            prediction = predictions_dict.get(match_key)
             
-            st.subheader(f"{time_segment} ({len(matches_in_segment)} matches)")
-            
-            # Display matches in this time segment
-            for match in matches_in_segment:
-                home_team = match.get('home_team', 'Unknown')
-                away_team = match.get('away_team', 'Unknown')
-                league = match.get('league', 'Unknown')
-                region = match.get('region', 'Unknown')
-                time = match.get('time', 'TBD')
+            # Create expandable match card
+            with st.expander(f"🏆 {home_team} vs {away_team} ({league}) - {time}"):
+                col1, col2, col3 = st.columns(3)
                 
-                match_key = f"{home_team} vs {away_team}"
-                prediction = predictions_dict.get(match_key)
+                with col1:
+                    st.subheader("Match Info")
+                    st.write(f"**League:** {league}")
+                    st.write(f"**Region:** {region}")
+                    st.write(f"**Time:** {time}")
+                    
+                    # Show scores if available
+                    home_score = match.get('home_score')
+                    away_score = match.get('away_score')
+                    if home_score is not None and away_score is not None:
+                        st.write(f"**Score:** {home_score} - {away_score}")
+                    
+                    # Show odds
+                    odds_1 = match.get('odds_1')
+                    odds_x = match.get('odds_x')
+                    odds_2 = match.get('odds_2')
+                    
+                    if odds_1 or odds_x or odds_2:
+                        st.write("**Odds:**")
+                        if odds_1: st.write(f"Home: {odds_1}")
+                        if odds_x: st.write(f"Draw: {odds_x}")
+                        if odds_2: st.write(f"Away: {odds_2}")
                 
-                # Create expandable match card
-                with st.expander(f"🏆 {home_team} vs {away_team} ({league}) - {time}"):
-                    col1, col2, col3 = st.columns(3)
+                with col2:
+                    st.subheader("Team Statistics")
                     
-                    with col1:
-                        st.subheader("Match Info")
-                        st.write(f"**League:** {league}")
-                        st.write(f"**Region:** {region}")
-                        st.write(f"**Time:** {time}")
-                        
-                        # Show scores if available
-                        home_score = match.get('home_score')
-                        away_score = match.get('away_score')
-                        if home_score is not None and away_score is not None:
-                            st.write(f"**Score:** {home_score} - {away_score}")
-                        
-                        # Show odds
-                        odds_1 = match.get('odds_1')
-                        odds_x = match.get('odds_x')
-                        odds_2 = match.get('odds_2')
-                        
-                        if odds_1 or odds_x or odds_2:
-                            st.write("**Odds:**")
-                            if odds_1: st.write(f"Home: {odds_1}")
-                            if odds_x: st.write(f"Draw: {odds_x}")
-                            if odds_2: st.write(f"Away: {odds_2}")
+                    home_stats = match.get('home_team_stats', {})
+                    away_stats = match.get('away_team_stats', {})
                     
-                    with col2:
-                        st.subheader("Team Statistics")
-                        
-                        home_stats = match.get('home_team_stats', {})
-                        away_stats = match.get('away_team_stats', {})
-                        
-                        # Home team stats
-                        st.write(f"**🏠 {home_team}**")
-                        if home_stats and home_stats != 'N/A':
-                            format_team_stats_table(home_stats, home_team)
-                        else:
-                            st.write("No stats available")
-                        
-                        st.markdown("---")
-                        
-                        # Away team stats
-                        st.write(f"**✈️ {away_team}**")
-                        if away_stats and away_stats != 'N/A':
-                            format_team_stats_table(away_stats, away_team)
-                        else:
-                            st.write("No stats available")
+                    # Home team stats
+                    st.write(f"**🏠 {home_team}**")
+                    if home_stats and home_stats != 'N/A':
+                        format_team_stats_table(home_stats, home_team)
+                    else:
+                        st.write("No stats available")
                     
-                    with col3:
-                        st.subheader("Predictions")
+                    st.markdown("---")
+                    
+                    # Away team stats
+                    st.write(f"**✈️ {away_team}**")
+                    if away_stats and away_stats != 'N/A':
+                        format_team_stats_table(away_stats, away_team)
+                    else:
+                        st.write("No stats available")
+                
+                with col3:
+                    st.subheader("Predictions")
+                    
+                    match_key = f"{home_team} vs {away_team}"
+                    prediction = predictions_dict.get(match_key)
+                    
+                    # If no prediction exists but we have team stats, generate one
+                    if not prediction and match.get('home_team_stats') and match.get('away_team_stats'):
+                        with st.spinner("Generating live prediction..."):
+                            prediction = generate_live_prediction(match)
+                            if prediction:
+                                st.success("✨ Live prediction generated!")
+                    
+                    if prediction:
+                        # Show score prediction prominently at top
+                        if 'score_prediction' in prediction:
+                            score_pred = prediction['score_prediction']
+                            pred_home = score_pred.get('predicted_home_goals', 'N/A')
+                            pred_away = score_pred.get('predicted_away_goals', 'N/A')
+                            if pred_home != 'N/A' and pred_away != 'N/A':
+                                st.success(f"⚽ **Predicted Score: {pred_home:.1f} - {pred_away:.1f}**")
                         
-                        match_key = f"{home_team} vs {away_team}"
-                        prediction = predictions_dict.get(match_key)
+                        # Show most likely exact score
+                        if 'most_likely_score' in prediction:
+                            likely_score = prediction['most_likely_score']
+                            home_goals = likely_score['home_goals']
+                            away_goals = likely_score['away_goals']
+                            probability = likely_score['probability']
+                            st.info(f"🎯 **Most Likely Score: {home_goals}-{away_goals}** ({probability:.1%} chance)")
                         
-                        # If no prediction exists but we have team stats, generate one
-                        if not prediction and match.get('home_team_stats') and match.get('away_team_stats'):
-                            with st.spinner("Generating live prediction..."):
-                                prediction = generate_live_prediction(match)
-                                if prediction:
-                                    st.success("✨ Live prediction generated!")
+                        # Show expected goals prominently
+                        if 'xg_analysis' in prediction:
+                            xg = prediction['xg_analysis']
+                            home_xg = xg.get('home_xg', 'N/A')
+                            away_xg = xg.get('away_xg', 'N/A')
+                            if isinstance(home_xg, (int, float)) and isinstance(away_xg, (int, float)):
+                                st.info(f"📊 **Expected Goals: {home_xg:.2f} - {away_xg:.2f}**")
                         
-                        if prediction:
-                            # Show score prediction prominently at top
-                            if 'score_prediction' in prediction:
-                                score_pred = prediction['score_prediction']
-                                pred_home = score_pred.get('predicted_home_goals', 'N/A')
-                                pred_away = score_pred.get('predicted_away_goals', 'N/A')
-                                if pred_home != 'N/A' and pred_away != 'N/A':
-                                    st.success(f"⚽ **Predicted Score: {pred_home:.1f} - {pred_away:.1f}**")
-                            
-                            # Show most likely exact score
-                            if 'most_likely_score' in prediction:
-                                likely_score = prediction['most_likely_score']
-                                home_goals = likely_score['home_goals']
-                                away_goals = likely_score['away_goals']
-                                probability = likely_score['probability']
-                                st.info(f"🎯 **Most Likely Score: {home_goals}-{away_goals}** ({probability:.1%} chance)")
-                            
-                            # Show expected goals prominently
-                            if 'xg_analysis' in prediction:
-                                xg = prediction['xg_analysis']
-                                home_xg = xg.get('home_xg', 'N/A')
-                                away_xg = xg.get('away_xg', 'N/A')
-                                if isinstance(home_xg, (int, float)) and isinstance(away_xg, (int, float)):
-                                    st.info(f"📊 **Expected Goals: {home_xg:.2f} - {away_xg:.2f}**")
-                            
-                            # Show prediction results
-                            preds = prediction.get('predictions', {})
-                            
-                            if 'ensemble' in preds:
-                                ensemble = preds['ensemble']
-                                st.write("**📊 Outcome Probabilities:**")
-                                
-                                outcomes = ensemble.get('outcome_probabilities', {})
-                                
-                                # Use columns for probabilities
-                                prob_col1, prob_col2, prob_col3 = st.columns(3)
-                                
-                                with prob_col1:
-                                    if 'home_win' in outcomes:
-                                        st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
-                                
-                                with prob_col2:
-                                    if 'draw' in outcomes:
-                                        st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
-                                
-                                with prob_col3:
-                                    if 'away_win' in outcomes:
-                                        st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
-                                
-                                confidence = ensemble.get('confidence_score', 0)
-                                if confidence > 0:
-                                    st.write(f"**🎯 Confidence:** {confidence:.1%}")
-                            
-                            elif 'statistical' in preds:
-                                stats_pred = preds['statistical']
-                                st.write("**📈 Statistical Prediction:**")
-                                
-                                outcomes = stats_pred.get('outcome_probabilities', {})
-                                prob_col1, prob_col2, prob_col3 = st.columns(3)
-                                
-                                with prob_col1:
-                                    if 'home_win' in outcomes:
-                                        st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
-                                with prob_col2:
-                                    if 'draw' in outcomes:
-                                        st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
-                                with prob_col3:
-                                    if 'away_win' in outcomes:
-                                        st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
-                            
-                            elif 'odds_based' in preds:
-                                odds_pred = preds['odds_based']
-                                st.write("**💰 Odds-based Prediction:**")
-                                
-                                outcomes = odds_pred.get('outcome_probabilities', {})
-                                prob_col1, prob_col2, prob_col3 = st.columns(3)
-                                
-                                with prob_col1:
-                                    if 'home_win' in outcomes:
-                                        st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
-                                with prob_col2:
-                                    if 'draw' in outcomes:
-                                        st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
-                                with prob_col3:
-                                    if 'away_win' in outcomes:
-                                        st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
+                        # Show prediction results
+                        preds = prediction.get('predictions', {})
                         
+                        if 'ensemble' in preds:
+                            ensemble = preds['ensemble']
+                            st.write("**📊 Outcome Probabilities:**")
+                            
+                            outcomes = ensemble.get('outcome_probabilities', {})
+                            
+                            # Use columns for probabilities
+                            prob_col1, prob_col2, prob_col3 = st.columns(3)
+                            
+                            with prob_col1:
+                                if 'home_win' in outcomes:
+                                    st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
+                            
+                            with prob_col2:
+                                if 'draw' in outcomes:
+                                    st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
+                            
+                            with prob_col3:
+                                if 'away_win' in outcomes:
+                                    st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
+                            
+                            confidence = ensemble.get('confidence_score', 0)
+                            if confidence > 0:
+                                st.write(f"**🎯 Confidence:** {confidence:.1%}")
+                        
+                        elif 'statistical' in preds:
+                            stats_pred = preds['statistical']
+                            st.write("**📈 Statistical Prediction:**")
+                            
+                            outcomes = stats_pred.get('outcome_probabilities', {})
+                            prob_col1, prob_col2, prob_col3 = st.columns(3)
+                            
+                            with prob_col1:
+                                if 'home_win' in outcomes:
+                                    st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
+                            with prob_col2:
+                                if 'draw' in outcomes:
+                                    st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
+                            with prob_col3:
+                                if 'away_win' in outcomes:
+                                    st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
+                        
+                        elif 'odds_based' in preds:
+                            odds_pred = preds['odds_based']
+                            st.write("**💰 Odds-based Prediction:**")
+                            
+                            outcomes = odds_pred.get('outcome_probabilities', {})
+                            prob_col1, prob_col2, prob_col3 = st.columns(3)
+                            
+                            with prob_col1:
+                                if 'home_win' in outcomes:
+                                    st.metric("🏠 Home Win", f"{outcomes['home_win']:.1%}")
+                            with prob_col2:
+                                if 'draw' in outcomes:
+                                    st.metric("🤝 Draw", f"{outcomes['draw']:.1%}")
+                            with prob_col3:
+                                if 'away_win' in outcomes:
+                                    st.metric("✈️ Away Win", f"{outcomes['away_win']:.1%}")
+                    
+                    else:
+                        if not match.get('home_team_stats') or not match.get('away_team_stats'):
+                            st.write("❌ No team statistics available for prediction")
                         else:
-                            if not match.get('home_team_stats') or not match.get('away_team_stats'):
-                                st.write("❌ No team statistics available for prediction")
-                            else:
-                                st.write("🔄 Click to generate prediction")
+                            st.write("🔄 Click to generate prediction")
 
 def display_betting_accumulators():
     """Display betting accumulator recommendations with slider"""
@@ -653,7 +631,16 @@ def display_betting_accumulators():
         st.subheader("📋 Individual Selections")
         
         for i, selection in enumerate(accumulator_selections, 1):
-            with st.expander(f"{i}. {selection['match_description']} - {selection['outcome_display']}"):
+            outcome_result = ""
+            if "Full-time" in selection['match_info'].get('time', ''):
+                score = selection['match_info'].get('score')
+                if score.split('-')[0] > score.split('-')[1]:
+                    outcome_result = "✅ Won" if selection['outcome'] == 'home_win' else "❌ Lost"
+                elif score.split('-')[0] < score.split('-')[1]:
+                    outcome_result = "✅ Won" if selection['outcome'] == 'away_win' else "❌ Lost"
+                else:
+                    outcome_result = "✅ Won" if selection['outcome'] == 'draw' else "❌ Lost"
+            with st.expander(f"{i}. {selection['match_description']} - {selection['outcome_display']} {outcome_result}"):
                 col1, col2 = st.columns(2)
                 
                 with col1:

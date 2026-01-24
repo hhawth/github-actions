@@ -135,7 +135,8 @@ class BestMatchOutcomeSelector:
                 'away_team': match.get('away_team', 'Unknown'),
                 'league': match.get('league', 'Unknown'),
                 'time': match.get('time', 'TBD'),
-                'date': match.get('date', 'TBD')
+                'date': match.get('date', 'TBD'),
+                'score': match.get('score', None)
             }
             
             # Evaluate all three outcomes for this match
