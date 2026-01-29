@@ -128,6 +128,7 @@ class BestMatchOutcomeSelector:
             home_odds = self._convert_odds(match.get('odds_1'))
             draw_odds = self._convert_odds(match.get('odds_x'))
             away_odds = self._convert_odds(match.get('odds_2'))
+            score = f"{match.get('home_score', None)} - {match.get('away_score', None)}"
             
             # Match information
             match_info = {
@@ -136,7 +137,7 @@ class BestMatchOutcomeSelector:
                 'league': match.get('league', 'Unknown'),
                 'time': match.get('time', 'TBD'),
                 'date': match.get('date', 'TBD'),
-                'score': match.get('score', None)
+                'score': score
             }
             
             # Evaluate all three outcomes for this match
