@@ -1,7 +1,101 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import pickle
+import os
 # import pandas as pd
+
+def get_authenticated_session():
+    """Create or load an authenticated session with persistent cookies"""
+    session = requests.Session()
+    cookie_file = "soccerstats_cookies.pkl"
+    
+    # Load existing cookies if available
+    if os.path.exists(cookie_file):
+        try:
+            with open(cookie_file, 'rb') as f:
+                session.cookies.update(pickle.load(f))
+            print("Loaded existing session cookies")
+        except Exception as e:
+            print(f"Could not load cookies: {e}")
+    
+    # Set browser headers
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-GB,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate",  # Simplified encoding
+        "Referer": "https://www.soccerstats.com/members.asp",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Priority": "u=0, i"
+    })
+    
+    return session, cookie_file
+
+def save_session_cookies(session, cookie_file):
+    """Save session cookies to file"""
+    try:
+        with open(cookie_file, 'wb') as f:
+            pickle.dump(session.cookies, f)
+        print("Session cookies saved")
+    except Exception as e:
+        print(f"Could not save cookies: {e}")
+
+def set_manual_cookies(session):
+    """Set cookies manually if automated login fails"""
+    # Fresh cookies from user's browser - updated with new tokens
+    cookie_string = "vpl=1; cf_clearance=vG1lqpMylTxlR_.RwAsHfupaq.GeLOOAgLbwdSQ4CY0-1770113677-1.2.1.1-wgeBqkQj3UmvlT6fBKxWrNMzQsvFxdEEWKNyRcu7Gc9MAOuQH2d4fyXBKsU_Zv3nrN5KmzIer7MjQaDqd_6cIkbNY8TUabRpdc9T_zbNPxAZgFF.nXPz2XWeHq.6nFY5PMJE2MGkVG71N.DbWSP3fnyDm4K0fDr38le5sYp7L755Blkt_4tp0JrWb4z5VmOyOQGcj.4ytYoqG2fKuuZrJUzOvj3HGWstkjT4V6_kmLM; ASPSESSIONIDAGAQBSAB=HKFAHNNADMJEFNKKIJPGLMBN; tz=0; myhtmltickerlive=61; dmmode=1; steady-token=dWxpTHY3c0hIQy9jSEZBTmJPMXU0UT09; mmode=1; mmoderec=1; mmoderem=1"
+    
+    # Parse cookie string and add to session
+    for cookie in cookie_string.split('; '):
+        if '=' in cookie:
+            name, value = cookie.split('=', 1)
+            session.cookies.set(name, value, domain='.soccerstats.com')
+    
+    print("✅ Fresh cookies set with new tokens!")
+    print("Updated cf_clearance and steady-token for full member access")
+
+def check_authentication_status(session, url):
+    """Check if we're properly authenticated by testing the response"""
+    try:
+        response = session.get(url)
+        content = response.text.lower()
+        
+        # Signs that authentication failed
+        auth_failed_indicators = [
+            'you are not logged in',
+            'please login', 
+            'access denied',
+            'subscription required',
+            'premium members only',
+            'sign up',
+            'register now'
+        ]
+        
+        for indicator in auth_failed_indicators:
+            if indicator in content:
+                return False, f"Authentication failed: found '{indicator}'"
+        
+        # Signs that we might be authenticated
+        auth_success_indicators = [
+            'welcome back',
+            'logout',
+            'my account',
+            'member since'
+        ]
+        
+        for indicator in auth_success_indicators:
+            if indicator in content:
+                return True, f"Authentication likely successful: found '{indicator}'"
+        
+        return None, "Authentication status unclear"
+        
+    except Exception as e:
+        return False, f"Error checking authentication: {e}"
 
 def fetch_sportinglife_data(url="https://www.soccerstats.com/matches.asp?matchday=1&matchdayn=1"):
     """
@@ -25,9 +119,26 @@ def fetch_sportinglife_data(url="https://www.soccerstats.com/matches.asp?matchda
     - Points Per Game: Points per game (no color coding)
     """
     try:
-        response = requests.get(url)
+        # Get authenticated session with persistent cookies
+        session, cookie_file = get_authenticated_session()
+        
+        # Try request with existing cookies first
+        response = session.get(url)
+        
+        # If we get a login page or 401/403, set manual cookies
+        if "login" in response.url.lower() or response.status_code in [401, 403]:
+            print("Session expired, setting manual cookies...")
+            set_manual_cookies(session)
+            response = session.get(url)
+        
         response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Save cookies after successful request
+        save_session_cookies(session, cookie_file)
+        
+        # Handle encoding properly to avoid character replacement warnings
+        response.encoding = 'utf-8'  # Force UTF-8 encoding
+        soup = BeautifulSoup(response.text, 'html.parser')
         tr_elements = soup.find_all('tr')
         match_elements = tr_elements[8].find_all('tr', class_=['parent', 'team1row', 'team2row'])
         
@@ -241,10 +352,64 @@ def save_results_json(data, filename=None):
         return None
 
 def main():
+    session, cookie_file = get_authenticated_session()
+    
+    # Force fresh cookies to ensure we have member access
+    print("Setting fresh cookies for full member access...")
+    set_manual_cookies(session)
+    
+    # Test authentication on members page
+    print("Testing authentication status...")
+    auth_status, message = check_authentication_status(session, "https://www.soccerstats.com/members.asp")
+        
+    if auth_status is True:
+        print(f"✅ {message}")
+    elif auth_status is None:
+        print(f"❓ {message} - proceeding anyway")
+    else:
+        print(f"❌ {message}")
+    
+    # Test if we can find "falcon" now with member access
+    print("Testing member content access...")
+    response = session.get("https://www.soccerstats.com/matches.asp")
+    if 'falcon' in response.text.lower():
+        print("✅ Found 'falcon' - member content accessible!")
+    else:
+        print("❓ 'falcon' not found in current matches")
+    
+    save_session_cookies(session, cookie_file)
+    
+    # Run the scraper
+    print("\nRunning scraper with member access...")
     data = fetch_sportinglife_data()
     if data:
         save_results_json(data)
         print(f"Scraped {len(data.get('leagues', []))} leagues")
+        
+        # Show what we got and search for falcon
+        total_matches = 0
+        falcon_found = False
+        for league in data.get('leagues', []):
+            matches_count = len(league['matches'])
+            total_matches += matches_count
+            print(f"  {league['league_name']}: {matches_count} matches")
+            
+            # Search for falcon in team names
+            for match in league['matches']:
+                if match['team1'] and 'falcon' in match['team1']['Name'].lower():
+                    print(f"    🦅 Found falcon team: {match['team1']['Name']}")
+                    falcon_found = True
+                if match['team2'] and 'falcon' in match['team2']['Name'].lower():
+                    print(f"    🦅 Found falcon team: {match['team2']['Name']}")
+                    falcon_found = True
+        
+        print(f"Total matches: {total_matches}")
+        if falcon_found:
+            print("🎉 Falcon teams found in member data!")
+        else:
+            print("❓ No falcon teams in today's matches")
+    else:
+        print("No data scraped - authentication may have failed")
 
 # Main execution
 if __name__ == "__main__":
