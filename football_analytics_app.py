@@ -72,23 +72,105 @@ def load_best_match_outcomes():
         return []
 
 
-@ttl_cache(ttl_seconds=300)
 def load_match_data():
-    from soccerway_scraper import main as soccerway_main
-
-    soccerway_main()
-    from soccerstats_scraper import main as soccerstats_main
-
-    soccerstats_main()
-    from match_data_merger import main as merger_main
-
-    merger_main()
-    from football_prediction_model import main as prediction_main
-
-    prediction_main()
-    from best_match_outcomes import main as best_outcomes_main
-
-    best_outcomes_main()
+    """Load and process match data with robust error handling for cloud environments"""
+    import os
+    import time
+    
+    # Create a container for progress messages that can be cleared
+    progress_container = st.container()
+    
+    try:
+        # Import the scraping modules
+        from soccerway_scraper import main as soccerway_main
+        from soccerstats_scraper import main as soccerstats_main
+        from match_data_merger import main as merger_main
+        from football_prediction_model import main as prediction_main
+        from best_match_outcomes import main as best_outcomes_main
+        
+        with progress_container:
+            progress_placeholder = st.empty()
+            
+            progress_placeholder.info("Starting data collection process...")
+            
+            # Step 1: Run Soccerway scraper
+            progress_placeholder.info("🔄 Scraping Soccerway data...")
+            try:
+                soccerway_main()
+                if os.path.exists("soccerway_matches.json"):
+                    progress_placeholder.success("✅ Soccerway data collected successfully")
+                else:
+                    progress_placeholder.warning("⚠️ Soccerway data file not found")
+            except Exception as e:
+                progress_placeholder.error(f"❌ Error scraping Soccerway: {e}")
+                return
+            
+            time.sleep(0.5)
+            
+            # Step 2: Run SoccerStats scraper
+            progress_placeholder.info("🔄 Scraping SoccerStats data...")
+            try:
+                soccerstats_main()
+                if os.path.exists("soccerstats_matches.json"):
+                    progress_placeholder.success("✅ SoccerStats data collected successfully")
+                else:
+                    progress_placeholder.warning("⚠️ SoccerStats data file not found")
+            except Exception as e:
+                progress_placeholder.error(f"❌ Error scraping SoccerStats: {e}")
+                return
+            
+            time.sleep(0.5)
+            
+            # Step 3: Merge data
+            progress_placeholder.info("🔄 Merging match data...")
+            try:
+                merger_main()
+                if os.path.exists("merged_match_data.json"):
+                    progress_placeholder.success("✅ Match data merged successfully")
+                else:
+                    progress_placeholder.warning("⚠️ Merged data file not found")
+            except Exception as e:
+                progress_placeholder.error(f"❌ Error merging data: {e}")
+                return
+            
+            time.sleep(0.5)
+            
+            # Step 4: Generate predictions
+            progress_placeholder.info("🔄 Generating predictions...")
+            try:
+                prediction_main()
+                if os.path.exists("match_predictions.json"):
+                    progress_placeholder.success("✅ Predictions generated successfully")
+                else:
+                    progress_placeholder.warning("⚠️ Predictions file not found")
+            except Exception as e:
+                progress_placeholder.error(f"❌ Error generating predictions: {e}")
+                return
+            
+            time.sleep(0.5)
+            
+            # Step 5: Generate best outcomes
+            progress_placeholder.info("🔄 Analyzing best outcomes...")
+            try:
+                best_outcomes_main()
+                if os.path.exists("best_match_outcomes_report.json"):
+                    progress_placeholder.success("✅ Best outcomes analyzed successfully")
+                else:
+                    progress_placeholder.warning("⚠️ Best outcomes file not found")
+            except Exception as e:
+                progress_placeholder.error(f"❌ Error analyzing best outcomes: {e}")
+                return
+            
+            # Final success message that stays briefly then clears
+            progress_placeholder.success("🎉 Data processing complete!")
+            time.sleep(2)
+            
+            # Clear all progress messages
+            progress_placeholder.empty()
+        
+    except Exception as e:
+        st.error(f"❌ Critical error in data loading: {e}")
+        st.error("Please check your internet connection and try refreshing the page.")
 
 
 def main():

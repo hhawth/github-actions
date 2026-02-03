@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import json
+import os
 from typing import List, Dict
 import logging
 import time
@@ -492,12 +493,34 @@ class SoccerwayScraper:
             filename = "soccerway_matches.json"
         
         try:
-            with open(filename, 'w', encoding='utf-8') as f:
+            # Get absolute path to ensure proper file writing in cloud environments
+            abs_filename = os.path.abspath(filename)
+            
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(abs_filename), exist_ok=True)
+            
+            # Write to temporary file first, then rename (atomic operation)
+            temp_filename = abs_filename + ".tmp"
+            
+            with open(temp_filename, 'w', encoding='utf-8') as f:
                 json.dump(self.matches, f, indent=2, ensure_ascii=False)
-            logger.info(f"Saved {len(self.matches)} matches to {filename}")
+                f.flush()  # Ensure data is written to disk
+                os.fsync(f.fileno())  # Force write to disk
+            
+            # Atomic rename
+            os.rename(temp_filename, abs_filename)
+            
+            logger.info(f"Saved {len(self.matches)} matches to {abs_filename}")
             return filename
         except Exception as e:
             logger.error(f"Error saving to JSON: {e}")
+            # Clean up temp file if it exists
+            temp_filename = os.path.abspath(filename) + ".tmp"
+            if os.path.exists(temp_filename):
+                try:
+                    os.remove(temp_filename)
+                except:
+                    pass
             return None
     
     def print_matches(self, limit: int = 10):

@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from typing import Dict, List, Optional
 from datetime import datetime
@@ -290,9 +291,34 @@ class MatchDataMerger:
         
         # Save merged data if output file specified
         if output_file:
-            with open(output_file, 'w') as f:
-                json.dump(merged_matches, f, indent=2)
-            logger.info(f"Merged data saved to: {output_file}")
+            try:
+                # Get absolute path to ensure proper file writing in cloud environments
+                abs_filename = os.path.abspath(output_file)
+                
+                # Ensure directory exists
+                os.makedirs(os.path.dirname(abs_filename), exist_ok=True)
+                
+                # Write to temporary file first, then rename (atomic operation)
+                temp_filename = abs_filename + ".tmp"
+                
+                with open(temp_filename, 'w') as f:
+                    json.dump(merged_matches, f, indent=2)
+                    f.flush()  # Ensure data is written to disk
+                    os.fsync(f.fileno())  # Force write to disk
+                
+                # Atomic rename
+                os.rename(temp_filename, abs_filename)
+                
+                logger.info(f"Merged data saved to: {abs_filename}")
+            except Exception as e:
+                logger.error(f"Error saving merged data: {e}")
+                # Clean up temp file if it exists
+                temp_filename = os.path.abspath(output_file) + ".tmp"
+                if os.path.exists(temp_filename):
+                    try:
+                        os.remove(temp_filename)
+                    except:
+                        pass
         
         return merged_matches
     
@@ -346,8 +372,32 @@ def main():
         print(f"{league}: {stats['with_stats']}/{stats['total']} ({coverage}%)")
     
     # Save report
-    with open('merger_report.json', 'w') as f:
-        json.dump(report, f, indent=2)
+    try:
+        # Get absolute path to ensure proper file writing in cloud environments
+        abs_filename = os.path.abspath('merger_report.json')
+        
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(abs_filename), exist_ok=True)
+        
+        # Write to temporary file first, then rename (atomic operation)
+        temp_filename = abs_filename + ".tmp"
+        
+        with open(temp_filename, 'w') as f:
+            json.dump(report, f, indent=2)
+            f.flush()  # Ensure data is written to disk
+            os.fsync(f.fileno())  # Force write to disk
+        
+        # Atomic rename
+        os.rename(temp_filename, abs_filename)
+    except Exception as e:
+        logger.error(f"Error saving merger report: {e}")
+        # Clean up temp file if it exists
+        temp_filename = os.path.abspath('merger_report.json') + ".tmp"
+        if os.path.exists(temp_filename):
+            try:
+                os.remove(temp_filename)
+            except:
+                pass
 
 if __name__ == "__main__":
     main()
