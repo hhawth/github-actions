@@ -374,6 +374,15 @@ def save_results_json(data, filename=None):
         return None
 
 def main():
+    # Force fresh authentication by clearing old cookies
+    cookie_file = "soccerstats_cookies.pkl"
+    if os.path.exists(cookie_file):
+        try:
+            os.remove(cookie_file)
+            print("🗑️ Cleared old authentication cookies to force fresh login")
+        except Exception as e:
+            print(f"Could not remove cookie file: {e}")
+    
     session, cookie_file = get_authenticated_session()
     
     # Force fresh cookies to ensure we have member access

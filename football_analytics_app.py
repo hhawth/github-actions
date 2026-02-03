@@ -38,7 +38,6 @@ st.set_page_config(
 
 
 # Load data functions
-@ttl_cache(ttl_seconds=300)
 def load_merged_data():
     """Load merged match data"""
     try:
@@ -49,7 +48,6 @@ def load_merged_data():
         return []
 
 
-@ttl_cache(ttl_seconds=300)
 def load_predictions():
     """Load match predictions"""
     try:
@@ -60,7 +58,6 @@ def load_predictions():
         return []
 
 
-@ttl_cache(ttl_seconds=300)
 def load_best_match_outcomes():
     """Load best match outcomes data"""
     try:
@@ -80,6 +77,16 @@ def load_match_data():
     # Create a container for progress messages that can be cleared
     progress_container = st.container()
     
+    # Force fresh data collection by removing old files
+    data_files = [
+        "soccerway_matches.json",
+        "soccerstats_matches.json", 
+        "merged_match_data.json",
+        "match_predictions.json",
+        "best_match_outcomes_report.json",
+        "soccerstats_cookies.pkl"  # Clear cookies to force fresh authentication
+    ]
+    
     try:
         # Import the scraping modules
         from soccerway_scraper import main as soccerway_main
@@ -91,7 +98,20 @@ def load_match_data():
         with progress_container:
             progress_placeholder = st.empty()
             
-            progress_placeholder.info("Starting data collection process...")
+            progress_placeholder.info("🔄 Clearing old data and forcing fresh collection...")
+            
+            # Remove old data files to force fresh collection
+            for file_path in data_files:
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                        print(f"Removed old file: {file_path}")
+                    except Exception as e:
+                        print(f"Could not remove {file_path}: {e}")
+            
+            time.sleep(0.5)
+            
+            progress_placeholder.info("Starting fresh data collection process...")
             
             # Step 1: Run Soccerway scraper
             progress_placeholder.info("🔄 Scraping Soccerway data...")
@@ -161,9 +181,22 @@ def load_match_data():
                 progress_placeholder.error(f"❌ Error analyzing best outcomes: {e}")
                 return
             
+            # Show file modification times for verification
+            progress_placeholder.info("📋 Verifying file timestamps...")
+            current_time = time.time()
+            for file_path in data_files[:-1]:  # Exclude cookies file
+                if os.path.exists(file_path):
+                    file_time = os.path.getmtime(file_path)
+                    age_seconds = current_time - file_time
+                    if age_seconds < 60:  # Less than 1 minute old
+                        progress_placeholder.success(f"✅ {file_path} - Fresh ({age_seconds:.0f}s old)")
+                    else:
+                        progress_placeholder.warning(f"⚠️ {file_path} - Old ({age_seconds:.0f}s old)")
+                    time.sleep(0.2)
+            
             # Final success message that stays briefly then clears
-            progress_placeholder.success("🎉 Data processing complete!")
-            time.sleep(2)
+            progress_placeholder.success("🎉 Fresh data collection complete!")
+            time.sleep(3)
             
             # Clear all progress messages
             progress_placeholder.empty()
