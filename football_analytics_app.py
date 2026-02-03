@@ -107,8 +107,8 @@ def main():
     with tab1:
         display_match_predictions()
 
-    with tab2:
-        display_betting_accumulators()
+    # with tab2:
+    #     display_betting_accumulators()
 
     # Footer
     st.markdown("---")
@@ -198,7 +198,6 @@ def generate_betting_analysis():
         return None
 
 
-@ttl_cache(ttl_seconds=300)
 def generate_live_prediction(match_data):
     """Generate prediction for a single match using the football prediction model"""
     try:
@@ -576,190 +575,6 @@ def display_match_predictions():
                             st.write("❌ No team statistics available for prediction")
                         else:
                             st.write("🔄 Click to generate prediction")
-
-
-def display_betting_accumulators():
-    """Display betting accumulator recommendations with slider"""
-    st.header("💰 Smart Accumulator Builder")
-    st.markdown(
-        "Build accumulators from the best match opportunities using our quality ranking system."
-    )
-
-    # Load best match outcomes
-    with st.spinner("Loading best match opportunities..."):
-        best_outcomes = load_best_match_outcomes()
-
-    if not best_outcomes:
-        st.error(
-            "Unable to load match outcomes. Please ensure merged_match_data.json exists."
-        )
-        return
-
-    # Accumulator Controls
-    st.subheader("🎯 Accumulator Settings")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        fold_size = st.slider(
-            "Select Accumulator Size",
-            min_value=2,
-            max_value=len(best_outcomes),
-            value=3,
-            help="Choose how many selections for your accumulator",
-        )
-
-    with col2:
-        min_quality = st.slider(
-            "Minimum Quality Score",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.6,
-            step=0.05,
-            help="Filter outcomes by quality score",
-        )
-
-    with col3:
-        stake = st.number_input(
-            "Stake Amount (£)", min_value=1.0, max_value=1000.0, value=10.0, step=1.0
-        )
-
-    # Filter outcomes based on quality
-    filtered_outcomes = [
-        outcome for outcome in best_outcomes if outcome["quality_score"] >= min_quality
-    ]
-
-    if len(filtered_outcomes) < fold_size:
-        st.warning(
-            f"Only {len(filtered_outcomes)} outcomes meet your quality criteria. Lowering minimum quality or accumulator size."
-        )
-        filtered_outcomes = best_outcomes[:fold_size]  # Take top outcomes anyway
-
-    # Summary metrics
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Total Matches", len(best_outcomes))
-    with col2:
-        st.metric("Quality Filtered", len(filtered_outcomes))
-    with col3:
-        st.metric("Selected for Accumulator", fold_size)
-    with col4:
-        avg_quality = (
-            sum(o["quality_score"] for o in filtered_outcomes[:fold_size]) / fold_size
-        )
-        st.metric("Avg Quality Score", f"{avg_quality:.3f}")
-
-    # Build accumulator from top filtered outcomes
-    accumulator_selections = filtered_outcomes[:fold_size]
-
-    if accumulator_selections:
-        st.subheader(f"🎯 Your {fold_size}-Fold Accumulator")
-
-        # Calculate accumulator metrics
-        total_odds = 1.0
-        combined_probability = 1.0
-        total_edge = 0.0
-
-        for selection in accumulator_selections:
-            total_odds *= selection["odds"]
-            combined_probability *= selection["probability"]
-            total_edge += max(0, selection["edge"])
-
-        expected_value = (combined_probability * total_odds) - 1
-        total_return = stake * total_odds
-        profit = total_return - stake
-        expected_profit = stake * expected_value
-
-        # Accumulator summary
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.metric("Total Odds", f"{total_odds:.2f}")
-            st.metric("Win Probability", f"{combined_probability:.2%}")
-            st.metric("Expected Value", f"{expected_value:.3f}")
-
-        with col2:
-            st.metric("Potential Return", f"£{total_return:.2f}")
-            st.metric("Potential Profit", f"£{profit:.2f}")
-            st.metric("Expected Profit", f"£{expected_profit:.2f}")
-
-        # Risk assessment
-        if combined_probability > 0.15:
-            risk_level = "🟢 Low Risk"
-        elif combined_probability > 0.05:
-            risk_level = "🟡 Medium Risk"
-        else:
-            risk_level = "🔴 High Risk"
-
-        st.write(f"**Risk Level:** {risk_level}")
-
-        # Recommendation
-        if expected_value > 0.1 and combined_probability > 0.1:
-            recommendation = "✅ Recommended - Good value with reasonable win chance"
-        elif expected_value > 0:
-            recommendation = (
-                "⚠️ Moderate - Positive expected value but lower win probability"
-            )
-        else:
-            recommendation = "❌ Not Recommended - Negative expected value"
-
-        st.write(f"**Recommendation:** {recommendation}")
-
-        # Show individual selections
-        st.subheader("📋 Individual Selections")
-
-        for i, selection in enumerate(accumulator_selections, 1):
-            outcome_result = ""
-            if "Full-time" in selection["match_info"].get("time", ""):
-                score = selection["match_info"].get("score")
-                if score.split("-")[0] > score.split("-")[1]:
-                    outcome_result = (
-                        "✅ Won" if selection["outcome"] == "home_win" else "❌ Lost"
-                    )
-                elif score.split("-")[0] < score.split("-")[1]:
-                    outcome_result = (
-                        "✅ Won" if selection["outcome"] == "away_win" else "❌ Lost"
-                    )
-                else:
-                    outcome_result = (
-                        "✅ Won" if selection["outcome"] == "draw" else "❌ Lost"
-                    )
-            with st.expander(
-                f"{i}. {selection['match_description']} - {selection['outcome_display']} {outcome_result}"
-            ):
-                col1, col2 = st.columns(2)
-
-                with col1:
-                    st.write(f"**Match:** {selection['match_description']}")
-                    st.write(
-                        f"**Selection:** {selection['outcome_display']} ({selection['symbol']})"
-                    )
-                    st.write(f"**League:** {selection['match_info']['league']}")
-                    st.write(
-                        f"**Time:** {selection['match_info'].get('date', 'TBD')} {selection['match_info'].get('time', 'TBD')}"
-                    )
-
-                with col2:
-                    st.write(f"**Odds:** {selection['odds']:.2f}")
-                    st.write(f"**Probability:** {selection['probability']:.1%}")
-                    st.write(f"**Quality Score:** {selection['quality_score']:.3f}")
-                    st.write(f"**Strength:** {selection['recommendation_strength']}")
-                    if selection["edge"] > 0:
-                        st.write(f"**Value Edge:** +{selection['edge']:.1%}")
-
-        # Quick copy format for betting slip
-        st.subheader("📝 Betting Slip Format")
-        slip_text = f"{fold_size}-Fold Accumulator (£{stake:.2f})\n"
-        for selection in accumulator_selections:
-            slip_text += f"• {selection['match_description']} - {selection['outcome_display']} @ {selection['odds']:.2f}\n"
-        slip_text += (
-            f"\nTotal Odds: {total_odds:.2f} | Potential Return: £{total_return:.2f}"
-        )
-
-        st.code(slip_text, language=None)
-
-    else:
-        st.warning("No suitable outcomes found for accumulator building.")
 
 
 if __name__ == "__main__":
