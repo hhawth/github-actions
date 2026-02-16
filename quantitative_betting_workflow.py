@@ -46,9 +46,7 @@ except ImportError as e:
     print("💡 Make sure you're running from the correct directory")
     sys.exit(1)
 
-# Faster and more reliable for DuckDB
-import subprocess
-subprocess.run(["gsutil", "cp", "gs://gifted-decker-399009-bucket/football_data.duckdb", "./"])
+# Connect to local database
 conn = duckdb.connect("./football_data.duckdb")
 
 
