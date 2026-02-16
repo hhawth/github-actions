@@ -1,47 +1,109 @@
 import streamlit as st
 import pandas as pd
-import requests
+import duckdb
 from datetime import datetime
-import threading
+from quantitative_betting_workflow import QuantitativeBettingWorkflow
+import sys
+from io import StringIO
 import time
-import uvicorn
-from api_server import app
 
-# Start FastAPI in background thread
+# Initialize database sync on startup
 @st.cache_resource
-def start_api_server():
-    """Start FastAPI server in background thread"""
-    def run_server():
-        port = 8080
-        uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")
-    
-    thread = threading.Thread(target=run_server, daemon=True)
-    thread.start()
-    time.sleep(2)  # Wait for server to start
-    return "http://localhost:8080"
+def initialize_database_sync():
+    """Initialize database sync on app startup"""
+    try:
+        from database_sync import ensure_database_exists, start_periodic_upload
+        
+        # Download database on startup
+        if ensure_database_exists():
+            st.success("✅ Database ready")
+            
+            # Start periodic upload to GCS (every hour)
+            upload_thread = start_periodic_upload(daemon=True)
+            st.info("🔄 Periodic GCS upload enabled (hourly)")
+            return True
+        else:
+            st.warning("⚠️ Database setup failed, proceeding anyway")
+            return False
+    except Exception as e:
+        st.error(f"❌ Database sync initialization failed: {e}")
+        return False
 
-# Initialize API
-API_URL = start_api_server()
+# Initialize database sync
+db_sync_status = initialize_database_sync()
+
+# Run workflow on startup and cache results
+@st.cache_data(ttl=1800)  # Cache for 30 minutes
+def run_workflow_cached():
+    """Run the betting workflow and cache results for 30 minutes"""
+    
+    # Capture output
+    output_capture = StringIO()
+    sys.stdout = output_capture
+    
+    start_time = time.time()
+    
+    try:
+        # Initialize and run workflow
+        workflow = QuantitativeBettingWorkflow({
+            'min_ev': 0.08,
+            'min_confidence': 0.65,
+            'max_daily_stake': 5.0,
+            'auto_place_bets': True,
+            'target_markets': ['btts', 'over_under_15', 'handicap']
+        })
+        
+        # Run the full workflow
+        workflow.run_full_workflow()
+        
+        # Restore stdout
+        sys.stdout = sys.__stdout__
+        
+        duration = time.time() - start_time
+        
+        return {
+            'status': 'success',
+            'duration': duration,
+            'log': output_capture.getvalue(),
+            'timestamp': datetime.now()
+        }
+        
+    except Exception as e:
+        sys.stdout = sys.__stdout__
+        return {
+            'status': 'error',
+            'error': str(e),
+            'log': output_capture.getvalue(),
+            'timestamp': datetime.now()
+        }
 
 # Page config
 st.set_page_config(
-    page_title="Quantitative Betting Dashboard",
+    page_title="Quantitative Betting Dashboard", 
     page_icon="⚽",
     layout="wide"
 )
 
 # Title
 st.title("⚽ Quantitative Betting Dashboard")
-st.caption(f"API Status: {API_URL}")
 
-# Default configuration (no sidebar)
-min_ev = 8
-min_confidence = 65
-max_daily_stake = 5.0
-auto_bet = True
+# Show database sync status
+if db_sync_status:
+    st.success("🔄 Database sync enabled - Connected to GCS")
+else:
+    st.warning("⚠️ Database sync disabled - Running locally only")
+
+# Run workflow on app startup (cached)
+workflow_result = run_workflow_cached()
+
+# Show workflow status
+if workflow_result['status'] == 'success':
+    st.success(f"✅ Workflow completed in {workflow_result['duration']:.1f}s at {workflow_result['timestamp'].strftime('%H:%M:%S')}")
+else:
+    st.error(f"❌ Workflow failed: {workflow_result.get('error', 'Unknown error')}")
 
 # Create tabs
-tab1, tab2, tab3 = st.tabs(["💰 Current Bets", "📊 Bet History", "🎯 Run Workflow"])
+tab1, tab2, tab3 = st.tabs(["💰 Current Bets", "📊 Bet History", "📋 Workflow Log"])
 
 with tab1:
     st.header("💰 Current Bets")
@@ -50,128 +112,66 @@ with tab1:
     
     with col2:
         if st.button("🔄 Refresh", key="refresh_current"):
+            st.cache_data.clear()  # Clear cache to force refresh
             st.rerun()
     
     try:
-        response = requests.get(f"{API_URL}/current-bets", timeout=10)
+        # Connect to database directly
+        conn = duckdb.connect('football_data.duckdb')
         
-        if response.status_code == 200:
-            data = response.json()
+        # Get recent bets from last 24 hours
+        recent_bets = conn.execute("""
+            SELECT 
+                runner_id,
+                match_name,
+                league,
+                market,
+                runner_name,
+                stake,
+                odds,
+                expected_value,
+                confidence,
+                placed_at
+            FROM bet_history
+            WHERE placed_at >= CURRENT_TIMESTAMP - INTERVAL '24 hours'
+            ORDER BY placed_at DESC
+        """).df()
+        
+        if len(recent_bets) > 0:
+            st.subheader("📊 Recent Bets (Last 24h)")
             
-            # Account Information
-            if data.get('account'):
-                account = data['account']
-                st.subheader("💳 Account Status")
-                col1, col2, col3, col4 = st.columns(4)
-                with col1:
-                    st.metric("Balance", f"£{account['balance']:.2f}")
-                with col2:
-                    st.metric("Exposure", f"£{account['exposure']:.2f}")
-                with col3:
-                    st.metric("Commission Reserve", f"£{account['commission_reserve']:.2f}")
-                with col4:
-                    st.metric("Free Funds", f"£{account['free_funds']:.2f}")
-                
-                st.divider()
-            
-            # Betting Summary
-            st.subheader("📊 Active Bets Summary")
-            col1, col2, col3, col4, col5 = st.columns(5)
+            # Summary metrics
+            col1, col2, col3, col4 = st.columns(4)
             with col1:
-                st.metric("Active Bets", data['total_bets'])
+                st.metric("Total Bets", len(recent_bets))
             with col2:
-                st.metric("Total Stake", f"£{data['total_stake']:.2f}")
+                st.metric("Total Stake", f"£{recent_bets['stake'].sum():.2f}")
             with col3:
-                current_ev = data.get('total_current_ev', 0)
-                st.metric("Total EV", f"£{current_ev:.2f}")
+                st.metric("Avg EV", f"{recent_bets['expected_value'].mean()*100:.1f}%")
             with col4:
-                potential = data['potential_profit']
-                st.metric("Potential Profit", f"£{potential:.2f}")
-            with col5:
-                pl = data['current_pl']
-                st.metric(
-                    "Current P/L",
-                    f"£{pl:.2f}",
-                    delta=f"{pl:.2f}",
-                    delta_color="normal" if pl >= 0 else "inverse"
-                )
+                total_ev_profit = (recent_bets['stake'] * recent_bets['expected_value']).sum()
+                st.metric("Total EV Profit", f"£{total_ev_profit:.2f}")
             
-            st.divider()
+            # Display bets
+            display_df = recent_bets.copy()
+            display_df['stake'] = display_df['stake'].apply(lambda x: f"£{x:.2f}")
+            display_df['odds'] = display_df['odds'].apply(lambda x: f"{x:.2f}")
+            display_df['expected_value'] = display_df['expected_value'].apply(lambda x: f"{x*100:.1f}%")
+            display_df['confidence'] = display_df['confidence'].apply(lambda x: f"{x*100:.1f}%")
+            display_df['placed_at'] = pd.to_datetime(display_df['placed_at']).dt.strftime('%Y-%m-%d %H:%M')
             
-            if data['total_bets'] > 0:
-                bets = data['bets']
-                
-                # Display each bet
-                for bet in bets:
-                    with st.container():
-                        col1, col2, col3 = st.columns([2, 1, 1])
-                        
-                        with col1:
-                            # Use match_name from bet_history if available
-                            match_display = bet.get('match_name', bet['event_name'])
-                            st.write(f"**{match_display}**")
-                            
-                            # Show league if available
-                            if bet.get('league') and bet['league'] != 'Unknown':
-                                st.caption(f"🏆 {bet['league']}")
-                            
-                            # Use market from bet_history if available
-                            market_display = bet.get('market', bet['market_name'])
-                            st.write(f"📊 {market_display} - {bet['runner_name']}")
-                            
-                            if bet.get('placed_at'):
-                                st.caption(f"🕐 Placed: {bet['placed_at']}")
-                        
-                        with col2:
-                            st.write(f"**Odds:** {bet['odds']:.2f}")
-                            st.write(f"**Stake:** £{bet['stake']:.2f}")
-                            if bet.get('expected_value', 0) > 0:
-                                st.write(f"**EV:** {bet['expected_value']*100:.1f}%")
-                                current_ev = bet.get('current_ev', 0)
-                                if current_ev > 0:
-                                    st.write(f"**Current EV:** £{current_ev:.2f}")
-                            if bet.get('confidence', 0) > 0:
-                                st.write(f"**Confidence:** {bet['confidence']*100:.1f}%")
-                        
-                        with col3:
-                            matched = bet['matched_stake']
-                            remaining = bet['remaining_stake']
-                            
-                            if matched > 0:
-                                st.success(f"✅ Matched: £{matched:.2f}")
-                            if remaining > 0:
-                                st.warning(f"⏳ Pending: £{remaining:.2f}")
-                            
-                            # P/L indicator
-                            pl = bet['current_pl']
-                            if pl > 0:
-                                st.success(f"📈 P/L: +£{pl:.2f}")
-                            elif pl < 0:
-                                st.error(f"📉 P/L: -£{abs(pl):.2f}")
-                            else:
-                                st.info("P/L: £0.00")
-                        
-                        st.divider()
-                
-                # Summary footer
-                st.write("**Summary:**")
-                avg_ev = sum(b['expected_value'] for b in bets if b['expected_value'] > 0) / max(len([b for b in bets if b['expected_value'] > 0]), 1)
-                st.write(f"- Average EV: {avg_ev*100:.1f}%")
-                st.write(f"- Total Potential Return: £{data['total_stake'] + data['potential_profit']:.2f}")
-                roi = (data['current_pl'] / data['total_stake'] * 100) if data['total_stake'] > 0 else 0
-                st.write(f"- Current ROI: {roi:.1f}%")
-            else:
-                st.info("📋 No active bets")
-                st.write("Place bets through the 'Run Workflow' tab to see them here.")
+            st.dataframe(display_df, use_container_width=True, hide_index=True)
         else:
-            st.error("Failed to load current bets")
+            st.info("No bets placed in the last 24 hours")
+            st.write("The workflow runs automatically when the app starts. Check the 'Workflow Log' tab for details.")
             
+        conn.close()
+        
     except Exception as e:
-        st.error(f"❌ Error: {str(e)}")
-        st.write("Make sure the Matchbook API is configured and accessible.")
+        st.error(f"❌ Error loading current bets: {str(e)}")
 
 with tab2:
-    st.header("Bet History")
+    st.header("📊 Bet History")
     
     # Time filter
     col1, col2, col3 = st.columns([1, 1, 2])
@@ -180,146 +180,128 @@ with tab2:
     with col2:
         limit = st.selectbox("Max bets", [10, 50, 100, 500], index=1)
     
-    if st.button("🔄 Refresh", key="refresh_history"):
-        st.rerun()
-    
     try:
-        response = requests.get(
-            f"{API_URL}/bet-history",
-            params={"days": days_back, "limit": limit},
-            timeout=5
-        )
+        # Connect to database directly
+        conn = duckdb.connect('football_data.duckdb')
         
-        if response.status_code == 200:
-            bets = response.json()
+        # Get bet history from database 
+        bet_history = conn.execute(f"""
+            SELECT 
+                runner_id,
+                match_name,
+                league,
+                market,
+                runner_name,
+                stake,
+                odds,
+                expected_value,
+                confidence,
+                placed_at
+            FROM bet_history
+            WHERE placed_at >= CURRENT_TIMESTAMP - INTERVAL '{days_back} days'
+            ORDER BY placed_at DESC
+            LIMIT {limit}
+        """).df()
+        
+        if len(bet_history) > 0:
+            # Summary metrics
+            col1, col2, col3, col4, col5 = st.columns(5)
+            with col1:
+                st.metric("Total Bets", len(bet_history))
+            with col2:
+                st.metric("Total Stake", f"£{bet_history['stake'].sum():.2f}")
+            with col3:
+                st.metric("Avg Odds", f"{bet_history['odds'].mean():.2f}")
+            with col4:
+                st.metric("Avg EV", f"{bet_history['expected_value'].mean()*100:.1f}%")
+            with col5:
+                # Calculate total EV profit: sum of (stake * expected_value) for each bet
+                total_ev_profit = (bet_history['stake'] * bet_history['expected_value']).sum()
+                st.metric("Total EV Profit", f"£{total_ev_profit:.2f}")
             
-            if len(bets) > 0:
-                # Convert to DataFrame
-                df = pd.DataFrame(bets)
-                
-                # Summary metrics
-                col1, col2, col3, col4, col5 = st.columns(5)
-                with col1:
-                    st.metric("Total Bets", len(bets))
-                with col2:
-                    st.metric("Total Stake", f"£{df['stake'].sum():.2f}")
-                with col3:
-                    st.metric("Avg Odds", f"{df['odds'].mean():.2f}")
-                with col4:
-                    st.metric("Avg EV", f"{df['expected_value'].mean()*100:.1f}%")
-                with col5:
-                    # Calculate total EV profit: sum of (stake * expected_value) for each bet
-                    total_ev_profit = (df['stake'] * df['expected_value']).sum()
-                    st.metric("Total EV Profit", f"£{total_ev_profit:.2f}")
-                
-                st.divider()
-                
-                # Format display
-                display_df = df.copy()
-                display_df['stake'] = display_df['stake'].apply(lambda x: f"£{x:.2f}")
-                display_df['odds'] = display_df['odds'].apply(lambda x: f"{x:.2f}")
-                display_df['expected_value'] = display_df['expected_value'].apply(lambda x: f"{x*100:.1f}%")
-                display_df['confidence'] = display_df['confidence'].apply(lambda x: f"{x*100:.1f}%")
-                display_df['placed_at'] = pd.to_datetime(display_df['placed_at']).dt.strftime('%Y-%m-%d %H:%M')
-                
-                st.dataframe(
-                    display_df,
-                    width="stretch",
-                    hide_index=True,
-                    column_config={
-                        "runner_id": "Runner ID",
-                        "match_name": "Match",
-                        "league": "League",
-                        "market": "Market",
-                        "runner_name": "Selection",
-                        "stake": "Stake",
-                        "odds": "Odds",
-                        "expected_value": "EV",
-                        "confidence": "Confidence",
-                        "placed_at": "Placed At"
-                    }
-                )
-            else:
-                st.info(f"No bets placed in the last {days_back} days")
+            st.divider()
+            
+            # Format display
+            display_df = bet_history.copy()
+            display_df['stake'] = display_df['stake'].apply(lambda x: f"£{x:.2f}")
+            display_df['odds'] = display_df['odds'].apply(lambda x: f"{x:.2f}")
+            display_df['expected_value'] = display_df['expected_value'].apply(lambda x: f"{x*100:.1f}%")
+            display_df['confidence'] = display_df['confidence'].apply(lambda x: f"{x*100:.1f}%")
+            display_df['placed_at'] = pd.to_datetime(display_df['placed_at']).dt.strftime('%Y-%m-%d %H:%M')
+            
+            st.dataframe(
+                display_df,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "runner_id": "Runner ID",
+                    "match_name": "Match",
+                    "league": "League",
+                    "market": "Market",
+                    "runner_name": "Selection",
+                    "stake": "Stake",
+                    "odds": "Odds",
+                    "expected_value": "EV",
+                    "confidence": "Confidence",
+                    "placed_at": "Placed At"
+                }
+            )
         else:
-            st.error("Failed to load bet history")
+            st.info(f"No bets placed in the last {days_back} days")
+            
+        conn.close()
             
     except Exception as e:
-        st.error(f"❌ Error: {str(e)}")
+        st.error(f"❌ Error loading bet history: {str(e)}")
 
 with tab3:
-    st.header("Run Betting Workflow")
+    st.header("📋 Workflow Execution Log")
     
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("Configuration")
-        st.write(f"- Minimum EV: **{min_ev}%**")
-        st.write(f"- Minimum Confidence: **{min_confidence}%**")
-        st.write(f"- Max Daily Stake: **£{max_daily_stake:.2f}**")
-        st.write(f"- Auto-place bets: **{'✅ Yes' if auto_bet else '❌ No'}**")
+    # Show workflow execution details
+    if workflow_result['status'] == 'success':
+        st.success(f"✅ Workflow completed successfully in {workflow_result['duration']:.1f} seconds")
         
-        if auto_bet:
-            st.warning("⚠️ Auto-betting is ENABLED. Real bets will be placed!")
-        else:
-            st.info("ℹ️ Dry-run mode. No real bets will be placed.")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Execution Time", f"{workflow_result['duration']:.1f}s")
+        with col2:
+            st.metric("Last Run", workflow_result['timestamp'].strftime('%H:%M:%S'))
+        
+    else:
+        st.error(f"❌ Workflow failed: {workflow_result.get('error', 'Unknown error')}")
+    
+    st.divider()
+    
+    # Configuration used
+    st.subheader("⚙️ Configuration")
+    st.write("**Current Settings:**")
+    st.write("- Minimum EV: **8%**")
+    st.write("- Minimum Confidence: **65%**") 
+    st.write("- Max Daily Stake: **£5.00**")
+    st.write("- Auto-place bets: **✅ Yes**")
+    st.write("- Target Markets: **BTTS, Over/Under 1.5, Handicap**")
+    
+    st.divider()
+    
+    # Full execution log
+    st.subheader("📜 Execution Log")
+    if workflow_result.get('log'):
+        with st.expander("View Full Log", expanded=False):
+            st.text(workflow_result['log'])
+    else:
+        st.info("No log available")
+    
+    # Manual refresh option
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🔄 Force Refresh Cache", type="secondary"):
+            st.cache_data.clear()
+            st.rerun()
     
     with col2:
-        st.subheader("Actions")
-        
-        if st.button("🚀 Run Workflow Now", type="primary", width="stretch"):
-            with st.spinner("Starting workflow..."):
-                try:
-                    payload = {
-                        "min_ev_threshold": min_ev / 100,
-                        "min_confidence": min_confidence / 100,
-                        "max_daily_stake": max_daily_stake,
-                        "auto_place_bets": auto_bet
-                    }
-                    
-                    response = requests.post(
-                        f"{API_URL}/run-workflow",
-                        json=payload,
-                        timeout=60  # Increase timeout to 60 seconds for workflow completion
-                    )
-                    
-                    if response.status_code == 200:
-                        result = response.json()
-                        st.success(f"✅ {result['message']}")
-                        st.json(result)
-                    else:
-                        st.error(f"❌ Error: {response.status_code}")
-                        
-                except Exception as e:
-                    st.error(f"❌ Request failed: {str(e)}")
-        
-        if st.button("📋 Check Workflow Status", width="stretch"):
-            try:
-                response = requests.get(f"{API_URL}/workflow-status", timeout=5)
-                if response.status_code == 200:
-                    status = response.json()
-                    
-                    if status['is_running']:
-                        st.info("🔄 Workflow is currently running...")
-                    else:
-                        st.write("**Last Run:**", status.get('last_run', 'Never'))
-                        
-                        if status.get('last_result'):
-                            result = status['last_result']
-                            if result.get('status') == 'success':
-                                st.success("✅ Last run successful")
-                            else:
-                                st.error(f"❌ Last run failed: {result.get('error')}")
-                            
-                            if result.get('log'):
-                                with st.expander("📄 View Log"):
-                                    st.text(result['log'])
-                else:
-                    st.error("Failed to get status")
-                    
-            except Exception as e:
-                st.error(f"❌ Request failed: {str(e)}")
+        st.caption("Cache refreshes automatically every hour")
 
 # Footer
 st.divider()
-st.caption(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | API: {API_URL}")
+sync_status = "GCS Sync ✅" if db_sync_status else "Local Only ⚠️"
+st.caption(f"🚀 Auto-workflow enabled • {sync_status} • Cache: 30min • Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
