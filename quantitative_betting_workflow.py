@@ -86,6 +86,13 @@ class QuantitativeBettingWorkflow:
         # Matchbook connection
         self.matchbook = None
         
+        # Matchbook API cache (5 minutes TTL)
+        self.matchbook_cache = {
+            'events': None,
+            'events_timestamp': 0,
+            'cache_duration': 300  # 5 minutes in seconds
+        }
+        
         # Workflow tracking
         self.workflow_state = {
             'data_updated': False,
@@ -100,6 +107,45 @@ class QuantitativeBettingWorkflow:
         print(f"💰 Stake Range: £{self.config['min_stake']:.2f} - £{self.config['max_daily_stake']:.2f}")
         print(f"📊 Min Edge: {self.config['min_ev']:.1%} | Min Confidence: {self.config['min_confidence']:.1%}")
         print("=" * 60)
+    
+    def _get_cached_matchbook_events(self):
+        """Get Matchbook football events with 5-minute caching"""
+        import time
+        
+        current_time = time.time()
+        
+        # Check if cache is still valid (within 5 minutes)
+        if (self.matchbook_cache['events'] is not None and 
+            current_time - self.matchbook_cache['events_timestamp'] < self.matchbook_cache['cache_duration']):
+            
+            age_minutes = (current_time - self.matchbook_cache['events_timestamp']) / 60
+            print(f"🏢 Using cached Matchbook events ({age_minutes:.1f}min old)")
+            return self.matchbook_cache['events']
+        
+        # Cache is expired or empty, fetch fresh data
+        print("🏢 Fetching upcoming fixtures from Matchbook...")
+        if not self.matchbook:
+            self.matchbook = matchbookExchange()
+            self.matchbook.login()
+            print("✅ Connected to Matchbook exchange")
+        
+        try:
+            matchbook_events = self.matchbook.get_football_events()
+            
+            # Update cache
+            self.matchbook_cache['events'] = matchbook_events
+            self.matchbook_cache['events_timestamp'] = current_time
+            print("✅ Matchbook events cached (valid for 5 minutes)")
+            
+            return matchbook_events
+            
+        except Exception as e:
+            print(f"❌ Failed to fetch Matchbook events: {e}")
+            # Return cached data if available, even if expired
+            if self.matchbook_cache['events'] is not None:
+                print("⚠️  Using expired cache as fallback")
+                return self.matchbook_cache['events']
+            return None
     
     def step_1_initialize_quantitative_system(self):
         """Initialize the quantitative model and database connection"""
@@ -343,14 +389,8 @@ class QuantitativeBettingWorkflow:
                 print("❌ Quantitative model not initialized")
                 return []
             
-            # STEP 3A: Get upcoming fixtures from Matchbook first
-            print("🏢 Fetching upcoming fixtures from Matchbook...")
-            if not self.matchbook:
-                self.matchbook = matchbookExchange()
-                self.matchbook.login()
-                print("✅ Connected to Matchbook exchange")
-            
-            matchbook_events = self.matchbook.get_football_events()
+            # STEP 3A: Get upcoming fixtures from Matchbook first (with caching)
+            matchbook_events = self._get_cached_matchbook_events()
             
             if not matchbook_events:
                 print("❌ No Matchbook events available")

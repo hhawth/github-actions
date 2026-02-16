@@ -132,35 +132,37 @@ def start_periodic_upload(daemon=True):
     return thread
 
 def ensure_database_exists():
-    """Ensure database exists, download from GCS or create empty"""
+    """Ensure database exists and is valid, fail if can't download from GCS"""
     import duckdb
     
     db_file = Path(DB_FILE)
     
-    # Try to download from GCS first
+    # If no local database, must download from GCS
     if not db_file.exists():
-        download_from_gcs()
+        print("📥 No local database found, downloading from GCS...")
+        if not download_from_gcs():
+            print("❌ CRITICAL: Could not download database from GCS and no local copy exists")
+            print("❌ Application cannot start without valid database")
+            return False
     
-    # If still doesn't exist, create empty database
-    if not db_file.exists():
-        print("📝 Creating empty database...")
-        try:
-            # Try to import and create tables
-            from duckdb.tables import create_all_tables
-            conn = duckdb.connect(str(db_file))
-            create_all_tables(conn)
-            conn.close()
-            print("✅ Empty database created with schema")
-            
-            # Upload the new database to GCS
-            upload_to_gcs()
-        except ImportError:
-            # Fallback: create minimal database
-            conn = duckdb.connect(str(db_file))
-            conn.close()
-            print("✅ Empty database created (minimal)")
-    
-    return db_file.exists()
+    # Validate database has required schema
+    try:
+        conn = duckdb.connect(str(db_file))
+        result = conn.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'bet_history'").fetchone()
+        conn.close()
+        
+        if result[0] == 0:
+            print("❌ CRITICAL: Database exists but missing required tables (bet_history)")
+            print("❌ Database may be corrupted or incomplete")
+            return False
+        
+        print("✅ Database validated successfully")
+        return True
+        
+    except Exception as e:
+        print(f"❌ CRITICAL: Database validation failed: {e}")
+        print("❌ Database may be corrupted")
+        return False
 
 if __name__ == "__main__":
     import sys

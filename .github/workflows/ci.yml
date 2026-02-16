@@ -40,13 +40,13 @@ jobs:
           print('✓ Unicode normalization tests passed')
           "
 
-      - name: API Server smoke test
-        run: |
-          python -c "from api_server import app; print('API Server OK')"
-
       - name: Streamlit smoke test
         run: |
           python -c "import streamlit as st; print('Streamlit OK')"
+
+      - name: Workflow components test
+        run: |
+          python -c "from quantitative_betting_workflow import QuantitativeBettingWorkflow; print('Workflow imports OK')"
 
       - name: Lint (optional)
         run: |
