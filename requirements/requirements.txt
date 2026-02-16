@@ -1,0 +1,44 @@
+# Core dependencies for Football AI System
+# ===========================================
+
+# Web framework for the Streamlit app
+streamlit>=1.39.0
+
+# Data manipulation and analysis
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Machine learning
+scikit-learn>=1.5.0
+xgboost>=2.1.0
+
+# HTTP requests for API integrations  
+requests>=2.32.0
+
+# Environment variable management
+python-dotenv>=1.2.0
+
+# JSON streaming for large files
+ijson>=3.2.0
+
+# Mathematical and scientific computing
+scipy>=1.13.0
+
+# Optional ML frameworks (uncomment if needed)
+# lightgbm>=4.0.0  
+# catboost>=1.2.0
+
+# Development and utility packages
+# ===============================
+
+# For data visualization (if using plots)
+# matplotlib>=3.7.0
+# seaborn>=0.12.0
+
+# For advanced data handling
+# openpyxl>=3.1.0  # Excel file support
+# xlsxwriter>=3.1.0  # Excel writing
+
+# For API rate limiting and caching
+# cachetools>=5.3.0
+# ratelimit>=2.2.0

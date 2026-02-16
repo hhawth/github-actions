@@ -1,0 +1,15 @@
+# Improved EV Betting Model Requirements
+# Core ML and Data Processing
+pandas>=1.5.0
+numpy>=1.20.0
+scikit-learn>=1.0.0
+joblib>=1.1.0
+
+# Optional but recommended for better performance
+xgboost>=1.6.0
+
+# For data handling
+pathlib2>=2.3.0
+
+# Required by existing workflow
+requests>=2.25.0

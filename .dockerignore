@@ -1,28 +1,44 @@
-# Exclude unnecessary files from Docker context
+# Git
 .git
-.github
 .gitignore
-README.md
+.github
+
+# Python
 __pycache__
 *.pyc
 *.pyo
 *.pyd
 .Python
-env
-venv
-.venv
-pip-log.txt
-pip-delete-this-directory.txt
-.tox
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.DS_Store
-.pytest_cache
 *.egg-info
 dist
 build
+*.egg
+.pytest_cache
+.coverage
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*
+!.env.example
+venv
+env
+
+# Documentation
+*.md
+!README.md
+
+# Logs
+*.log
+
+# But DO include these important files:
+!football_data.duckdb
+!requirements.txt
+!Dockerfile

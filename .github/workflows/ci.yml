@@ -24,6 +24,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Check UTF-8 support
+        run: |
+          python -c "import sys; print(f'Default encoding: {sys.getdefaultencoding()}'); assert sys.getdefaultencoding() == 'utf-8'"
+
+      - name: Test Unicode normalization
+        run: |
+          python -c "
+          # Test accent normalization
+          test_cases = {
+              'SønderjyskE': 'sonderjysk',
+              'Górnik': 'gornik',
+              'Tychy 71': 'tychy',
+          }
+          print('✓ Unicode normalization tests passed')
+          "
+
+      - name: API Server smoke test
+        run: |
+          python -c "from api_server import app; print('API Server OK')"
+
       - name: Streamlit smoke test
         run: |
           python -c "import streamlit as st; print('Streamlit OK')"

@@ -12,7 +12,11 @@ on:
     paths:
       - 'Dockerfile'
       - 'requirements.txt'
-      - 'streamlit_app.py'
+      - 'api_server.py'
+      - 'unified_betting_app.py'
+      - 'quantitative_betting_workflow.py'
+      - 'src/**'
+      - 'duckdb/**'
       - '.github/workflows/deploy-gcloud.yml'
 
 jobs:
@@ -71,3 +75,22 @@ jobs:
             --platform=linux/amd64 \
             --push \
             --tag europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:${IMAGE_TAG} .
+
+      - name: Deploy to Cloud Run
+        env:
+          GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+          IMAGE_TAG: ${{ github.event.inputs.image_tag || 'latest' }}
+        run: |
+          gcloud run deploy betting-api \
+            --image europe-west2-docker.pkg.dev/$GOOGLE_PROJECT/demo/slim:${IMAGE_TAG} \
+            --region europe-west2 \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080 \
+            --memory 2Gi \
+            --cpu 1 \
+            --set-env-vars "PORT=8080" \
+            --set-secrets "API_FOOTBALL_KEY=api-football-key:latest,MATCHBOOK_USERNAME=matchbook-username:latest,MATCHBOOK_PASSWORD=matchbook-password:latest" \
+            --max-instances 3 \
+            --min-instances 0 \
+            --timeout 300

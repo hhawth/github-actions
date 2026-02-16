@@ -1,51 +1,40 @@
-# Use standard Python slim image (more compatible with Cloud Run)
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies efficiently
+# Set UTF-8 locale for proper Unicode handling
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PYTHONUNBUFFERED=1
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
-    g++ \
-    wget \
-    gnupg \
-    unzip \
-    curl \
-    chromium \
-    chromium-driver \
     && rm -rf /var/lib/apt/lists/*
 
-# Set Chrome options for headless operation
-ENV CHROME_BIN=/usr/bin/chromium
-ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
-
-# Copy and install Python dependencies
+# Copy requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code (includes football_data.duckdb if present)
 COPY . .
 
-# Create non-root user for security
-RUN useradd --create-home --shell /bin/bash app \
-    && chown -R app:app /app
-USER app
+# Ensure DuckDB database is present (create empty with schema if not exists)
+RUN python -c "import duckdb; import os; \
+    if not os.path.exists('football_data.duckdb'): \
+        print('Database not found, creating empty football_data.duckdb'); \
+        conn = duckdb.connect('football_data.duckdb'); \
+        conn.close(); \
+    else: \
+        print('football_data.duckdb already present')"
 
-# Set environment variables for Cloud Run
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
-
-# Expose port (Cloud Run will set PORT env var)
+# Expose port
 EXPOSE 8080
 
-# Start Streamlit with Cloud Run optimizations for football analytics app
-CMD streamlit run football_analytics_app.py \
-    --server.address=0.0.0.0 \
-    --server.port=${PORT:-8080} \
-    --server.headless=true \
-    --server.enableCORS=false \
-    --server.enableXsrfProtection=false \
-    --server.fileWatcherType=none \
-    --server.maxUploadSize=10
+# Set environment variable for port
+ENV PORT=8080
+
+# Run the API server
+CMD ["python", "api_server.py"]
