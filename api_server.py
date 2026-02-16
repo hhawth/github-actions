@@ -44,9 +44,13 @@ workflow_status = {
 
 class WorkflowConfig(BaseModel):
     min_ev_threshold: float = 0.08
+    max_ev_threshold: float = 0.70
     min_confidence: float = 0.65
+    min_stake: float = 0.10
     max_daily_stake: float = 5.0
+    max_bets_per_match: int = 1
     auto_place_bets: bool = True
+    target_markets: List[str] = ['btts', 'over_under_15', 'handicap']
 
 class WorkflowResponse(BaseModel):
     status: str
@@ -82,9 +86,13 @@ def run_workflow_task(config: WorkflowConfig):
         # Build config dictionary for workflow
         workflow_config = {
             'min_ev': config.min_ev_threshold,
+            'max_ev': config.max_ev_threshold,
             'min_confidence': config.min_confidence,
+            'min_stake': config.min_stake,
             'max_daily_stake': config.max_daily_stake,
-            'auto_place_bets': config.auto_place_bets
+            'max_bets_per_match': config.max_bets_per_match,
+            'auto_place_bets': config.auto_place_bets,
+            'target_markets': config.target_markets
         }
         
         # Initialize workflow

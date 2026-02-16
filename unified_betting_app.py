@@ -38,7 +38,7 @@ st.caption(f"API Status: {API_URL}")
 min_ev = 8
 min_confidence = 65
 max_daily_stake = 5.0
-auto_bet = False
+auto_bet = True
 
 # Create tabs
 tab1, tab2, tab3 = st.tabs(["💰 Current Bets", "📊 Bet History", "🎯 Run Workflow"])
@@ -198,7 +198,7 @@ with tab2:
                 df = pd.DataFrame(bets)
                 
                 # Summary metrics
-                col1, col2, col3, col4 = st.columns(4)
+                col1, col2, col3, col4, col5 = st.columns(5)
                 with col1:
                     st.metric("Total Bets", len(bets))
                 with col2:
@@ -207,6 +207,10 @@ with tab2:
                     st.metric("Avg Odds", f"{df['odds'].mean():.2f}")
                 with col4:
                     st.metric("Avg EV", f"{df['expected_value'].mean()*100:.1f}%")
+                with col5:
+                    # Calculate total EV profit: sum of (stake * expected_value) for each bet
+                    total_ev_profit = (df['stake'] * df['expected_value']).sum()
+                    st.metric("Total EV Profit", f"£{total_ev_profit:.2f}")
                 
                 st.divider()
                 
@@ -276,7 +280,7 @@ with tab3:
                     response = requests.post(
                         f"{API_URL}/run-workflow",
                         json=payload,
-                        timeout=5
+                        timeout=60  # Increase timeout to 60 seconds for workflow completion
                     )
                     
                     if response.status_code == 200:

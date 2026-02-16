@@ -13,7 +13,7 @@ from datetime import datetime
 
 DB_FILE = "football_data.duckdb"
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GOOGLE_PROJECT")
-BUCKET_NAME = f"{PROJECT_ID}-betting-data" if PROJECT_ID else None
+BUCKET_NAME = f"{PROJECT_ID}-bucket" if PROJECT_ID else None
 GCS_PATH = f"gs://{BUCKET_NAME}/{DB_FILE}" if BUCKET_NAME else None
 
 # Sync interval (seconds)

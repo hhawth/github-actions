@@ -46,6 +46,16 @@ except ImportError as e:
     print("💡 Make sure you're running from the correct directory")
     sys.exit(1)
 
+# Ensure database exists (download from GCS if needed)
+try:
+    from database_sync import ensure_database_exists
+    if not ensure_database_exists():
+        print("❌ Failed to initialize database")
+        sys.exit(1)
+except Exception as e:
+    print(f"⚠️  Database sync not available: {e}")
+    print("💡 Proceeding with local database if it exists")
+
 # Connect to local database
 conn = duckdb.connect("./football_data.duckdb")
 
@@ -62,7 +72,7 @@ class QuantitativeBettingWorkflow:
             'min_stake': 0.10,  # £0.10 minimum (Matchbook requirement)
             'max_daily_stake': 5.00,  # £5.00 daily maximum
             'max_bets_per_match': 1,  # Reduce correlation risk
-            'auto_place_bets': False,  # Manual approval by default
+            'auto_place_bets': True,  # Auto-place bets by default
             'min_confidence': 0.65,  # 65% minimum model confidence
             'target_markets': ['btts', 'over_under_15', 'handicap'],  # Evidence-based markets
         }
@@ -97,8 +107,15 @@ class QuantitativeBettingWorkflow:
         print("-" * 50)
         
         try:
-            # Initialize database connection
-            self.db_conn = duckdb.connect('football_data.duckdb')
+            # Initialize database connection (read-only if file is already open)
+            try:
+                self.db_conn = duckdb.connect('football_data.duckdb')
+            except Exception as e:
+                if "already open" in str(e) or "being used by another process" in str(e):
+                    print("⚠️  Database locked by another process, opening in read-only mode")
+                    self.db_conn = duckdb.connect('football_data.duckdb', read_only=True)
+                else:
+                    raise
             
             # Check database has data
             fixture_count = self.db_conn.execute("SELECT COUNT(*) FROM fixtures").fetchone()[0]
@@ -582,9 +599,17 @@ class QuantitativeBettingWorkflow:
             print("\n🤔 Manual approval required:")
             self._display_betting_opportunities(filtered_opportunities)
             
-            choice = input("\n👉 Place these bets? (YES/no): ").strip().upper()
-            if choice not in ['YES', 'Y', '']:
-                print("❌ Bet placement cancelled")
+            # Check if we're in an interactive terminal
+            if sys.stdin.isatty():
+                # Interactive mode - ask for user input
+                choice = input("\n👉 Place these bets? (YES/no): ").strip().upper()
+                if choice not in ['YES', 'Y', '']:
+                    print("❌ Bet placement cancelled")
+                    return False
+            else:
+                # Non-interactive mode (API/automation) - skip bet placement
+                print("🤖 Non-interactive mode detected - skipping bet placement")
+                print("💡 Set auto_place_bets=true to enable automated betting via API")
                 return False
         
         # Place the bets
@@ -597,20 +622,28 @@ class QuantitativeBettingWorkflow:
                 if success:
                     successful_bets += 1
                     print(f"✅ Bet placed: £{opp['recommended_stake']:.2f} @ {opp['exchange_odds']:.2f}")
-                    self.db_conn.execute("""
-                        INSERT INTO bet_history (runner_id, match_name, league, market, runner_name, stake, odds, expected_value, confidence, placed_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                    """, [
-                        runner_id,
-                        opp['match'],
-                        opp['league'],
-                        opp['market'],
-                        opp['runner_name'],
-                        opp['recommended_stake'],
-                        opp['exchange_odds'],
-                        opp['expected_value'],
-                        opp['confidence']
-                    ])
+                    
+                    # Try to log bet to database (skip if read-only)
+                    try:
+                        self.db_conn.execute("""
+                            INSERT INTO bet_history (runner_id, match_name, league, market, runner_name, stake, odds, expected_value, confidence, placed_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                        """, [
+                            runner_id,
+                            opp['match'],
+                            opp['league'],
+                            opp['market'],
+                            opp['runner_name'],
+                            opp['recommended_stake'],
+                            opp['exchange_odds'],
+                            opp['expected_value'],
+                            opp['confidence']
+                        ])
+                    except Exception as db_error:
+                        if "read-only" in str(db_error).lower() or "cannot commit" in str(db_error).lower():
+                            print("⚠️  Database is read-only, bet not logged to history")
+                        else:
+                            print(f"⚠️  Failed to log bet: {db_error}")
 
                 else:
                     print("❌ Bet failed")
@@ -1656,7 +1689,7 @@ def main():
             'min_confidence': 0.75,  # 75% confidence
             'max_daily_stake': 2.0,  # £2 max
             'min_stake': 0.10,
-            'auto_place_bets': False,
+            'auto_place_bets': True,  # Auto-place bets by default
             'target_markets': ['btts', 'over_under_15', 'handicap'],
             'max_bets_per_match': 1
         }

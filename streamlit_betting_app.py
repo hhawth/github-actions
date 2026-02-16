@@ -21,7 +21,7 @@ st.sidebar.header("Configuration")
 min_ev = st.sidebar.slider("Minimum EV %", 0, 30, 8, 1)
 min_confidence = st.sidebar.slider("Minimum Confidence %", 0, 100, 65, 5)
 max_daily_stake = st.sidebar.number_input("Max Daily Stake (£)", min_value=1.0, max_value=100.0, value=5.0, step=1.0)
-auto_bet = st.sidebar.checkbox("Auto-place bets", value=False)
+auto_bet = st.sidebar.checkbox("Auto-place bets", value=True)
 
 # Create tabs
 tab1, tab2, tab3 = st.tabs(["🎯 Opportunities", "📊 Bet History", "⚙️ System Info"])
@@ -143,7 +143,7 @@ with tab2:
         
         if len(bet_history) > 0:
             # Summary metrics
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3, col4, col5 = st.columns(5)
             with col1:
                 st.metric("Total Bets", len(bet_history))
             with col2:
@@ -154,6 +154,10 @@ with tab2:
             with col4:
                 avg_ev = bet_history['expected_value'].mean() * 100
                 st.metric("Avg EV", f"{avg_ev:.1f}%")
+            with col5:
+                # Calculate total EV profit: sum of (stake * expected_value) for each bet
+                total_ev_profit = (bet_history['stake'] * bet_history['expected_value']).sum()
+                st.metric("Total EV Profit", f"£{total_ev_profit:.2f}")
             
             st.divider()
             
