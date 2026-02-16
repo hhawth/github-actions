@@ -13,6 +13,22 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Start database sync worker in background
+try:
+    from database_sync import ensure_database_exists, start_periodic_upload
+    
+    # Download database on startup
+    if ensure_database_exists():
+        logger.info("✅ Database ready")
+        
+        # Start periodic upload to GCS (every hour)
+        upload_thread = start_periodic_upload(daemon=True)
+        logger.info("🔄 Periodic GCS upload enabled (hourly)")
+    else:
+        logger.warning("⚠️  Database setup failed, proceeding anyway")
+except Exception as e:
+    logger.error(f"❌ Database sync initialization failed: {e}")
+
 app = FastAPI(
     title="Quantitative Betting API",
     description="API for automated betting workflow with Cloud Scheduler integration",

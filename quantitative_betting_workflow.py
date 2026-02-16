@@ -46,6 +46,11 @@ except ImportError as e:
     print("💡 Make sure you're running from the correct directory")
     sys.exit(1)
 
+# Faster and more reliable for DuckDB
+import subprocess
+subprocess.run(["gsutil", "cp", "gs://gifted-decker-399009-bucket/football_data.duckdb", "./"])
+conn = duckdb.connect("./football_data.duckdb")
+
 
 class QuantitativeBettingWorkflow:
     """
@@ -1040,6 +1045,13 @@ class QuantitativeBettingWorkflow:
                         
                         for j, runner in enumerate(runners):
                             runner_name = runner.get('name', '')
+                            
+                            # Skip split/quarter handicaps (e.g., "-0.5/1.0", "+0.0/0.5")
+                            # Model only trained on simple handicaps
+                            if '/' in runner_name or '(' in runner_name and ')' in runner_name and '/' in runner_name:
+                                print(f"         ⏭️  Skipping split handicap: {runner_name}")
+                                continue
+                            
                             # Get best back price from prices array
                             prices = runner.get('prices', [])
                             odds = prices[0].get('odds') if prices else 0
@@ -1057,7 +1069,7 @@ class QuantitativeBettingWorkflow:
                                     'liquidity': liquidity
                                 })
                 
-                print(f"         📊 Found {len(handicap_markets_found)} viable handicap runners")
+                print(f"         📊 Found {len(handicap_markets_found)} viable simple handicap runners (splits excluded)")
                 
                 # Select best handicap option
                 if handicap_markets_found:

@@ -26,6 +26,15 @@ class matchbookExchange:
     def login(self):
         r = requests.post(self.url, data=json.dumps(self.payload), headers=self.header)
         data = r.json()
+        
+        # Check for errors in response
+        if 'errors' in data:
+            error_msg = data.get('errors', [{}])[0].get('messages', ['Unknown error'])[0]
+            raise Exception(f"Matchbook login failed: {error_msg}")
+        
+        if 'session-token' not in data:
+            raise Exception(f"Matchbook login failed: No session-token in response. Response: {data}")
+        
         self.token = data["session-token"]
 
     def get_account(self):
