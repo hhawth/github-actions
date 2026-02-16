@@ -42,3 +42,4 @@ ai_predictions_*.json
 # Cache
 .mypy_cache/
 .pytest_cache/
+football_data.duckdb
