@@ -1,14 +1,15 @@
+# Use standard Python slim image (more compatible with Cloud Run)
 FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
+# Set UTF-8 locale for proper Unicode handling
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
-    PORT=8080
+    PYTHONUNBUFFERED=1
 
-# Install system dependencies including gcloud CLI for GCS sync (v4)
+# Install system dependencies including gcloud CLI for GCS sync (v2)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     curl \
@@ -20,12 +21,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get install -y google-cloud-cli \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
+# Copy application code
 COPY . .
 
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PORT=8080
+
+# Expose port
 EXPOSE 8080
 
-CMD python database_sync.py setup && python api_server.py
+# Run Streamlit app (unified app handles database sync automatically)
+CMD python -m streamlit run unified_betting_app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
