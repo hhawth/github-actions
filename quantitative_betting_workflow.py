@@ -46,18 +46,8 @@ except ImportError as e:
     print("💡 Make sure you're running from the correct directory")
     sys.exit(1)
 
-# Ensure database exists (download from GCS if needed)
-try:
-    from database_sync import ensure_database_exists
-    if not ensure_database_exists():
-        print("❌ Failed to initialize database")
-        sys.exit(1)
-except Exception as e:
-    print(f"⚠️  Database sync not available: {e}")
-    print("💡 Proceeding with local database if it exists")
-
-# Connect to local database
-conn = duckdb.connect("./football_data.duckdb")
+# Database connection will be initialized when needed
+conn = None
 
 
 class QuantitativeBettingWorkflow:
@@ -100,6 +90,9 @@ class QuantitativeBettingWorkflow:
             'opportunities_analyzed': False,
             'bets_placed': False
         }
+        
+        # Initialize database connection
+        self._initialize_database()
         
         print("🚀 QUANTITATIVE BETTING WORKFLOW INITIALIZED")
         print("=" * 60)
@@ -147,21 +140,48 @@ class QuantitativeBettingWorkflow:
                 return self.matchbook_cache['events']
             return None
     
+    def _initialize_database(self):
+        """Initialize database connection with proper error handling"""
+        import os
+        
+        # Skip database initialization in CI/test environments
+        if os.getenv('CI') == 'true' or os.getenv('GITHUB_ACTIONS') == 'true':
+            print("⚠️  CI environment detected - skipping database initialization")
+            return
+        
+        try:
+            from database_sync import ensure_database_exists
+            if ensure_database_exists():
+                # Connect to local database
+                self.db_conn = duckdb.connect("./football_data.duckdb")
+                print("✅ Database connection established")
+            else:
+                print("❌ Failed to initialize database")
+                # Don't exit in __init__, just warn
+                print("⚠️  Some features may not work without database")
+        except Exception as e:
+            print(f"⚠️  Database sync not available: {e}")
+            print("💡 Proceeding without database sync")
+            # Try to connect to local database if it exists
+            try:
+                if os.path.exists("./football_data.duckdb"):
+                    self.db_conn = duckdb.connect("./football_data.duckdb")
+                    print("✅ Connected to local database")
+                else:
+                    print("⚠️  No local database found")
+            except Exception as local_error:
+                print(f"⚠️  Cannot connect to local database: {local_error}")
+    
     def step_1_initialize_quantitative_system(self):
         """Initialize the quantitative model and database connection"""
         print("\n🧠 STEP 1: Initializing Quantitative System")
         print("-" * 50)
         
         try:
-            # Initialize database connection (read-only if file is already open)
-            try:
-                self.db_conn = duckdb.connect('football_data.duckdb')
-            except Exception as e:
-                if "already open" in str(e) or "being used by another process" in str(e):
-                    print("⚠️  Database locked by another process, opening in read-only mode")
-                    self.db_conn = duckdb.connect('football_data.duckdb', read_only=True)
-                else:
-                    raise
+            # Use existing database connection or skip if not available
+            if not self.db_conn:
+                print("❌ Database connection not available - cannot initialize quantitative system")
+                return False
             
             # Check database has data
             fixture_count = self.db_conn.execute("SELECT COUNT(*) FROM fixtures").fetchone()[0]
