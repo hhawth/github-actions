@@ -148,15 +148,20 @@ def ensure_database_exists():
     # Validate database has required schema
     try:
         conn = duckdb.connect(str(db_file))
-        result = conn.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'bet_history'").fetchone()
+        # Use SHOW TABLES instead of information_schema for DuckDB reliability
+        tables = conn.execute("SHOW TABLES").fetchall()
+        table_names = [table[0].lower() for table in tables]
         conn.close()
         
-        if result[0] == 0:
-            print("❌ CRITICAL: Database exists but missing required tables (bet_history)")
-            print("❌ Database may be corrupted or incomplete")
+        required_tables = ['bet_history', 'fixtures', 'odds', 'predictions']
+        missing_tables = [table for table in required_tables if table not in table_names]
+        
+        if missing_tables:
+            print(f"❌ CRITICAL: Database missing required tables: {missing_tables}")
+            print(f"📊 Available tables: {table_names}")
             return False
         
-        print("✅ Database validated successfully")
+        print(f"✅ Database validated successfully - Found tables: {table_names}")
         return True
         
     except Exception as e:
