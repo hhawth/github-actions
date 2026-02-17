@@ -196,7 +196,7 @@ def start_periodic_upload(daemon=True):
     return thread
 
 def ensure_database_exists():
-    """Ensure database exists and is valid, fail if can't download from GCS"""
+    """Ensure database exists and is valid, download from GCS if incomplete"""
     import duckdb
     
     print("🔧 Debug: Starting ensure_database_exists()")
@@ -204,41 +204,81 @@ def ensure_database_exists():
     print(f"🔧 Debug: Current working directory: {os.getcwd()}")
     
     db_file = Path(DB_FILE)
+    needs_download = False
     
-    # If no local database, must download from GCS
+    # Check if local database exists and is complete
     if not db_file.exists():
-        print("📥 No local database found, downloading from GCS...")
-        if not download_from_gcs():
-            print("❌ CRITICAL: Could not download database from GCS and no local copy exists")
-            print("❌ Application cannot start without valid database")
-            return False
+        print("📥 No local database found")
+        needs_download = True
     else:
         size_mb = db_file.stat().st_size / (1024 * 1024)
         print(f"🔧 Debug: Local database found ({size_mb:.1f} MB)")
+        
+        # Validate database has required schema
+        try:
+            print("🔧 Debug: Connecting to database for validation...")
+            conn = duckdb.connect(str(db_file))
+            tables = conn.execute("SHOW TABLES").fetchall()
+            table_names = [table[0].lower() for table in tables]
+            conn.close()
+            
+            print(f"🔧 Debug: Database validation - found {len(tables)} tables")
+            print(f"🔧 Debug: Table names: {table_names}")
+            
+            required_tables = ['bet_history', 'fixtures', 'odds', 'predictions']
+            missing_tables = [table for table in required_tables if table not in table_names]
+            
+            if missing_tables:
+                print(f"⚠️  Local database missing required tables: {missing_tables}")
+                print(f"📊 Available tables: {table_names}")
+                print("🔄 Will replace incomplete database with complete version from GCS...")
+                needs_download = True
+            else:
+                print(f"✅ Local database is complete - Found tables: {table_names}")
+                return True
+                
+        except Exception as e:
+            print(f"❌ Error validating local database: {e}")
+            print("🔄 Will download fresh database from GCS...")
+            needs_download = True
     
-    # Validate database has required schema
-    try:
-        print("🔧 Debug: Connecting to database for validation...")
-        conn = duckdb.connect(str(db_file))
-        # Use SHOW TABLES instead of information_schema for DuckDB reliability
-        tables = conn.execute("SHOW TABLES").fetchall()
-        table_names = [table[0].lower() for table in tables]
-        conn.close()
+    # Download from GCS if needed (this will overwrite incomplete local file)
+    if needs_download:
+        print("📥 Downloading complete database from GCS...")
+        if not download_from_gcs():
+            print("❌ CRITICAL: Could not download database from GCS")
+            if db_file.exists():
+                print("⚠️  Will use incomplete local database - workflow may create missing tables")
+                return True
+            else:
+                print("❌ No local database available - cannot start")
+                return False
         
-        print(f"🔧 Debug: Database validation - found {len(tables)} tables")
-        print(f"🔧 Debug: Table names: {table_names}")
-        
-        required_tables = ['bet_history', 'fixtures', 'odds', 'predictions']
-        missing_tables = [table for table in required_tables if table not in table_names]
-        
-        if missing_tables:
-            print(f"⚠️  Database missing some tables: {missing_tables}")
-            print(f"📊 Available tables: {table_names}")
-            print("📝 Tables will be created by workflow on first run")
-            return True  # Allow app to start, workflow will create tables
-        
-        print(f"✅ Database validated successfully - Found tables: {table_names}")
-        return True
+        # Validate the downloaded database
+        try:
+            print("🔧 Debug: Validating downloaded database...")
+            conn = duckdb.connect(str(db_file))
+            tables = conn.execute("SHOW TABLES").fetchall()
+            table_names = [table[0].lower() for table in tables]
+            conn.close()
+            
+            required_tables = ['bet_history', 'fixtures', 'odds', 'predictions']
+            missing_tables = [table for table in required_tables if table not in table_names]
+            
+            if missing_tables:
+                print(f"⚠️  Downloaded database still missing tables: {missing_tables}")
+                print(f"📊 Available tables: {table_names}")
+                print("📝 Tables will be created by workflow on first run")
+            else:
+                print(f"✅ Downloaded database validated successfully - Found tables: {table_names}")
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ CRITICAL: Downloaded database validation failed: {e}")
+            return False
+    
+    return True
         
     except Exception as e:
         print(f"❌ CRITICAL: Database validation failed: {e}")
