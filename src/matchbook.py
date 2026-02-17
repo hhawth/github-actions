@@ -24,15 +24,40 @@ class matchbookExchange:
         self.token = None
 
     def login(self):
-        r = requests.post(self.url, data=json.dumps(self.payload), headers=self.header)
-        data = r.json()
-        
-        # Check for errors in response
-        if 'errors' in data:
-            error_msg = data.get('errors', [{}])[0].get('messages', ['Unknown error'])[0]
-            raise Exception(f"Matchbook login failed: {error_msg}")
-        
-        if 'session-token' not in data:
+        try:
+            r = requests.post(self.url, data=json.dumps(self.payload), headers=self.header)
+            
+            # Check HTTP status first
+            if r.status_code != 200:
+                print(f"❌ Matchbook login HTTP error: {r.status_code}")
+                print(f"❌ Response text: {r.text[:200]}")
+                raise Exception(f"Matchbook API returned HTTP {r.status_code}: {r.text[:100]}")
+            
+            # Check if response is valid JSON
+            if not r.text.strip():
+                print("❌ Matchbook login returned empty response")
+                raise Exception("Matchbook API returned empty response")
+            
+            try:
+                data = r.json()
+            except json.JSONDecodeError as e:
+                print(f"❌ Matchbook login invalid JSON response: {r.text[:200]}")
+                raise Exception(f"Matchbook API returned invalid JSON: {e}")
+            
+            # Check for errors in response
+            if 'errors' in data:
+                error_msg = data.get('errors', [{}])[0].get('messages', ['Unknown error'])[0]
+                raise Exception(f"Matchbook login failed: {error_msg}")
+            
+            if 'session-token' not in data:
+                raise Exception("Matchbook login successful but no session token received")
+                
+        except requests.RequestException as e:
+            print(f"❌ Matchbook login connection error: {e}")
+            raise Exception(f"Failed to connect to Matchbook API: {e}")
+        except Exception as e:
+            print(f"❌ Matchbook login error: {e}")
+            raise
             raise Exception(f"Matchbook login failed: No session-token in response. Response: {data}")
         
         self.token = data["session-token"]

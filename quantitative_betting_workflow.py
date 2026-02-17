@@ -117,16 +117,22 @@ class QuantitativeBettingWorkflow:
         
         # Cache is expired or empty, fetch fresh data
         print("🏢 Fetching upcoming fixtures from Matchbook...")
-        if not self.matchbook:
-            self.matchbook = matchbookExchange()
-            self.matchbook.login()
-            print("✅ Connected to Matchbook exchange")
-        
         try:
+            if not self.matchbook:
+                self.matchbook = matchbookExchange()
+                self.matchbook.login()
+                print("✅ Connected to Matchbook exchange")
+            
             matchbook_events = self.matchbook.get_football_events()
             
             # Update cache
             self.matchbook_cache['events'] = matchbook_events
+            self.matchbook_cache['events_timestamp'] = current_time
+            
+        except Exception as e:
+            print(f"⚠️ Matchbook API error: {e}")
+            print("⚠️ Continuing workflow without Matchbook data...")
+            self.matchbook_cache['events'] = []
             self.matchbook_cache['events_timestamp'] = current_time
             print("✅ Matchbook events cached (valid for 5 minutes)")
             
