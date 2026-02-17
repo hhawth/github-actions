@@ -13,14 +13,20 @@ from datetime import datetime
 
 DB_FILE = "football_data.duckdb"
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GOOGLE_PROJECT")
-BUCKET_NAME = f"{PROJECT_ID}-bucket" if PROJECT_ID else None
+BUCKET_NAME = os.getenv("GOOGLE_BUCKET") or (f"{PROJECT_ID}-bucket" if PROJECT_ID else None)
 GCS_PATH = f"gs://{BUCKET_NAME}/{DB_FILE}" if BUCKET_NAME else None
+
+# Debug environment variables
+print(f"🔧 Debug: GOOGLE_PROJECT={PROJECT_ID}")
+print(f"🔧 Debug: GOOGLE_BUCKET={BUCKET_NAME}")
+print(f"🔧 Debug: GCS_PATH={GCS_PATH}")
 
 # Sync interval (seconds)
 SYNC_INTERVAL = 3600  # 1 hour
 
 def run_gsutil_command(cmd):
     """Run gsutil command with error handling"""
+    print(f"🔧 Debug: Running command: {' '.join(cmd)}")
     try:
         result = subprocess.run(
             cmd,
@@ -28,18 +34,31 @@ def run_gsutil_command(cmd):
             text=True,
             timeout=120
         )
+        print(f"🔧 Debug: Command exit code: {result.returncode}")
+        if result.stdout:
+            print(f"🔧 Debug: Stdout: {result.stdout[:200]}...")
+        if result.stderr:
+            print(f"🔧 Debug: Stderr: {result.stderr[:200]}...")
         return result.returncode == 0, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
+        print("❌ Debug: Command timed out")
         return False, "", "Command timed out"
-    except FileNotFoundError:
+    except FileNotFoundError as e:
+        print(f"❌ Debug: gsutil not found: {e}")
         return False, "", "gsutil not found"
     except Exception as e:
+        print(f"❌ Debug: Command failed: {e}")
         return False, "", str(e)
 
 def download_from_gcs():
     """Download database from GCS to local"""
+    print("🔧 Debug: Attempting GCS download...")
+    print(f"🔧 Debug: GCS_PATH = {GCS_PATH}")
+    print(f"🔧 Debug: BUCKET_NAME = {BUCKET_NAME}")
+    
     if not GCS_PATH:
-        print("⚠️  No GOOGLE_CLOUD_PROJECT set, skipping GCS download")
+        print("❌ No GOOGLE_CLOUD_PROJECT or GOOGLE_BUCKET set, skipping GCS download")
+        print(f"🔧 Debug: PROJECT_ID={PROJECT_ID}, BUCKET_NAME={BUCKET_NAME}")
         return False
     
     db_file = Path(DB_FILE)
@@ -52,6 +71,14 @@ def download_from_gcs():
     
     print(f"📥 Downloading database from {GCS_PATH}...")
     
+    # Try to test gsutil first
+    test_success, test_stdout, test_stderr = run_gsutil_command(["gsutil", "version"])
+    if not test_success:
+        print(f"❌ gsutil not available: {test_stderr}")
+        return False
+        
+    print("✅ gsutil is available")
+    
     success, stdout, stderr = run_gsutil_command(["gsutil", "cp", GCS_PATH, DB_FILE])
     
     if success:
@@ -59,7 +86,9 @@ def download_from_gcs():
         print(f"✅ Database downloaded successfully ({size_mb:.1f} MB)")
         return True
     else:
-        print(f"❌ Failed to download database: {stderr}")
+        print(f"❌ Failed to download database from {GCS_PATH}")
+        print(f"❌ Error details: {stderr}")
+        print(f"❌ Stdout: {stdout}")
         return False
 
 def upload_to_gcs():
