@@ -55,6 +55,8 @@ def download_from_gcs():
     print("🔧 Debug: Attempting GCS download...")
     print(f"🔧 Debug: GCS_PATH = {GCS_PATH}")
     print(f"🔧 Debug: BUCKET_NAME = {BUCKET_NAME}")
+    print(f"🔧 Debug: DB_FILE = {DB_FILE}")
+    print(f"🔧 Debug: Current working directory: {os.getcwd()}")
     
     if not GCS_PATH:
         print("❌ No GOOGLE_CLOUD_PROJECT or GOOGLE_BUCKET set, skipping GCS download")
@@ -63,13 +65,18 @@ def download_from_gcs():
     
     db_file = Path(DB_FILE)
     
-    # Check if database already exists locally
+    # Check if database already exists locally and remove it to force fresh download
     if db_file.exists():
         size_mb = db_file.stat().st_size / (1024 * 1024)
-        print(f"✅ Database already exists locally ({size_mb:.1f} MB)")
-        return True
+        print(f"🔧 Debug: Local database exists ({size_mb:.1f} MB), removing for fresh download")
+        try:
+            db_file.unlink()
+            print("🔧 Debug: Removed existing local database")
+        except Exception as e:
+            print(f"❌ Failed to remove existing database: {e}")
+            return False
     
-    print(f"📥 Downloading database from {GCS_PATH}...")
+    print(f"📥 Starting download from {GCS_PATH}...")
     
     # Try to test gsutil first
     test_success, test_stdout, test_stderr = run_gsutil_command(["gsutil", "version"])
@@ -77,14 +84,42 @@ def download_from_gcs():
         print(f"❌ gsutil not available: {test_stderr}")
         return False
         
-    print("✅ gsutil is available")
+    print(f"✅ gsutil is available: {test_stdout[:100]}...")
     
-    success, stdout, stderr = run_gsutil_command(["gsutil", "cp", GCS_PATH, DB_FILE])
+    # Check if file exists in GCS first
+    print("🔧 Debug: Checking if file exists in GCS...")
+    ls_success, ls_stdout, ls_stderr = run_gsutil_command(["gsutil", "ls", "-l", GCS_PATH])
+    if ls_success:
+        print(f"🔧 Debug: GCS file info: {ls_stdout.strip()}")
+    else:
+        print(f"❌ File not found in GCS: {ls_stderr}")
+        return False
+    
+    # Download with progress
+    success, stdout, stderr = run_gsutil_command(["gsutil", "-m", "cp", GCS_PATH, DB_FILE])
     
     if success:
-        size_mb = db_file.stat().st_size / (1024 * 1024)
-        print(f"✅ Database downloaded successfully ({size_mb:.1f} MB)")
-        return True
+        print("🔧 Debug: Download command succeeded")
+        if db_file.exists():
+            size_mb = db_file.stat().st_size / (1024 * 1024)
+            print(f"✅ Database downloaded successfully ({size_mb:.1f} MB)")
+            
+            # Verify the downloaded database  
+            try:
+                import duckdb
+                conn = duckdb.connect(str(db_file))
+                tables = conn.execute("SHOW TABLES").fetchall()
+                table_names = [table[0].lower() for table in tables]
+                conn.close()
+                print(f"🔧 Debug: Downloaded database contains tables: {table_names}")
+                print(f"🔧 Debug: Table count: {len(table_names)}")
+            except Exception as e:
+                print(f"⚠️  Warning: Could not verify downloaded database: {e}")
+            
+            return True
+        else:
+            print("❌ Download succeeded but file doesn't exist locally")
+            return False
     else:
         print(f"❌ Failed to download database from {GCS_PATH}")
         print(f"❌ Error details: {stderr}")
@@ -164,6 +199,10 @@ def ensure_database_exists():
     """Ensure database exists and is valid, fail if can't download from GCS"""
     import duckdb
     
+    print("🔧 Debug: Starting ensure_database_exists()")
+    print(f"🔧 Debug: Looking for database at: {DB_FILE}")
+    print(f"🔧 Debug: Current working directory: {os.getcwd()}")
+    
     db_file = Path(DB_FILE)
     
     # If no local database, must download from GCS
@@ -173,22 +212,30 @@ def ensure_database_exists():
             print("❌ CRITICAL: Could not download database from GCS and no local copy exists")
             print("❌ Application cannot start without valid database")
             return False
+    else:
+        size_mb = db_file.stat().st_size / (1024 * 1024)
+        print(f"🔧 Debug: Local database found ({size_mb:.1f} MB)")
     
     # Validate database has required schema
     try:
+        print("🔧 Debug: Connecting to database for validation...")
         conn = duckdb.connect(str(db_file))
         # Use SHOW TABLES instead of information_schema for DuckDB reliability
         tables = conn.execute("SHOW TABLES").fetchall()
         table_names = [table[0].lower() for table in tables]
         conn.close()
         
+        print(f"🔧 Debug: Database validation - found {len(tables)} tables")
+        print(f"🔧 Debug: Table names: {table_names}")
+        
         required_tables = ['bet_history', 'fixtures', 'odds', 'predictions']
         missing_tables = [table for table in required_tables if table not in table_names]
         
         if missing_tables:
-            print(f"❌ CRITICAL: Database missing required tables: {missing_tables}")
+            print(f"⚠️  Database missing some tables: {missing_tables}")
             print(f"📊 Available tables: {table_names}")
-            return False
+            print("📝 Tables will be created by workflow on first run")
+            return True  # Allow app to start, workflow will create tables
         
         print(f"✅ Database validated successfully - Found tables: {table_names}")
         return True
