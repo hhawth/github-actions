@@ -78,12 +78,25 @@ def run_workflow_cached():
         
         # Upload updated database to GCS after successful workflow
         try:
-            from database_sync import upload_to_gcs
-            upload_success = upload_to_gcs()
-            if upload_success:
-                print("✅ Database uploaded to GCS after workflow completion")
+            from pathlib import Path
+            db_file = Path("football_data.duckdb")
+            
+            if db_file.exists():
+                size_mb = db_file.stat().st_size / (1024 * 1024)
+                print(f"🔧 Debug: Database size after workflow: {size_mb:.2f} MB")
+                
+                # Only upload if database is reasonably large (>50MB)
+                if size_mb > 50:
+                    from database_sync import upload_to_gcs
+                    upload_success = upload_to_gcs()
+                    if upload_success:
+                        print("✅ Database uploaded to GCS after workflow completion")
+                    else:
+                        print("⚠️ Warning: Database upload to GCS failed")
+                else:
+                    print(f"🔧 Debug: Database too small ({size_mb:.2f}MB), skipping upload to prevent overwriting good database")
             else:
-                print("⚠️ Warning: Database upload to GCS failed")
+                print("⚠️ Warning: No database file found after workflow, skipping upload")
         except Exception as upload_error:
             print(f"⚠️ Warning: Database upload error: {upload_error}")
         

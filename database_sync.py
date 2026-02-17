@@ -214,37 +214,49 @@ def ensure_database_exists():
         size_mb = db_file.stat().st_size / (1024 * 1024)
         print(f"🔧 Debug: Local database found ({size_mb:.1f} MB)")
         
-        # Validate database has required schema
-        try:
-            print("🔧 Debug: Connecting to database for validation...")
-            conn = duckdb.connect(str(db_file))
-            tables = conn.execute("SHOW TABLES").fetchall()
-            table_names = [table[0].lower() for table in tables]
-            conn.close()
-            
-            print(f"🔧 Debug: Database validation - found {len(tables)} tables")
-            print(f"🔧 Debug: Table names: {table_names}")
-            
-            required_tables = ['bet_history', 'fixtures', 'odds', 'predictions']
-            missing_tables = [table for table in required_tables if table not in table_names]
-            
-            if missing_tables:
-                print(f"⚠️  Local database missing required tables: {missing_tables}")
-                print(f"📊 Available tables: {table_names}")
-                print("🔄 Will replace incomplete database with complete version from GCS...")
-                needs_download = True
-            else:
-                print(f"✅ Local database is complete - Found tables: {table_names}")
-                return True
-                
-        except Exception as e:
-            print(f"❌ Error validating local database: {e}")
-            print("🔄 Will download fresh database from GCS...")
+        # Check if database is too small (should be ~158MB for complete database)
+        if size_mb < 50:  # Much smaller than expected
+            print(f"🔧 Debug: Database too small ({size_mb:.1f}MB), expected >50MB")
+            print("🔄 Will replace small database with complete version from GCS...")
             needs_download = True
+        else:
+            # Validate database has required schema
+            try:
+                print("🔧 Debug: Connecting to database for validation...")
+                conn = duckdb.connect(str(db_file))
+                tables = conn.execute("SHOW TABLES").fetchall()
+                table_names = [table[0].lower() for table in tables]
+                conn.close()
+                
+                print(f"🔧 Debug: Database validation - found {len(tables)} tables")
+                print(f"🔧 Debug: Table names: {table_names}")
+                
+                required_tables = ['bet_history', 'fixtures', 'odds', 'predictions']
+                missing_tables = [table for table in required_tables if table not in table_names]
+                
+                if missing_tables:
+                    print(f"⚠️  Local database missing required tables: {missing_tables}")
+                    print(f"📊 Available tables: {table_names}")
+                    print("🔄 Will replace incomplete database with complete version from GCS...")
+                    needs_download = True
+                else:
+                    print(f"✅ Local database is complete - Found tables: {table_names}")
+                    return True
+                    
+            except Exception as e:
+                print(f"❌ Error validating local database: {e}")
+                print("🔄 Will download fresh database from GCS...")
+                needs_download = True
     
     # Download from GCS if needed (this will overwrite incomplete local file)
     if needs_download:
         print("📥 Downloading complete database from GCS...")
+        
+        # Remove existing incomplete database file first
+        if db_file.exists():
+            print(f"🗑️ Removing existing incomplete database file")
+            db_file.unlink()
+        
         if not download_from_gcs():
             print("❌ CRITICAL: Could not download database from GCS")
             if db_file.exists():
