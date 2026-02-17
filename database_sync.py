@@ -254,7 +254,7 @@ def ensure_database_exists():
         
         # Remove existing incomplete database file first
         if db_file.exists():
-            print(f"🗑️ Removing existing incomplete database file")
+            print("🗑️ Removing existing incomplete database file")
             db_file.unlink()
         
         if not download_from_gcs():
@@ -291,11 +291,6 @@ def ensure_database_exists():
             return False
     
     return True
-        
-    except Exception as e:
-        print(f"❌ CRITICAL: Database validation failed: {e}")
-        print("❌ Database may be corrupted")
-        return False
 
 if __name__ == "__main__":
     import sys
