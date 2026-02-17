@@ -63,6 +63,7 @@ class AdvancedQuantModel:
         self.scalers = {}
         self.calibrators = {}
         self.feature_importance = {}
+        self.feature_columns = []  # Store expected feature names and order
         
         # Setup logging
         logging.basicConfig(level=logging.INFO)
@@ -328,6 +329,10 @@ class AdvancedQuantModel:
         
         feature_cols = [col for col in df.columns if col not in target_and_meta_cols]
         
+        # 🔑 STORE FEATURE COLUMN NAMES AND ORDER for prediction consistency
+        self.feature_columns = feature_cols.copy()
+        print(f"💾 Stored {len(self.feature_columns)} feature columns: {self.feature_columns[:5]}...")
+        
         X = df[feature_cols]
         
         print(f"🎯 Training models with {len(feature_cols)} features on {len(df)} samples")
@@ -544,8 +549,15 @@ class AdvancedQuantModel:
         if not self.models:
             raise ValueError("❌ No models trained. Run train_market_models() first.")
         
+        print(f"         🔍 Input fixture_data keys: {list(fixture_data.keys())}")
+        print(f"         📊 Sample values: total_goals={fixture_data.get('total_goals')}, home_win={fixture_data.get('home_win')}")
+        
         # Convert input to DataFrame format
         feature_df = self._prepare_prediction_features(fixture_data)
+        
+        print(f"         📊 Feature DataFrame created: shape={feature_df.shape}, empty={feature_df.empty}")
+        if not feature_df.empty:
+            print(f"         📊 Sample feature values: {dict(list(feature_df.iloc[0].items())[:3])}")
         
         predictions = {}
         
@@ -588,53 +600,229 @@ class AdvancedQuantModel:
     def _predict_single_market(self, market: str, feature_df: pd.DataFrame) -> float:
         """
         Generate calibrated probability for a single market
+        Fails explicitly if prediction cannot be made reliably
         """
+        # Check if DataFrame is valid - FAIL if not
+        if feature_df.empty:
+            raise ValueError(f"Empty DataFrame for {market} - cannot make reliable prediction")
+        
         model = self.models[market]
         scaler = self.scalers.get(market)
         calibrator = self.calibrators[market]
         
-        # Scale features if scaler available
-        if scaler:
-            features = scaler.transform(feature_df)
+        print(f"         🔍 {market} DataFrame shape: {feature_df.shape}, columns: {list(feature_df.columns)[:3]}...")
+        
+        # 🔍 Debug feature alignment - FAIL if mismatched
+        if hasattr(self, 'feature_columns') and len(self.feature_columns) > 0:
+            expected_features = self.feature_columns
+            provided_features = list(feature_df.columns)
+            if expected_features != provided_features:
+                error_msg = f"Feature mismatch for {market}: expected {len(expected_features)} features, got {len(provided_features)}"
+                raise ValueError(error_msg)
+            
+            # Check for extreme feature values that might cause overconfidence
+            extreme_features = []
+            for col in feature_df.columns:
+                value = feature_df[col].iloc[0]
+                if abs(value) > 10 or value < -5:  # Flag potentially extreme values
+                    extreme_features.append(f"{col}={value:.2f}")
+            
+            if extreme_features:
+                print(f"         ⚠️  Extreme features detected for {market}: {', '.join(extreme_features[:3])}")
+            
+            # Scale features if scaler available
+            if scaler:
+                features = scaler.transform(feature_df)
+            else:
+                features = feature_df.values
         else:
-            features = feature_df.values
+            raise ValueError(f"No stored feature columns available for {market} - model not properly trained")
+        
+        # Ensure features array is valid - FAIL if not
+        if features.size == 0:
+            raise ValueError(f"Empty features array for {market} after transformation")
         
         # Get raw probability
         raw_prob = model.predict_proba(features)[0, 1]
         
-        # Apply calibration
-        calibrated_prob = calibrator.predict([raw_prob])[0]
+        # 🛡️ PRE-CALIBRATION SMOOTHING: Reduce extreme raw probabilities
+        # Sports betting models should rarely predict < 5% or > 90% 
+        smoothed_prob = raw_prob
+        if raw_prob < 0.02:  # Very low probabilities
+            smoothed_prob = 0.02 + (raw_prob * 1.5)  # Pull up from 0%
+        elif raw_prob > 0.98:  # Very high probabilities  
+            smoothed_prob = 0.85 + ((raw_prob - 0.85) * 0.3)  # Pull down from 100%
+        elif raw_prob > 0.90:  # High probabilities
+            smoothed_prob = 0.80 + ((raw_prob - 0.80) * 0.5)  # Moderate reduction
+            
+        if smoothed_prob != raw_prob:
+            print(f"         🔧 Pre-calibration smoothing for {market}: {raw_prob:.1%} → {smoothed_prob:.1%}")
+        
+        # Debug: Check if probability is extreme
+        is_extreme = raw_prob > 0.95 or raw_prob < 0.05
+        if is_extreme:
+            print(f"         🚨 Raw model probability is extreme: {raw_prob:.1%} for {market}")
+            
+            # 🔍 DETAILED FEATURE ANALYSIS for debugging extreme predictions
+            print(f"         🧪 Analyzing {market} extreme prediction ({raw_prob:.1%}):")
+            
+            # Show key features that might cause extremes
+            key_features = ['total_goals', 'goal_difference', 'home_form_goals', 'away_form_goals', 
+                          'league_avg_goals', 'btts_probability_indicator', 'home_win', 'away_win']
+            
+            for col in feature_df.columns:
+                if col in key_features:
+                    value = feature_df[col].iloc[0]
+                    print(f"             {col}: {value:.3f}")
+                    
+            # Check scaled feature values
+            if scaler:
+                for i, col in enumerate(feature_df.columns):
+                    if col in key_features:
+                        scaled_val = features[0, i]
+                        if abs(scaled_val) > 2:
+                            print(f"             {col} scaled: {scaled_val:.2f}σ (extreme!)")
+        
+        # Apply calibration to smoothed probability
+        calibrated_prob = calibrator.predict([smoothed_prob])[0]
+        
+        # 🏈 MARKET-SPECIFIC PROBABILITY CONSTRAINTS for realistic betting
+        if 'handicap' in market:
+            # Handicap markets should be more conservative (closer to 50/50)
+            if calibrated_prob > 0.85:
+                calibrated_prob = 0.75 + ((calibrated_prob - 0.75) * 0.4)  # Pull down high handicap confidence
+            elif calibrated_prob < 0.15:
+                calibrated_prob = 0.25 - ((0.25 - calibrated_prob) * 0.4)  # Pull up low handicap confidence
+                
+        elif market == 'btts':
+            # BTTS typically ranges 30-70% in real markets
+            if calibrated_prob > 0.80:
+                calibrated_prob = 0.70 + ((calibrated_prob - 0.70) * 0.3)
+            elif calibrated_prob < 0.20:
+                calibrated_prob = 0.30 - ((0.30 - calibrated_prob) * 0.3)
+                
+        elif 'over_' in market or 'under_' in market:
+            # Goal markets should be moderate confidence
+            if calibrated_prob > 0.85:
+                calibrated_prob = 0.75 + ((calibrated_prob - 0.75) * 0.4)
+        
+        # Debug: Check calibration impact
+        if abs(calibrated_prob - smoothed_prob) > 0.08:
+            print(f"         🔧 Calibration changed {market}: {smoothed_prob:.1%} → {calibrated_prob:.1%}")
+        
+        # 🚨 FINAL SAFETY: Enforce absolute bounds for sports betting
+        # No sports bet should ever be > 90% or < 10% confidence
+        # 🚨 FINAL SAFETY: Enforce absolute bounds for sports betting
+        # No sports bet should ever be > 90% or < 10% confidence
+        original_prob = calibrated_prob
+        calibrated_prob = max(0.10, min(0.90, calibrated_prob))  # Stricter cap: 10-90%
+        
+        if original_prob != calibrated_prob:
+            print(f"         🛡️  Probability capped for {market}: {original_prob:.1%} → {calibrated_prob:.1%}")
         
         return float(calibrated_prob)
-    
+
     def _prepare_prediction_features(self, fixture_data: Dict) -> pd.DataFrame:
         """
-        Prepare features for prediction from fixture data - must match training schema exactly
+        Prepare features for prediction with bounds checking to prevent extreme values
+        Must match EXACT feature names and order from training
         """
-        # Create features that exactly match the training schema
-        features = {
-            # Numeric features that match training (excluding metadata and targets)
-            'total_goals': fixture_data.get('total_goals', 3),
-            'goal_difference': fixture_data.get('goal_difference', 1), 
-            'half_time_home_goals': fixture_data.get('half_time_home_goals', 1),
-            'half_time_away_goals': fixture_data.get('half_time_away_goals', 0),
-            'league_avg_goals': fixture_data.get('league_avg_goals', 2.5),
-            'home_form_goals': fixture_data.get('home_form_goals', 1.2),
-            'away_form_goals': fixture_data.get('away_form_goals', 1.0),
-            'btts_probability_indicator': fixture_data.get('btts_probability_indicator', 1),
-            'match_pace_indicator': fixture_data.get('match_pace_indicator', 2.5),
-            'home_win': fixture_data.get('home_win', 1),
-            'draw': fixture_data.get('draw', 0), 
-            'away_win': fixture_data.get('away_win', 0)
-        }
+        print(f"         🔍 Preparing features from fixture_data with {len(fixture_data)} keys")
         
-        return pd.DataFrame([features])
+        # Ensure all values are numeric and valid
+        raw_features = {}
+        for key, default in [
+            ('total_goals', 3), ('goal_difference', 1), ('half_time_home_goals', 1),
+            ('half_time_away_goals', 0), ('league_avg_goals', 2.5), ('home_form_goals', 1.2),
+            ('away_form_goals', 1.0), ('btts_probability_indicator', 1), ('match_pace_indicator', 2.5),
+            ('home_win', 1), ('draw', 0), ('away_win', 0)
+        ]:
+            raw_value = fixture_data.get(key, default)
+            # Ensure numeric value
+            try:
+                raw_features[key] = float(raw_value) if raw_value is not None else default
+            except (ValueError, TypeError):
+                print(f"         ⚠️  Invalid value for {key}: {raw_value}, using default {default}")
+                raw_features[key] = default
+        
+        # 🛡️ FEATURE NORMALIZATION to prevent extreme model predictions
+        normalized_features = {}
+        
+        # Ensure win probabilities are realistic and sum to 1
+        home_win = max(0.05, min(0.85, raw_features['home_win']))
+        away_win = max(0.05, min(0.85, raw_features['away_win']))  
+        draw = max(0.05, min(0.85, raw_features['draw']))
+        
+        # Normalize probabilities to sum to 1
+        total_prob = home_win + draw + away_win
+        normalized_features['home_win'] = home_win / total_prob
+        normalized_features['draw'] = draw / total_prob
+        normalized_features['away_win'] = away_win / total_prob
+        
+        # Apply realistic bounds to key features
+        normalized_features['goal_difference'] = max(-2.5, min(2.5, raw_features['goal_difference']))
+        normalized_features['home_form_goals'] = max(0.4, min(3.5, raw_features['home_form_goals']))
+        normalized_features['away_form_goals'] = max(0.4, min(3.5, raw_features['away_form_goals']))
+        normalized_features['btts_probability_indicator'] = max(0.15, min(0.85, raw_features['btts_probability_indicator']))
+        normalized_features['league_avg_goals'] = max(1.8, min(3.5, raw_features['league_avg_goals']))
+        
+        # Apply bounds to other features  
+        normalized_features['total_goals'] = max(0.5, min(5.5, raw_features['total_goals']))
+        normalized_features['half_time_home_goals'] = max(0, min(3, raw_features['half_time_home_goals']))
+        normalized_features['half_time_away_goals'] = max(0, min(3, raw_features['half_time_away_goals']))
+        normalized_features['match_pace_indicator'] = max(1.8, min(3.5, raw_features['match_pace_indicator']))
+        
+        print(f"         ✅ Feature normalization complete: {len(normalized_features)} features prepared")
+        
+        # Log significant normalizations
+        major_changes = []
+        for key in ['home_win', 'away_win', 'home_form_goals', 'away_form_goals', 'goal_difference']:
+            if key in raw_features:
+                raw_val = raw_features[key]
+                norm_val = normalized_features[key]
+                if abs(norm_val - raw_val) > 0.05:
+                    major_changes.append(f"{key}: {raw_val:.2f}→{norm_val:.2f}")
+        
+        if major_changes:
+            print(f"         🔧 Feature normalization: {', '.join(major_changes[:2])}")
+        
+        # 🔑 CRITICAL: Use exact feature column order from training
+        if hasattr(self, 'feature_columns') and len(self.feature_columns) > 0:
+            print(f"         🔑 Using stored feature columns: {len(self.feature_columns)} features")
+            # Create DataFrame with exact column order from training
+            ordered_features = {}
+            missing_features = []
+            
+            for col in self.feature_columns:
+                if col in normalized_features:
+                    ordered_features[col] = normalized_features[col]
+                else:
+                    missing_features.append(col)
+            
+            # FAIL if critical features are missing
+            if missing_features:
+                raise ValueError(f"Missing critical features for prediction: {missing_features}")
+            
+            return pd.DataFrame([ordered_features], columns=self.feature_columns)
+        else:
+            # FAIL if no feature schema available
+            raise ValueError("No stored feature columns available - model not properly trained or loaded")
     
     def _calculate_confidence(self, probability: float) -> float:
         """
         Calculate confidence score based on how far probability is from 0.5
+        Now with more realistic confidence scaling for sports betting
         """
-        return abs(probability - 0.5) * 2
+        # Distance from 50% (neutral)
+        distance_from_neutral = abs(probability - 0.5)
+        
+        # Scale to 0-1 but cap maximum confidence at 85% for sports realism
+        raw_confidence = distance_from_neutral * 2
+        
+        # Apply realistic confidence ceiling for sports betting
+        realistic_confidence = min(0.85, raw_confidence)  # Max 85% confidence
+        
+        return realistic_confidence
     
     def save_models(self, version: str = None):
         """
@@ -648,6 +836,7 @@ class AdvancedQuantModel:
             'scalers': self.scalers,
             'calibrators': self.calibrators,
             'feature_importance': self.feature_importance,
+            'feature_columns': getattr(self, 'feature_columns', []),  # Save feature order
             'target_markets': self.target_markets,
             'version': version,
             'created': datetime.now().isoformat()
@@ -673,9 +862,18 @@ class AdvancedQuantModel:
         self.calibrators = model_data['calibrators']
         self.feature_importance = model_data['feature_importance']
         
+        # 🔑 Load feature columns for prediction consistency
+        self.feature_columns = model_data.get('feature_columns', [])
+        
+        # Fallback for older models without stored feature columns
+        if not self.feature_columns and self.models:
+            raise ValueError("Model loaded without feature columns - retrain model to store feature schema")
+        
         print(f"✅ Models loaded from {filename}")
         print(f"📊 Version: {model_data['version']}")
         print(f"🎯 Markets: {list(self.models.keys())}")
+        if self.feature_columns:
+            print(f"🔑 Features: {len(self.feature_columns)} columns stored")
     
     def evaluate_model_performance(self, test_df: pd.DataFrame) -> Dict:
         """

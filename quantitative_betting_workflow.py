@@ -26,7 +26,16 @@ import json
 import time
 import argparse
 import duckdb
+import logging
 from datetime import datetime
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger(__name__)
 
 # Add our module paths
 sys.path.append('./quant_model')
@@ -42,8 +51,8 @@ try:
     from api_football import get_fixtures_past_time_plus_hour, main as api_football_main
     from matchbook import matchbookExchange
 except ImportError as e:
-    print(f"❌ Import error: {e}")
-    print("💡 Make sure you're running from the correct directory")
+    logger.error(f"❌ Import error: {e}")
+    logger.info("💡 Make sure you're running from the correct directory")
     sys.exit(1)
 
 # Database connection will be initialized when needed
@@ -94,12 +103,12 @@ class QuantitativeBettingWorkflow:
         # Initialize database connection
         self._initialize_database()
         
-        print("🚀 QUANTITATIVE BETTING WORKFLOW INITIALIZED")
-        print("=" * 60)
-        print(f"🎯 Target Markets: {', '.join(self.config['target_markets'])}")
-        print(f"💰 Stake Range: £{self.config['min_stake']:.2f} - £{self.config['max_daily_stake']:.2f}")
-        print(f"📊 Min Edge: {self.config['min_ev']:.1%} | Min Confidence: {self.config['min_confidence']:.1%}")
-        print("=" * 60)
+        logger.info("🚀 QUANTITATIVE BETTING WORKFLOW INITIALIZED")
+        logger.info("=" * 60)
+        logger.info(f"🎯 Target Markets: {', '.join(self.config['target_markets'])}")
+        logger.info(f"💰 Stake Range: £{self.config['min_stake']:.2f} - £{self.config['max_daily_stake']:.2f}")
+        logger.info(f"📊 Min Edge: {self.config['min_ev']:.1%} | Min Confidence: {self.config['min_confidence']:.1%}")
+        logger.info("=" * 60)
     
     def _get_cached_matchbook_events(self):
         """Get Matchbook football events with 5-minute caching"""
@@ -112,17 +121,17 @@ class QuantitativeBettingWorkflow:
             current_time - self.matchbook_cache['events_timestamp'] < self.matchbook_cache['cache_duration']):
             
             age_minutes = (current_time - self.matchbook_cache['events_timestamp']) / 60
-            print(f"🏢 Using cached Matchbook events ({age_minutes:.1f}min old)")
+            logger.info(f"🏢 Using cached Matchbook events ({age_minutes:.1f}min old)")
             return self.matchbook_cache['events']
         
         # Cache is expired or empty, fetch fresh data
-        print("🏢 Fetching upcoming fixtures from Matchbook...")
+        logger.info("🏢 Fetching upcoming fixtures from Matchbook...")
         try:
             if not self.matchbook:
-                print("🔧 Initializing Matchbook connection...")
+                logger.info("🔧 Initializing Matchbook connection...")
                 self.matchbook = matchbookExchange()
                 self.matchbook.login()
-                print("✅ Connected to Matchbook exchange")
+                logger.info("✅ Connected to Matchbook exchange")
             
             matchbook_events = self.matchbook.get_football_events()
             
@@ -130,13 +139,13 @@ class QuantitativeBettingWorkflow:
             self.matchbook_cache['events'] = matchbook_events
             self.matchbook_cache['events_timestamp'] = current_time
             
-            print("✅ Matchbook events cached (valid for 5 minutes)")
+            logger.info("✅ Matchbook events cached (valid for 5 minutes)")
             return matchbook_events
             
         except Exception as e:
-            print(f"⚠️ Matchbook connection failed: {e}")
-            print("⚠️ This is likely due to invalid credentials or account issues")
-            print("⚠️ Continuing workflow without Matchbook data - only Football API data will be used")
+            logger.warning(f"⚠️ Matchbook connection failed: {e}")
+            logger.warning("⚠️ This is likely due to invalid credentials or account issues")
+            logger.warning("⚠️ Continuing workflow without Matchbook data - only Football API data will be used")
             # Set cache to None to avoid treating empty list as valid cached data
             self.matchbook_cache['events'] = None
             self.matchbook_cache['events_timestamp'] = current_time
@@ -150,7 +159,7 @@ class QuantitativeBettingWorkflow:
         
         # Skip database initialization in CI/test environments
         if os.getenv('CI') == 'true' or os.getenv('GITHUB_ACTIONS') == 'true':
-            print("⚠️  CI environment detected - skipping database initialization")
+            logger.warning("⚠️  CI environment detected - skipping database initialization")
             return
         
         try:
@@ -158,46 +167,46 @@ class QuantitativeBettingWorkflow:
             if ensure_database_exists():
                 # Connect to local database
                 self.db_conn = duckdb.connect("./football_data.duckdb")
-                print("✅ Database connection established")
+                logger.info("✅ Database connection established")
             else:
-                print("❌ Failed to initialize database")
+                logger.error("❌ Failed to initialize database")
                 # Don't exit in __init__, just warn
-                print("⚠️  Some features may not work without database")
+                logger.warning("⚠️  Some features may not work without database")
         except Exception as e:
-            print(f"⚠️  Database sync not available: {e}")
-            print("💡 Proceeding without database sync")
+            logger.warning(f"⚠️  Database sync not available: {e}")
+            logger.info("💡 Proceeding without database sync")
             # Try to connect to local database if it exists
             try:
                 if os.path.exists("./football_data.duckdb"):
                     self.db_conn = duckdb.connect("./football_data.duckdb")
-                    print("✅ Connected to local database")
+                    logger.info("✅ Connected to local database")
                 else:
-                    print("⚠️  No local database found")
+                    logger.warning("⚠️  No local database found")
             except Exception as local_error:
-                print(f"⚠️  Cannot connect to local database: {local_error}")
+                logger.warning(f"⚠️  Cannot connect to local database: {local_error}")
     
     def step_1_initialize_quantitative_system(self):
         """Initialize the quantitative model and database connection"""
-        print("\n🧠 STEP 1: Initializing Quantitative System")
-        print("-" * 50)
+        logger.info("🧠 STEP 1: Initializing Quantitative System")
+        logger.info("-" * 50)
         
         try:
             # Use existing database connection or skip if not available
             if not self.db_conn:
-                print("❌ Database connection not available - cannot initialize quantitative system")
+                logger.error("❌ Database connection not available - cannot initialize quantitative system")
                 return False
             
             # Check database has data
             fixture_count = self.db_conn.execute("SELECT COUNT(*) FROM fixtures").fetchone()[0]
             if fixture_count == 0:
-                print("❌ No fixture data in database. Please run data collection first.")
+                logger.error("❌ No fixture data in database. Please run data collection first.")
                 return False
             
-            print(f"📊 Database connected: {fixture_count:,} fixtures available")
+            logger.info(f"📊 Database connected: {fixture_count:,} fixtures available")
             
             # Initialize quantitative model
             self.quant_model = AdvancedQuantModel(db_path='football_data.duckdb')
-            print("✅ Quantitative model initialized")
+            logger.info("✅ Quantitative model initialized")
             
             # Check if we have a saved model to load
             model_file = "advanced_quant_model_latest.pkl"
@@ -206,29 +215,29 @@ class QuantitativeBettingWorkflow:
             if os.path.exists(model_file):
                 # Check model age
                 model_age_hours = (time.time() - os.path.getmtime(model_file)) / 3600
-                print(f"📦 Found saved model (age: {model_age_hours:.1f} hours)")
+                logger.info(f"📦 Found saved model (age: {model_age_hours:.1f} hours)")
                 
                 if model_age_hours < 24:
-                    print("   ⚡ Loading saved model (< 24 hours old)...")
+                    logger.info("   ⚡ Loading saved model (< 24 hours old)...")
                     try:
                         self.quant_model.load_models(model_file)
-                        print("   ✅ Model loaded successfully - skipping training")
+                        logger.info("   ✅ Model loaded successfully - skipping training")
                         should_train = False
                     except Exception as load_error:
-                        print(f"   ⚠️ Failed to load model: {load_error}")
-                        print("   🔄 Will train new model")
+                        logger.warning(f"   ⚠️ Failed to load model: {load_error}")
+                        logger.info("   🔄 Will train new model")
                 else:
-                    print(f"   ⚠️ Model is stale ({model_age_hours:.1f} hours old)")
-                    print("   🔄 Will retrain with fresh data")
+                    logger.warning(f"   ⚠️ Model is stale ({model_age_hours:.1f} hours old)")
+                    logger.info("   🔄 Will retrain with fresh data")
             else:
-                print("📦 No saved model found - will train new model")
+                logger.info("📦 No saved model found - will train new model")
             
             # Train the model if needed
             if should_train:
-                print("🏋️ Training quantitative model...")
+                logger.info("🏋️ Training quantitative model...")
                 try:
                     # Load historical data from database for training
-                    print("   📊 Loading historical fixture data...")
+                    logger.info("   📊 Loading historical fixture data...")
                     historical_data = self.db_conn.execute("""
                     SELECT 
                         fixture_id,
@@ -282,10 +291,10 @@ class QuantitativeBettingWorkflow:
                     LIMIT 5000
                     """).df()
                 
-                    print(f"   📈 Query returned {len(historical_data)} rows")
+                    logger.info(f"   📈 Query returned {len(historical_data)} rows")
                 
                     if len(historical_data) == 0:
-                        print("   ⚠️ No historical completed matches found - using minimal training")
+                        logger.warning("   ⚠️ No historical completed matches found - using minimal training")
                         # Create minimal placeholder data for training with proper structure
                         import pandas as pd
                         historical_data = pd.DataFrame({
@@ -314,62 +323,62 @@ class QuantitativeBettingWorkflow:
                             'draw': [0, 0, 0, 0, 1],
                             'away_win': [0, 1, 0, 1, 0]
                         })
-                        print(f"   🔨 Created placeholder training data with {len(historical_data)} rows")
+                        logger.info(f"   🔨 Created placeholder training data with {len(historical_data)} rows")
                     else:
-                        print(f"   ✅ Found historical data: {len(historical_data):,} completed matches")
+                        logger.info(f"   ✅ Found historical data: {len(historical_data):,} completed matches")
                         # Show sample of data
-                        print(f"   📊 Sample: Match {historical_data.iloc[0]['fixture_id']} result {historical_data.iloc[0]['home_goals']}-{historical_data.iloc[0]['away_goals']}")
+                        logger.info(f"   📊 Sample: Match {historical_data.iloc[0]['fixture_id']} result {historical_data.iloc[0]['home_goals']}-{historical_data.iloc[0]['away_goals']}")
                     
-                    print("   🏋️ Calling train_market_models()...")
+                    logger.info("   🏋️ Calling train_market_models()...")
                     
                     # Train the quantitative models with detailed error tracking
                     training_result = self.quant_model.train_market_models(historical_data)
-                    print(f"   🔍 Training result: {training_result}")
+                    logger.debug(f"   🔍 Training result: {training_result}")
                     
                     # Verify models were actually trained
                     if hasattr(self.quant_model, 'models') and self.quant_model.models:
                         trained_markets = list(self.quant_model.models.keys())
-                        print(f"   ✅ Models trained for markets: {trained_markets}")
+                        logger.info(f"   ✅ Models trained for markets: {trained_markets}")
                         
                         # Save the trained model for future use
-                        print("   💾 Saving trained model...")
+                        logger.info("   💾 Saving trained model...")
                         try:
                             saved_file = self.quant_model.save_models("latest")
-                            print(f"   ✅ Model saved: {saved_file}")
+                            logger.info(f"   ✅ Model saved: {saved_file}")
                         except Exception as save_error:
-                            print(f"   ⚠️ Failed to save model: {save_error}")
+                            logger.warning(f"   ⚠️ Failed to save model: {save_error}")
                     else:
-                        print("   ❌ No models found after training - check train_market_models() implementation")
+                        logger.error("   ❌ No models found after training - check train_market_models() implementation")
                     
-                    print("   ✅ Model training completed!")
+                    logger.info("   ✅ Model training completed!")
                 
                 except Exception as training_error:
-                    print(f"   ❌ Model training failed with error: {training_error}")
-                    print("   📍 Error details:")
+                    logger.error(f"   ❌ Model training failed with error: {training_error}")
+                    logger.debug("   📍 Error details:")
                     import traceback
-                    traceback.print_exc()
-                    print("   🔄 Continuing with untrained model (predictions will fail)")
+                    logger.debug(traceback.format_exc())
+                    logger.info("   🔄 Continuing with untrained model (predictions will fail)")
                     # Continue anyway - the workflow will handle prediction failures gracefully
             
             # Load configuration
             self.quant_config = QuantConfig()
-            print("✅ Configuration loaded")
+            logger.info("✅ Configuration loaded")
             
             # Initialize data pipeline for updates
             self.data_pipeline = DuckDBDataPipeline(db_path='football_data.duckdb')
-            print("✅ Data pipeline ready")
+            logger.info("✅ Data pipeline ready")
             
             self.workflow_state['model_ready'] = True
             return True
             
         except Exception as e:
-            print(f"❌ Error initializing quantitative system: {e}")
+            logger.error(f"❌ Error initializing quantitative system: {e}")
             return False
     
     def step_2_update_data(self, force_update=False):
         """Update database with latest fixture data"""
-        print("\n📊 STEP 2: Updating Data")
-        print("-" * 50)
+        logger.info("📊 STEP 2: Updating Data")
+        logger.info("-" * 50)
         
         try:
             # Check if data is current (within 2 hours)
@@ -379,57 +388,57 @@ class QuantitativeBettingWorkflow:
                 """).fetchone()[0]
                 
                 if latest_fixture and latest_fixture == datetime.now().strftime('%Y-%m-%d'):
-                    print("✅ Database already has today's fixtures")
+                    logger.info("✅ Database already has today's fixtures")
                     self.workflow_state['data_updated'] = True
                     return True
             
             # Get fixture IDs for current/upcoming matches
-            print("🔍 Getting fixture IDs for current and upcoming matches...")
+            logger.info("🔍 Getting fixture IDs for current and upcoming matches...")
             api_football_main()  # Ensure API data is fresh
             fixture_ids = get_fixtures_past_time_plus_hour()
             
             if not fixture_ids:
-                print("📭 No current or upcoming fixtures found")
+                logger.info("📭 No current or upcoming fixtures found")
                 return True
             
-            print(f"⚽ Found {len(fixture_ids)} fixtures to analyze")
+            logger.info(f"⚽ Found {len(fixture_ids)} fixtures to analyze")
             
             # Update database with any new fixture data if needed
-            print("🔄 Database update complete")
+            logger.info("🔄 Database update complete")
             self.workflow_state['data_updated'] = True
             return True
             
         except Exception as e:
-            print(f"❌ Error updating data: {e}")
+            logger.error(f"❌ Error updating data: {e}")
             return False
     
     def step_3_analyze_opportunities(self):
         """Get Matchbook fixtures, match with DuckDB data, and analyze EV opportunities"""
-        print("\n🎯 STEP 3: Matchbook-First Opportunity Analysis") 
-        print("-" * 50)
+        logger.info("🎯 STEP 3: Matchbook-First Opportunity Analysis") 
+        logger.info("-" * 50)
         
         try:
             if not self.quant_model:
-                print("❌ Quantitative model not initialized")
+                logger.error("❌ Quantitative model not initialized")
                 return []
             
             # STEP 3A: Get upcoming fixtures from Matchbook first (with caching)
             matchbook_events = self._get_cached_matchbook_events()
             
             if not matchbook_events:
-                print("❌ No Matchbook events available")
+                logger.error("❌ No Matchbook events available")
                 return []
             
             # Extract events from the response (it has an "events" key)
             events_list = matchbook_events.get('events', [])
             if not events_list:
-                print("❌ No events found in Matchbook response")
+                logger.error("❌ No events found in Matchbook response")
                 return []
             
-            print(f"📈 Found {len(events_list)} Matchbook events")
+            logger.info(f"📈 Found {len(events_list)} Matchbook events")
             
             # STEP 3B: Match Matchbook events with DuckDB fixtures
-            print("🔗 Matching Matchbook events with DuckDB fixtures...")
+            logger.info("🔗 Matching Matchbook events with DuckDB fixtures...")
             matched_fixtures = []
             unmatched_events = []
             
@@ -460,24 +469,24 @@ class QuantitativeBettingWorkflow:
                         'match_name': f"{home_team} vs {away_team}"
                     }
                     matched_fixtures.append(matched_fixture)
-                    print(f"   ✅ Matched: {event_name} → {db_fixture['home_team_name']} vs {db_fixture['away_team_name']}")
+                    logger.debug(f"   ✅ Matched: {event_name} → {db_fixture['home_team_name']} vs {db_fixture['away_team_name']}")
                 else:
                     unmatched_events.append((event_name, f"No DuckDB match for {home_team} vs {away_team}"))
-                    print(f"   ❌ No DuckDB match: {event_name} (extracted: {home_team} vs {away_team})")
+                    logger.debug(f"   ❌ No DuckDB match: {event_name} (extracted: {home_team} vs {away_team})")
             
-            print(f"\n🔍 Matching results: {len(matched_fixtures)}/{len(events_list)} events matched")
+            logger.info(f"🔍 Matching results: {len(matched_fixtures)}/{len(events_list)} events matched")
             
             if unmatched_events and len(unmatched_events) <= 10:
-                print("\n⚠️  Unmatched events:")
+                logger.debug("⚠️  Unmatched events:")
                 for event_name, reason in unmatched_events:
-                    print(f"   - {event_name}: {reason}")
+                    logger.debug(f"   - {event_name}: {reason}")
             
             if not matched_fixtures:
-                print("📭 No matched fixtures found for analysis")
+                logger.info("📭 No matched fixtures found for analysis")
                 return []
             
             # STEP 3C: Analyze only matched fixtures for EV opportunities
-            print("💰 Analyzing matched fixtures for EV opportunities...")
+            logger.info("💰 Analyzing matched fixtures for EV opportunities...")
             opportunities = []
             
             for matched in matched_fixtures:
@@ -500,48 +509,48 @@ class QuantitativeBettingWorkflow:
                     
                     # Check each target market in Matchbook event
                     for market in self.config['target_markets']:
-                        print(f"      🔍 Checking {market} market...")
+                        logger.debug(f"      🔍 Checking {market} market...")
                         
                         # Find the market in Matchbook event
                         # Markets are directly available in mb_event['markets']
                         if 'markets' not in mb_event:
-                            print(f"         ❌ No markets found in event for {market}")
+                            logger.debug(f"         ❌ No markets found in event for {market}")
                             continue
                         
                         market_data = self._find_matchbook_market(mb_event, market)
                         
                         if not market_data:
-                            print(f"         ❌ No {market} market found in Matchbook event")
+                            logger.debug(f"         ❌ No {market} market found in Matchbook event")
                             continue
                         
-                        print(f"         ✅ Found {market} market: {market_data.get('market_name', 'N/A')}")
-                        print(f"         💰 Runner: {market_data.get('runner_name', 'N/A')} @ {market_data.get('back_odds', 0):.2f}")
+                        logger.debug(f"         ✅ Found {market} market: {market_data.get('market_name', 'N/A')}")
+                        logger.debug(f"         💰 Runner: {market_data.get('runner_name', 'N/A')} @ {market_data.get('back_odds', 0):.2f}")
                         
                         # Get model prediction for this market
                         prediction = self._get_market_prediction(fixture_data, market)
                         
                         if not prediction:
-                            print(f"         ❌ No valid prediction for {market}")
+                            logger.debug(f"         ❌ No valid prediction for {market}")
                             continue
                         
                         if not prediction.get('should_bet', False):
-                            print(f"         ❌ Model says don't bet on {market}")
-                            print(f"             EV: {prediction.get('expected_value', 0):.1%} | Confidence: {prediction.get('confidence', 0):.1%}")
+                            logger.debug(f"         ❌ Model says don't bet on {market}")
+                            logger.debug(f"             EV: {prediction.get('expected_value', 0):.1%} | Confidence: {prediction.get('confidence', 0):.1%}")
                             continue
                         
                         # Calculate EV using Matchbook odds
                         exchange_odds = market_data.get('back_odds', 0)
                         
                         if exchange_odds <= 0:
-                            print(f"         ❌ Invalid exchange odds: {exchange_odds}")
+                            logger.debug(f"         ❌ Invalid exchange odds: {exchange_odds}")
                             continue
                         
                         # Recalculate EV with actual Matchbook odds
                         model_prob = prediction['prediction']
                         actual_ev = (model_prob * exchange_odds) - 1.0
                         
-                        print(f"         📊 Model prob: {model_prob:.1%} | Exchange odds: {exchange_odds:.2f}")
-                        print(f"         💎 Calculated EV: {actual_ev:.1%} (min required: {self.config['min_ev']:.1%})")
+                        logger.debug(f"         📊 Model prob: {model_prob:.1%} | Exchange odds: {exchange_odds:.2f}")
+                        logger.debug(f"         💎 Calculated EV: {actual_ev:.1%} (min required: {self.config['min_ev']:.1%})")
                         
                         # Check EV is within reasonable bounds
                         max_ev = self.config.get('max_ev', 0.70)  # Default to 70% if not set
@@ -568,50 +577,50 @@ class QuantitativeBettingWorkflow:
                             # Validate final opportunity
                             if self._validate_exchange_opportunity(opportunity):
                                 opportunities.append(opportunity)
-                                print(f"   🎯 {market.upper()}: {matched['match_name']}")
-                                print(f"      Model: {model_prob:.1%} | Odds: {exchange_odds:.2f} | EV: {actual_ev:.1%}")
+                                logger.info(f"   🎯 {market.upper()}: {matched['match_name']}")
+                                logger.info(f"      Model: {model_prob:.1%} | Odds: {exchange_odds:.2f} | EV: {actual_ev:.1%}")
                             else:
-                                print(f"         ❌ Failed final validation for {market}")
+                                logger.warning(f"         ❌ Failed final validation for {market}")
                         elif actual_ev < self.config['min_ev']:
-                            print(f"         ❌ EV too low: {actual_ev:.1%} < {self.config['min_ev']:.1%}")
+                            logger.debug(f"         ❌ EV too low: {actual_ev:.1%} < {self.config['min_ev']:.1%}")
                         else:
                             max_ev = self.config.get('max_ev', 0.70)
-                            print(f"         ❌ EV too high (unrealistic): {actual_ev:.1%} > {max_ev:.1%}")
+                            logger.debug(f"         ❌ EV too high (unrealistic): {actual_ev:.1%} > {max_ev:.1%}")
                 except Exception as e:
-                    print(f"   ❌ Error analyzing {matched['match_name']}: {e}")
+                    logger.warning(f"   ❌ Error analyzing {matched['match_name']}: {e}")
                     continue
             
             # Sort by expected value * confidence
             opportunities.sort(key=lambda x: x['expected_value'] * x['confidence'], reverse=True)
             
-            print(f"\n✅ Found {len(opportunities)} validated EV opportunities")
+            logger.info(f"✅ Found {len(opportunities)} validated EV opportunities")
             self.workflow_state['opportunities_analyzed'] = True
             
             return opportunities
             
         except Exception as e:
-            print(f"❌ Error in opportunity analysis: {e}")
+            logger.error(f"❌ Error in opportunity analysis: {e}")
             import traceback
             traceback.print_exc()
             return []
     
     def step_4_finalize_opportunities(self, opportunities):
         """Apply final validation and prepare opportunities for betting"""
-        print("\n🛡️ STEP 4: Final Opportunity Validation")
-        print("-" * 50)
+        logger.info("🛡️ STEP 4: Final Opportunity Validation")
+        logger.info("-" * 50)
         
         try:
             if not opportunities:
-                print("📭 No opportunities to validate")
+                logger.info("📭 No opportunities to validate")
                 return []
             
-            print(f"🔍 Validating {len(opportunities)} pre-matched opportunities...")
+            logger.info(f"🔍 Validating {len(opportunities)} pre-matched opportunities...")
             
             # Apply final risk management and validation
             validated_opportunities = self._apply_risk_management(opportunities)
             
             if not validated_opportunities:
-                print("📉 All opportunities filtered out by risk management")
+                logger.warning("📉 All opportunities filtered out by risk management")
                 return []
             
             # Final liquidity and odds checks
@@ -619,48 +628,48 @@ class QuantitativeBettingWorkflow:
             for opp in validated_opportunities:
                 if self._final_validation_check(opp):
                     final_opportunities.append(opp)
-                    print(f"   ✅ Validated: {opp['match']} - {opp['market']}")
-                    print(f"      Final EV: {opp['expected_value']:.1%} | Stake: £{opp['recommended_stake']:.2f}")
+                    logger.info(f"   ✅ Validated: {opp['match']} - {opp['market']}")
+                    logger.info(f"      Final EV: {opp['expected_value']:.1%} | Stake: £{opp['recommended_stake']:.2f}")
                 else:
-                    print(f"   ❌ Final validation failed: {opp['match']} - {opp['market']}")
+                    logger.warning(f"   ❌ Final validation failed: {opp['match']} - {opp['market']}")
             
-            print(f"\n📊 Final validated opportunities: {len(final_opportunities)}")
+            logger.info(f"📊 Final validated opportunities: {len(final_opportunities)}")
             return final_opportunities
             
         except Exception as e:
-            print(f"❌ Error in final validation: {e}")
+            logger.error(f"❌ Error in final validation: {e}")
             return []
     
     def step_5_place_bets(self, matched_opportunities):
         """Place bets on matched opportunities"""
-        print("\n💰 STEP 5: Placing Quantitative Bets")
-        print("-" * 50)
+        logger.info("💰 STEP 5: Placing Quantitative Bets")
+        logger.info("-" * 50)
         
         if not matched_opportunities:
-            print("📭 No matched opportunities to bet on")
+            logger.info("📭 No matched opportunities to bet on")
             return False
         
         # Apply final risk management
         filtered_opportunities = self._apply_risk_management(matched_opportunities)
         
         if not filtered_opportunities:
-            print("📉 All opportunities filtered out by risk management")
+            logger.warning("📉 All opportunities filtered out by risk management")
             return False
         
         # Calculate total stake
         total_stake = sum(opp['recommended_stake'] for opp in filtered_opportunities)
         
-        print(f"🎯 Ready to place {len(filtered_opportunities)} quantitative bets")
-        print(f"💰 Total stake: £{total_stake:.2f}")
+        logger.info(f"🎯 Ready to place {len(filtered_opportunities)} quantitative bets")
+        logger.info(f"💰 Total stake: £{total_stake:.2f}")
         
         # Check daily limits  
         if total_stake > self.config['max_daily_stake']:
-            print(f"⚠️  Total stake exceeds daily limit (£{self.config['max_daily_stake']:.2f})")
+            logger.warning(f"⚠️  Total stake exceeds daily limit (£{self.config['max_daily_stake']:.2f})")
             return False
         
         # Manual approval unless auto-place is enabled
         if not self.config['auto_place_bets']:
-            print("\n🤔 Manual approval required:")
+            logger.info("🤔 Manual approval required:")
             self._display_betting_opportunities(filtered_opportunities)
             
             # Check if we're in an interactive terminal
@@ -668,24 +677,24 @@ class QuantitativeBettingWorkflow:
                 # Interactive mode - ask for user input
                 choice = input("\n👉 Place these bets? (YES/no): ").strip().upper()
                 if choice not in ['YES', 'Y', '']:
-                    print("❌ Bet placement cancelled")
+                    logger.info("❌ Bet placement cancelled")
                     return False
             else:
                 # Non-interactive mode (API/automation) - skip bet placement
-                print("🤖 Non-interactive mode detected - skipping bet placement")
-                print("💡 Set auto_place_bets=true to enable automated betting via API")
+                logger.info("🤖 Non-interactive mode detected - skipping bet placement")
+                logger.info("💡 Set auto_place_bets=true to enable automated betting via API")
                 return False
         
         # Place the bets
         successful_bets = 0
         for opp in filtered_opportunities:
             try:
-                print(f"\n📍 Placing bet: {opp['match']} - {opp['market']}")
+                logger.info(f"📍 Placing bet: {opp['match']} - {opp['market']}")
                 
                 success, runner_id = self._place_single_bet(opp)
                 if success:
                     successful_bets += 1
-                    print(f"✅ Bet placed: £{opp['recommended_stake']:.2f} @ {opp['exchange_odds']:.2f}")
+                    logger.info(f"✅ Bet placed: £{opp['recommended_stake']:.2f} @ {opp['exchange_odds']:.2f}")
                     
                     # Try to log bet to database (skip if read-only)
                     try:
@@ -705,66 +714,66 @@ class QuantitativeBettingWorkflow:
                         ])
                     except Exception as db_error:
                         if "read-only" in str(db_error).lower() or "cannot commit" in str(db_error).lower():
-                            print("⚠️  Database is read-only, bet not logged to history")
+                            logger.warning("⚠️  Database is read-only, bet not logged to history")
                         else:
-                            print(f"⚠️  Failed to log bet: {db_error}")
+                            logger.warning(f"⚠️  Failed to log bet: {db_error}")
 
                 else:
-                    print("❌ Bet failed")
+                    logger.error("❌ Bet failed")
                 
                 time.sleep(1)  # Rate limiting
                 
             except Exception as e:
-                print(f"❌ Error placing bet: {e}")
+                logger.error(f"❌ Error placing bet: {e}")
                 continue
         
-        print("\n📊 Bet Placement Summary:")
-        print(f"✅ Successful: {successful_bets}/{len(filtered_opportunities)}")
-        print(f"💰 Total placed: £{sum(opp['recommended_stake'] for opp in filtered_opportunities[:successful_bets]):.2f}")
+        logger.info("📊 Bet Placement Summary:")
+        logger.info(f"✅ Successful: {successful_bets}/{len(filtered_opportunities)}")
+        logger.info(f"💰 Total placed: £{sum(opp['recommended_stake'] for opp in filtered_opportunities[:successful_bets]):.2f}")
         
         self.workflow_state['bets_placed'] = True
         return successful_bets > 0
     
     def run_full_workflow(self, force_data_update=False):
         """Run the complete quantitative betting workflow"""
-        print("🚀 STARTING QUANTITATIVE BETTING WORKFLOW")
-        print("=" * 70)
+        logger.info("🚀 STARTING QUANTITATIVE BETTING WORKFLOW")
+        logger.info("=" * 70)
         start_time = time.time()
         
         # Step 1: Initialize system
         if not self.step_1_initialize_quantitative_system():
-            print("💥 Workflow failed at initialization")
+            logger.error("💥 Workflow failed at initialization")
             return False
         
         # Step 2: Update data
         if not self.step_2_update_data(force_data_update):
-            print("💥 Workflow failed at data update")
+            logger.error("💥 Workflow failed at data update")
             return False  
         
         # Step 3: Analyze opportunities
         opportunities = self.step_3_analyze_opportunities()
         if not opportunities:
-            print("📈 No quantitative opportunities found")
+            logger.info("📈 No quantitative opportunities found")
             return True
         
         # Step 4: Final validation
         final_opportunities = self.step_4_finalize_opportunities(opportunities)
         if not final_opportunities:
-            print("📊 No opportunities passed final validation")
+            logger.info("📊 No opportunities passed final validation")
             return True
         
         # Step 5: Place bets
         success = self.step_5_place_bets(final_opportunities)
         
         elapsed_time = time.time() - start_time
-        print(f"\n✨ QUANTITATIVE WORKFLOW COMPLETE in {elapsed_time:.1f}s")
+        logger.info(f"✨ QUANTITATIVE WORKFLOW COMPLETE in {elapsed_time:.1f}s")
         
         return success
     
     def run_analysis_only(self):
         """Run analysis without placing bets (for testing/evaluation)"""
-        print("🧪 ANALYSIS ONLY MODE")
-        print("=" * 50)
+        logger.info("🧪 ANALYSIS ONLY MODE")
+        logger.info("=" * 50)
         
         if not self.step_1_initialize_quantitative_system():
             return False
@@ -775,7 +784,7 @@ class QuantitativeBettingWorkflow:
         opportunities = self.step_3_analyze_opportunities()
         
         if opportunities:
-            print("\n📊 QUANTITATIVE ANALYSIS RESULTS")
+            logger.info("📊 QUANTITATIVE ANALYSIS RESULTS")
             self._display_analysis_results(opportunities)
         
         return True
@@ -785,8 +794,7 @@ class QuantitativeBettingWorkflow:
         """Prepare real team statistics from database for model predictions"""
         try:
             if not self.db_conn:
-                print("         ⚠️ Database not available, using placeholder features")
-                return self._get_placeholder_features(fixture_id)
+                raise ValueError("Database connection not available - cannot prepare real team features")
             
             # Query last 10 matches for each team to calculate form
             home_stats = self.db_conn.execute("""
@@ -854,8 +862,8 @@ class QuantitativeBettingWorkflow:
             away_win_prob = min(max(away_win_prob / total_prob, 0.1), 0.9)
             draw_prob = max(0.0, 1.0 - home_win_prob - away_win_prob)
             
-            print(f"         📊 Real data loaded: {home_team} avg {home_gf:.2f} goals | {away_team} avg {away_gf:.2f} goals")
-            print(f"         📈 League: {league_avg:.2f} avg goals | {btts_rate:.0%} BTTS rate")
+            logger.info(f"         📊 Real data loaded: {home_team} avg {home_gf:.2f} goals | {away_team} avg {away_gf:.2f} goals")
+            logger.info(f"         📈 League: {league_avg:.2f} avg goals | {btts_rate:.0%} BTTS rate")
             
             model_fixture = {
                 'fixture_id': fixture_id,
@@ -878,38 +886,15 @@ class QuantitativeBettingWorkflow:
             }
             
             return model_fixture
-            
+        
         except Exception as e:
-            print(f"         ❌ Error loading real features: {e}")
-            return self._get_placeholder_features(fixture_id)
-    
-    def _get_placeholder_features(self, fixture_id):
-        """Fallback placeholder features when database data unavailable"""
-        return {
-            'fixture_id': fixture_id,
-            'date': '2026-02-16',
-            'home_goals': 2,
-            'away_goals': 1,
-            # Real calculated features (12 features for prediction)
-            'total_goals': 2.5,
-            'goal_difference': 0,
-            'half_time_home_goals': 0.8,
-            'half_time_away_goals': 0.7,
-            'league_avg_goals': 2.5,
-            'home_form_goals': 1.1,
-            'away_form_goals': 1.0,
-            'btts_probability_indicator': 0.6,
-            'match_pace_indicator': 2.5,
-            'home_win': 0.45,
-            'draw': 0.27,
-            'away_win': 0.28
-        }
+            raise ValueError(f"Failed to load team statistics from database: {e}")
     
     def _get_market_prediction(self, fixture_data, market):
         """Get prediction for a specific market using quantitative model"""
         try:
             if not self.quant_model:
-                print(f"      ❌ Quantitative model not available for {market}")
+                logger.warning(f"      ❌ Quantitative model not available for {market}")
                 return None
             
             # Extract fixture details
@@ -918,17 +903,17 @@ class QuantitativeBettingWorkflow:
             league = fixture_data.get('league')
             fixture_id = fixture_data.get('fixture_id')
             
-            print(f"         🔍 Getting {market} prediction for {home_team} vs {away_team}")
+            logger.debug(f"         🔍 Getting {market} prediction for {home_team} vs {away_team}")
             
             # Try to use the actual quantitative model for prediction
             try:
                 # Check if model is trained first
                 if not hasattr(self.quant_model, 'models'):
-                    print("         ❌ No 'models' attribute found on quant_model")
+                    logger.error("         ❌ No 'models' attribute found on quant_model")
                     return None
                 
                 if not self.quant_model.models:
-                    print("         ❌ Models dict is empty - training required")
+                    logger.error("         ❌ Models dict is empty - training required")
                     return None
                     
                 # print(f"         📈 Available trained models: {list(self.quant_model.models.keys())}")
@@ -936,7 +921,7 @@ class QuantitativeBettingWorkflow:
                 # Get real team statistics from database
                 model_fixture = self._prepare_real_fixture_features(home_team, away_team, league, fixture_id)
                 
-                print(f"         🎯 Calling predict_markets() with fixture data: {len(model_fixture)} features")
+                logger.debug(f"         🎯 Calling predict_markets() with fixture data: {len(model_fixture)} features")
                 
                 # Call the quantitative model's prediction method
                 predictions = self.quant_model.predict_markets(model_fixture)
@@ -944,10 +929,10 @@ class QuantitativeBettingWorkflow:
                 # print(f"         🔍 Raw predictions response: {predictions}")
                 
                 if not predictions or 'error' in predictions:
-                    print(f"         ❌ Model prediction failed for {market} - no bet")
+                    logger.error(f"         ❌ Model prediction failed for {market} - no bet")
                     return None
                 
-                print("         ✅ Model prediction successful")
+                logger.debug("         ✅ Model prediction successful")
                 
                 # Extract the specific market prediction
                 if market == 'btts':
@@ -989,20 +974,20 @@ class QuantitativeBettingWorkflow:
                     
                     # If no viable handicap found, log it
                     if prediction_prob == 0 or confidence == 0:
-                        print("         ❌ No viable handicap found (all probabilities < 30% or no confidence)")
+                        logger.debug("         ❌ No viable handicap found (all probabilities < 30% or no confidence)")
                         return None
                     else:
-                        print(f"         ✅ Best handicap: {best_market} (prob: {best_prob:.1%}, conf: {best_conf:.1%})")
+                        logger.debug(f"         ✅ Best handicap: {best_market} (prob: {best_prob:.1%}, conf: {best_conf:.1%})")
                     
                 else:
-                    print(f"         ❌ Unknown market type: {market}")
+                    logger.error(f"         ❌ Unknown market type: {market}")
                     return None
                 
                 if prediction_prob <= 0 or confidence <= 0:
-                    print(f"         ❌ Invalid prediction values for {market} - no bet")
+                    logger.warning(f"         ❌ Invalid prediction values for {market} - no bet")
                     return None
                 
-                print(f"         📊 Model result: {prediction_prob:.1%} probability, {confidence:.1%} confidence")
+                logger.debug(f"         📊 Model result: {prediction_prob:.1%} probability, {confidence:.1%} confidence")
                 
                 # Check if meets minimum thresholds
                 if (prediction_prob >= 0.3 and  # Minimum 30% probability
@@ -1016,16 +1001,16 @@ class QuantitativeBettingWorkflow:
                         'reasoning': f'{market} prediction from quantitative model'
                     }
                 else:
-                    print(f"         ❌ Below thresholds: prob={prediction_prob:.1%}, conf={confidence:.1%}")
+                    logger.debug(f"         ❌ Below thresholds: prob={prediction_prob:.1%}, conf={confidence:.1%}")
                     return None
                     
-            except Exception as e:
-                print(f"         ❌ Model call failed for {market}: {e}")
-                print(f"         🚫 No fallback - skipping {market} market")
+            except ValueError as data_error:
+                logger.warning(f"         ❌ Cannot prepare reliable features for {market}: {data_error}")
+                logger.info(f"         🚫 Skipping {market} - insufficient data quality")
                 return None
                 
         except Exception as e:
-            print(f"❌ Error getting {market} prediction: {e}")
+            logger.error(f"❌ Error getting {market} prediction: {e}")
             return None
     
     def _prepare_fixture_features(self, fixture_data):
@@ -1072,7 +1057,7 @@ class QuantitativeBettingWorkflow:
             return None
             
         except Exception as e:
-            print(f"❌ Error finding Matchbook event: {e}")
+            logger.error(f"❌ Error finding Matchbook event: {e}")
             return None
     
     def _find_matchbook_market(self, matchbook_event, market_type):
@@ -1080,7 +1065,7 @@ class QuantitativeBettingWorkflow:
         try:
             # Get markets directly from the event
             markets = matchbook_event.get('markets', [])
-            print(f"         📊 Found {len(markets)} markets to search")
+            logger.debug(f"         📊 Found {len(markets)} markets to search")
             
             if market_type == 'btts':
                 # Look for Both Teams To Score market
@@ -1129,7 +1114,7 @@ class QuantitativeBettingWorkflow:
             
             elif market_type == 'handicap':
                 # Look for Handicap market  
-                print("         🎯 Searching for handicap markets...")
+                logger.debug("         🎯 Searching for handicap markets...")
                 handicap_markets_found = []
                 
                 for i, market in enumerate(markets):
@@ -1144,7 +1129,7 @@ class QuantitativeBettingWorkflow:
                             # Skip split/quarter handicaps (e.g., "-0.5/1.0", "+0.0/0.5")
                             # Model only trained on simple handicaps
                             if '/' in runner_name or '(' in runner_name and ')' in runner_name and '/' in runner_name:
-                                print(f"         ⏭️  Skipping split handicap: {runner_name}")
+                                logger.debug(f"         ⏭️  Skipping split handicap: {runner_name}")
                                 continue
                             
                             # Get best back price from prices array
@@ -1164,7 +1149,7 @@ class QuantitativeBettingWorkflow:
                                     'liquidity': liquidity
                                 })
                 
-                print(f"         📊 Found {len(handicap_markets_found)} viable simple handicap runners (splits excluded)")
+                logger.debug(f"         📊 Found {len(handicap_markets_found)} viable simple handicap runners (splits excluded)")
                 
                 # Select best handicap option
                 if handicap_markets_found:
@@ -1172,7 +1157,7 @@ class QuantitativeBettingWorkflow:
                     best_runner = best_option['runner']
                     best_market = best_option['market']
                     
-                    print(f"         🏆 Selected best handicap: {best_runner.get('name')} @ {best_option['odds']} (score: {best_option['value_score']:.1f})")
+                    logger.debug(f"         🏆 Selected best handicap: {best_runner.get('name')} @ {best_option['odds']} (score: {best_option['value_score']:.1f})")
                     
                     # Get best back price
                     prices = best_runner.get('prices', [])
@@ -1188,13 +1173,13 @@ class QuantitativeBettingWorkflow:
                         'liquidity': available
                     }
                 else:
-                    print("         ❌ No viable handicap runners found (need odds 1.05-5.0 with £10+ liquidity)")
+                    logger.debug("         ❌ No viable handicap runners found (need odds 1.05-5.0 with £10+ liquidity)")
             
-            print(f"         ❌ No matching {market_type} market found")
+            logger.debug(f"         ❌ No matching {market_type} market found")
             return None
             
         except Exception as e:
-            print(f"❌ Error finding {market_type} market: {e}")
+            logger.error(f"❌ Error finding {market_type} market: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -1204,7 +1189,7 @@ class QuantitativeBettingWorkflow:
         try:
             simplified_file = "matchbook_football_events_simplified.json"
             if not os.path.exists(simplified_file):
-                print(f"         ❌ Simplified file not found: {simplified_file}")
+                logger.error(f"         ❌ Simplified file not found: {simplified_file}")
                 return None
             
             with open(simplified_file, "r", encoding="utf-8") as f:
@@ -1221,30 +1206,28 @@ class QuantitativeBettingWorkflow:
             for event_name, event_data in simplified_data.items():
                 if (self._fuzzy_match(home_team, event_name) and 
                     self._fuzzy_match(away_team, event_name)):
-                    print(f"         🔍 Fuzzy matched: {event_name}")
+                    logger.debug(f"         🔍 Fuzzy matched: {event_name}")
                     return event_data
             
-            print(f"         ❌ No simplified event found for {match_name}")
+            logger.warning(f"         ❌ No simplified event found for {match_name}")
             return None
             
         except Exception as e:
-            print(f"         ❌ Error loading simplified event data: {e}")
+            logger.error(f"         ❌ Error loading simplified event data: {e}")
             return None
     
     def _fuzzy_match(self, team_name, event_name):
-        """Simple fuzzy matching for team names"""
-        import unicodedata
+        """Simple fuzzy matching for team names using proper normalization"""
         
-        # Normalize both strings (remove special characters)
-        def normalize(s):
-            s = unicodedata.normalize('NFKD', s.lower())
-            s = ''.join([c for c in s if not unicodedata.combining(c)])
-            return s
+        # Use our comprehensive normalization instead of simple normalization  
+        team_clean = self._normalize_team_name(team_name)
+        event_clean = self._normalize_team_name(event_name)
         
-        team_clean = normalize(team_name).replace('fc', '').replace('united', '').replace('sc', '').replace('if', '').strip()
-        event_clean = normalize(event_name)
+        # Check for exact match after normalization
+        if team_clean == event_clean:
+            return True
         
-        # Check for exact substring match first
+        # Check for exact substring match 
         if team_clean in event_clean:
             return True
         
@@ -1254,34 +1237,38 @@ class QuantitativeBettingWorkflow:
         
         # Check for substantial word overlap
         team_words = team_clean.split()
+        event_words = event_clean.split()
+        
         if len(team_words) == 0:
             return False
         
         # For single-word team names, check if that word appears in the event
         if len(team_words) == 1:
-            return team_words[0] in event_clean
+            return team_words[0] in event_words
         
-        # For 2-word team names, both words should match (but allow short words like "Al", "FC", etc.)
+        # For 2-word team names, be more lenient - just need the main word to match
         if len(team_words) == 2:
-            word1_match = team_words[0] in event_clean
-            word2_match = team_words[1] in event_clean
-            # Both words must match OR one significant word (>3 chars) matches
-            if word1_match and word2_match:
-                return True
-            # If one word is very significant (longest word), that alone might be enough
-            longest_word = max(team_words, key=len)
-            if len(longest_word) >= 6 and longest_word in event_clean:
-                return True
+            for team_word in team_words:
+                if len(team_word) >= 4:  # Significant word
+                    for event_word in event_words:
+                        if team_word == event_word or team_word in event_word or event_word in team_word:
+                            return True
             return False
         
         # For longer names, require at least half the words to match (excluding very short words)
         significant_words = [w for w in team_words if len(w) > 2]
         if not significant_words:
             # All words are short, just check if any match
-            matches = sum(1 for word in team_words if word in event_clean)
+            matches = 0
+            for team_word in team_words:
+                if team_word in event_words:
+                    matches += 1
             return matches >= len(team_words)
         
-        matches = sum(1 for word in significant_words if word in event_clean)
+        matches = 0
+        for team_word in significant_words:
+            if team_word in event_words:
+                matches += 1
         return matches >= max(1, len(significant_words) // 2)
     
     def _validate_exchange_opportunity(self, opportunity):
@@ -1367,18 +1354,18 @@ class QuantitativeBettingWorkflow:
                 ]
                 
                 if runner_data["runner_id"] in current_runner_ids:
-                    print(f"   ⚠️ Bet already exists for runner {runner_data['runner_id']}, skipping (treating as successful)")
+                    logger.warning(f"   ⚠️ Bet already exists for runner {runner_data['runner_id']}, skipping (treating as successful)")
                     return True, runner_data["runner_id"]
             except Exception as check_error:
-                print(f"   ⚠️ Could not check existing bets: {check_error}, proceeding with placement")
+                logger.warning(f"   ⚠️ Could not check existing bets: {check_error}, proceeding with placement")
             
             response = self.matchbook.place_order(runner_data)
 
             if response.get("offers")[0].get("matched-bets") is None:
-                print("Back Bet not matched cancelling bet")
+                logger.info("Back Bet not matched cancelling bet")
                 offer_id = response.get("offers")[0].get("id")
                 cancel_bet_response = self.matchbook.cancel_single_order(offer_id)
-                print(cancel_bet_response)
+                logger.info(cancel_bet_response)
             
             # Check if successful
             if isinstance(response, dict) and not response.get('errors'):
@@ -1387,13 +1374,13 @@ class QuantitativeBettingWorkflow:
             return False, None
             
         except Exception as e:
-            print(f"❌ Error placing bet: {e}")
+            logger.error(f"❌ Error placing bet: {e}")
             return False, None
     
     def _display_betting_opportunities(self, opportunities):
         """Display betting opportunities for manual approval"""
-        print("\n🎯 QUANTITATIVE BETTING OPPORTUNITIES")
-        print("=" * 70)
+        logger.info("🎯 QUANTITATIVE BETTING OPPORTUNITIES")
+        logger.info("=" * 70)
         
         for i, opp in enumerate(opportunities, 1):
             # Create clear market description
@@ -1406,19 +1393,19 @@ class QuantitativeBettingWorkflow:
                 elif opp['market'] == 'over_under_15':
                     market_desc = f"O/U 1.5: {opp['runner_name']}"
             
-            print(f"\n{i}. {opp['match']} - {market_desc}")
-            print(f"   📊 Confidence: {opp['confidence']:.1%} | EV: {opp['expected_value']:.1%}")
-            print(f"   💰 Stake: £{opp['recommended_stake']:.2f} @ {opp['exchange_odds']:.2f}")
-            print(f"   🎯 Potential profit: £{(opp['recommended_stake'] * opp['exchange_odds']) - opp['recommended_stake']:.2f}")
+            logger.info(f"{i}. {opp['match']} - {market_desc}")
+            logger.info(f"   📊 Confidence: {opp['confidence']:.1%} | EV: {opp['expected_value']:.1%}")
+            logger.info(f"   💰 Stake: £{opp['recommended_stake']:.2f} @ {opp['exchange_odds']:.2f}")
+            logger.info(f"   🎯 Potential profit: £{(opp['recommended_stake'] * opp['exchange_odds']) - opp['recommended_stake']:.2f}")
         
         total_stake = sum(opp['recommended_stake'] for opp in opportunities)
         avg_ev = sum(opp['expected_value'] for opp in opportunities) / len(opportunities)
-        print(f"\n📊 Total: {len(opportunities)} bets, £{total_stake:.2f} stake, {avg_ev:.1%} avg EV")
+        logger.info(f"📊 Total: {len(opportunities)} bets, £{total_stake:.2f} stake, {avg_ev:.1%} avg EV")
     
     def _display_analysis_results(self, opportunities):
         """Display analysis results without betting"""
-        print("📊 QUANTITATIVE ANALYSIS RESULTS")
-        print("=" * 60)
+        logger.info("📊 QUANTITATIVE ANALYSIS RESULTS")
+        logger.info("=" * 60)
         
         # Group by market
         by_market = {}
@@ -1429,18 +1416,18 @@ class QuantitativeBettingWorkflow:
             by_market[market].append(opp)
         
         for market, opps in by_market.items():
-            print(f"\n🎯 {market.upper()} Market ({len(opps)} opportunities)")
-            print("-" * 40)
+            logger.info(f"🎯 {market.upper()} Market ({len(opps)} opportunities)")
+            logger.info("-" * 40)
             
             for opp in opps[:5]:  # Show top 5 per market
-                print(f"   {opp['match']}")
-                print(f"   Confidence: {opp['confidence']:.1%} | EV: {opp['expected_value']:.1%}")
+                logger.info(f"   {opp['match']}")
+                logger.info(f"   Confidence: {opp['confidence']:.1%} | EV: {opp['expected_value']:.1%}")
             
             if len(opps) > 5:
-                print(f"   ... and {len(opps) - 5} more")
+                logger.info(f"   ... and {len(opps) - 5} more")
         
         total_ev = sum(opp['expected_value'] for opp in opportunities)
-        print(f"\n📈 Total opportunities: {len(opportunities)} | Combined EV: {total_ev:.1%}")
+        logger.info(f"📈 Total opportunities: {len(opportunities)} | Combined EV: {total_ev:.1%}")
     
     def _extract_teams_from_event_name(self, event_name):
         """Extract home and away team names from Matchbook event name"""
@@ -1464,7 +1451,7 @@ class QuantitativeBettingWorkflow:
             return None
             
         except Exception as e:
-            print(f"❌ Error extracting teams from '{event_name}': {e}")
+            logger.error(f"❌ Error extracting teams from '{event_name}': {e}")
             return None
     
     def _normalize_team_name(self, team_name):
@@ -1522,6 +1509,17 @@ class QuantitativeBettingWorkflow:
                 normalized = normalized[len(prefix):]
                 break  # Only remove one prefix
         
+        # Remove numeric prefixes (e.g., "76 Team Name" → "Team Name")  
+        import re
+        normalized = re.sub(r'^\d+\s+', '', normalized)
+        
+        # Remove Turkish club suffixes (belediyespor = municipality sports, spor = sports)
+        turkish_suffixes = [' belediyespor', ' belediye', ' spor', ' genclik', ' genclerbirligi']
+        for suffix in turkish_suffixes:
+            if normalized.endswith(suffix):
+                normalized = normalized[:-len(suffix)]
+                break
+        
         # Known team name aliases (Matchbook vs API Football naming differences)
         team_aliases = {
             'modern sport': 'future',  # Modern Sport FC = Future FC
@@ -1538,7 +1536,6 @@ class QuantitativeBettingWorkflow:
         normalized = normalized.replace(' fc', '').replace(' sc', '').replace(' if', '').replace('fc ', '').replace('sc ', '').replace('if ', '')
         
         # Remove numeric suffixes (e.g., "Tychy 71" → "Tychy")
-        import re
         normalized = re.sub(r'\s+\d+$', '', normalized)
         
         # Remove trailing 'e' commonly found in Scandinavian team names (but be conservative)
@@ -1553,7 +1550,8 @@ class QuantitativeBettingWorkflow:
         # List of common city names that appear as suffixes
         city_suffixes = ['athens', 'city', 'town', 'united', 'madrid', 'barcelona', 'london', 
                         'moscow', 'istanbul', 'cairo', 'dubai', 'jeddah', 'riyadh', 'doha',
-                        'qarshi', 'tashkent', 'samarkand', 'bukhara']
+                        'qarshi', 'tashkent', 'samarkand', 'bukhara', 'antakya', 'ankara', 
+                        'izmir', 'antalya', 'bursa', 'adana', 'konya']
         
         words = normalized.split()
         if len(words) >= 2:
@@ -1584,13 +1582,13 @@ class QuantitativeBettingWorkflow:
                         dt = datetime.fromtimestamp(event_start_time)
                         match_date = dt.strftime('%Y-%m-%d')
                 except Exception as date_error:
-                    print(f"         ⚠️ Could not parse event time: {date_error}")
+                    logger.warning(f"         ⚠️ Could not parse event time: {date_error}")
             
             # Normalize team names for better matching
             home_normalized = self._normalize_team_name(home_team)
             away_normalized = self._normalize_team_name(away_team)
             
-            print(f"         🔍 Matching: '{home_team}' (→ '{home_normalized}') vs '{away_team}' (→ '{away_normalized}')")
+            logger.debug(f"         🔍 Matching: '{home_team}' (→ '{home_normalized}') vs '{away_team}' (→ '{away_normalized}')")
             
             # Query for potential matches using fuzzy matching
             # First try exact matches (with normalized names)
@@ -1637,7 +1635,7 @@ class QuantitativeBettingWorkflow:
                 
                 # Debug: Show close matches
                 if home_match or away_match:
-                    print(f"         🔸 Partial match: DB has '{db_home}' (→ '{db_home_normalized}') vs '{db_away}' (→ '{db_away_normalized}') | home_match={home_match}, away_match={away_match}")
+                    logger.debug(f"         🔸 Partial match: DB has '{db_home}' (→ '{db_home_normalized}') vs '{db_away}' (→ '{db_away_normalized}') | home_match={home_match}, away_match={away_match}")
                 
                 # Standard match: both teams must match
                 if home_match and away_match:
@@ -1655,7 +1653,7 @@ class QuantitativeBettingWorkflow:
                 if match_date and match_date == db_date:
                     # Check home-to-home match
                     if home_match:
-                        print(f"         🕐 Time + Home team match: {home_team} → {db_home} (date: {match_date})")
+                        logger.debug(f"         🕐 Time + Home team match: {home_team} → {db_home} (date: {match_date})")
                         return {
                             'fixture_id': fixture[0],
                             'home_team_name': fixture[1],
@@ -1666,7 +1664,7 @@ class QuantitativeBettingWorkflow:
                         }
                     # Check away-to-away match
                     elif away_match:
-                        print(f"         🕐 Time + Away team match: {away_team} → {db_away} (date: {match_date})")
+                        logger.debug(f"         🕐 Time + Away team match: {away_team} → {db_away} (date: {match_date})")
                         return {
                             'fixture_id': fixture[0],
                             'home_team_name': fixture[1],
@@ -1679,7 +1677,7 @@ class QuantitativeBettingWorkflow:
             return None
             
         except Exception as e:
-            print(f"❌ Error finding DuckDB fixture for {home_team} vs {away_team}: {e}")
+            logger.error(f"❌ Error finding DuckDB fixture for {home_team} vs {away_team}: {e}")
             return None
     
     def _final_validation_check(self, opportunity):
@@ -1693,36 +1691,36 @@ class QuantitativeBettingWorkflow:
             
             for field in required_fields:
                 if field not in opportunity or opportunity[field] is None:
-                    print(f"   Missing field: {field}")
+                    logger.debug(f"   Missing field: {field}")
                     return False
             
             # Validate exchange odds range
             odds = opportunity['exchange_odds']
             if odds < 1.1 or odds > 15.0:
-                print(f"   Odds out of range: {odds}")
+                logger.debug(f"   Odds out of range: {odds}")
                 return False
             
             # Validate EV meets minimum
             if opportunity['expected_value'] < self.config['min_ev']:
-                print(f"   EV too low: {opportunity['expected_value']:.1%}")
+                logger.debug(f"   EV too low: {opportunity['expected_value']:.1%}")
                 return False
             
             # Validate confidence meets minimum
             if opportunity['confidence'] < self.config['min_confidence']:
-                print(f"   Confidence too low: {opportunity['confidence']:.1%}")
+                logger.debug(f"   Confidence too low: {opportunity['confidence']:.1%}")
                 return False
             
             # Validate liquidity
             liquidity = opportunity.get('exchange_liquidity', 0)
             stake = opportunity['recommended_stake']
             if liquidity < stake * 1.5:  # Need 1.5x stake in liquidity
-                print(f"   Insufficient liquidity: £{liquidity:.2f} vs £{stake:.2f} stake")
+                logger.debug(f"   Insufficient liquidity: £{liquidity:.2f} vs £{stake:.2f} stake")
                 return False
             
             return True
             
         except Exception as e:
-            print(f"   Validation error: {e}")
+            logger.error(f"   Validation error: {e}")
             return False
     
     def cleanup(self):
@@ -1781,12 +1779,12 @@ def main():
         elif args.full_run:
             workflow.run_full_workflow(args.force_data_update)
         else:
-            print("🔍 No action specified. Use --full-run, --analyze-only, or --data-only")
+            logger.warning("🔍 No action specified. Use --full-run, --analyze-only, or --data-only")
             
     except KeyboardInterrupt:
-        print("\n🛑 Workflow interrupted")
+        logger.info("🛑 Workflow interrupted")
     except Exception as e:
-        print(f"💥 Workflow error: {e}")
+        logger.error(f"💥 Workflow error: {e}")
     finally:
         workflow.cleanup()
 
