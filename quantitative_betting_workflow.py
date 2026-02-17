@@ -130,25 +130,18 @@ class QuantitativeBettingWorkflow:
             self.matchbook_cache['events'] = matchbook_events
             self.matchbook_cache['events_timestamp'] = current_time
             
+            print("✅ Matchbook events cached (valid for 5 minutes)")
+            return matchbook_events
+            
         except Exception as e:
             print(f"⚠️ Matchbook connection failed: {e}")
             print("⚠️ This is likely due to invalid credentials or account issues")
             print("⚠️ Continuing workflow without Matchbook data - only Football API data will be used")
-            # Set empty cache to avoid repeated attempts during this session
-            self.matchbook_cache['events'] = []
+            # Set cache to None to avoid treating empty list as valid cached data
+            self.matchbook_cache['events'] = None
             self.matchbook_cache['events_timestamp'] = current_time
             # Disable matchbook for this session
             self.matchbook = None
-            print("✅ Matchbook events cached (valid for 5 minutes)")
-            
-            return matchbook_events
-            
-        except Exception as e:
-            print(f"❌ Failed to fetch Matchbook events: {e}")
-            # Return cached data if available, even if expired
-            if self.matchbook_cache['events'] is not None:
-                print("⚠️  Using expired cache as fallback")
-                return self.matchbook_cache['events']
             return None
     
     def _initialize_database(self):

@@ -534,14 +534,6 @@ with tab3:
     
     st.divider()
     
-    # Full execution log
-    st.subheader("📜 Execution Log")
-    if workflow_result.get('log'):
-        with st.expander("View Full Log", expanded=False):
-            st.text(workflow_result['log'])
-    else:
-        st.info("No log available")
-    
     # Manual refresh option
     col1, col2 = st.columns(2)
     with col1:
