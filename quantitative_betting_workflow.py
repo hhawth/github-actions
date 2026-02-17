@@ -119,6 +119,7 @@ class QuantitativeBettingWorkflow:
         print("🏢 Fetching upcoming fixtures from Matchbook...")
         try:
             if not self.matchbook:
+                print("🔧 Initializing Matchbook connection...")
                 self.matchbook = matchbookExchange()
                 self.matchbook.login()
                 print("✅ Connected to Matchbook exchange")
@@ -130,10 +131,14 @@ class QuantitativeBettingWorkflow:
             self.matchbook_cache['events_timestamp'] = current_time
             
         except Exception as e:
-            print(f"⚠️ Matchbook API error: {e}")
-            print("⚠️ Continuing workflow without Matchbook data...")
+            print(f"⚠️ Matchbook connection failed: {e}")
+            print("⚠️ This is likely due to invalid credentials or account issues")
+            print("⚠️ Continuing workflow without Matchbook data - only Football API data will be used")
+            # Set empty cache to avoid repeated attempts during this session
             self.matchbook_cache['events'] = []
             self.matchbook_cache['events_timestamp'] = current_time
+            # Disable matchbook for this session
+            self.matchbook = None
             print("✅ Matchbook events cached (valid for 5 minutes)")
             
             return matchbook_events

@@ -12,9 +12,20 @@ INTERVAL = 10
 class matchbookExchange:
     def __init__(self) -> None:
         self.url = "https://api.matchbook.com/bpapi/rest/security/session"
+        
+        username = os.getenv("MATCHBOOK_USERNAME")
+        password = os.getenv("MATCHBOOK_PASSWORD")
+        
+        # Debug credentials (without showing password)
+        print(f"🔧 Debug: Matchbook username: {'***' if username else 'NOT SET'}")
+        print(f"🔧 Debug: Matchbook password: {'***' if password else 'NOT SET'}")
+        
+        if not username or not password:
+            raise Exception("Matchbook credentials not configured - check MATCHBOOK_USERNAME and MATCHBOOK_PASSWORD environment variables")
+        
         self.payload = {
-            "username": os.getenv("MATCHBOOK_USERNAME"),
-            "password": os.getenv("MATCHBOOK_PASSWORD"),
+            "username": username,
+            "password": password,
         }
         self.header = {
             "content-type": "application/json;charset=UTF-8",
@@ -28,7 +39,11 @@ class matchbookExchange:
             r = requests.post(self.url, data=json.dumps(self.payload), headers=self.header)
             
             # Check HTTP status first
-            if r.status_code != 200:
+            if r.status_code == 403:
+                print("❌ Matchbook login forbidden (403) - likely invalid credentials")
+                print(f"❌ Response: {r.text[:200]}")
+                raise Exception("Matchbook login failed: Invalid credentials or account suspended (HTTP 403)")
+            elif r.status_code != 200:
                 print(f"❌ Matchbook login HTTP error: {r.status_code}")
                 print(f"❌ Response text: {r.text[:200]}")
                 raise Exception(f"Matchbook API returned HTTP {r.status_code}: {r.text[:100]}")
