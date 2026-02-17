@@ -217,17 +217,26 @@ class QuantitativeBettingWorkflow:
                 model_age_hours = (time.time() - os.path.getmtime(model_file)) / 3600
                 logger.info(f"📦 Found saved model (age: {model_age_hours:.1f} hours)")
                 
-                if model_age_hours < 24:
-                    logger.info("   ⚡ Loading saved model (< 24 hours old)...")
+                # Extend cache time to 7 days to avoid unnecessary retraining
+                if model_age_hours < 168:  # 7 days instead of 24 hours
+                    logger.info("   ⚡ Loading saved model (< 7 days old)...")
                     try:
                         self.quant_model.load_models(model_file)
                         logger.info("   ✅ Model loaded successfully - skipping training")
                         should_train = False
+                        
+                        # Verify models are actually loaded
+                        if hasattr(self.quant_model, 'models') and self.quant_model.models:
+                            logger.info(f"   🎯 Verified {len(self.quant_model.models)} trained models loaded")
+                        else:
+                            logger.warning("   ⚠️ Model loaded but no trained models found - will retrain")
+                            should_train = True
+                            
                     except Exception as load_error:
                         logger.warning(f"   ⚠️ Failed to load model: {load_error}")
                         logger.info("   🔄 Will train new model")
                 else:
-                    logger.warning(f"   ⚠️ Model is stale ({model_age_hours:.1f} hours old)")
+                    logger.warning(f"   ⚠️ Model is stale ({model_age_hours:.1f} hours old, >7 days)")
                     logger.info("   🔄 Will retrain with fresh data")
             else:
                 logger.info("📦 No saved model found - will train new model")
