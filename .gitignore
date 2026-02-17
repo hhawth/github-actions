@@ -45,4 +45,4 @@ ai_predictions_*.json
 football_data.duckdb
 
 #DB files
-football_data.duckdb
+*.duckdb

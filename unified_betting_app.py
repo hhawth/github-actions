@@ -6,6 +6,28 @@ from quantitative_betting_workflow import QuantitativeBettingWorkflow
 import sys
 from io import StringIO
 import time
+import subprocess
+import os
+
+# Check for Cloud Scheduler trigger via query parameter
+query_params = st.query_params
+if 'trigger' in query_params and query_params['trigger'] == 'workflow':
+    st.write("🚀 **Cloud Scheduler Detected - Triggering Workflow!**")
+    st.write(f"⏰ Triggered at: {datetime.now()}")
+    
+    try:
+        # Run workflow in background
+        process = subprocess.Popen([
+            'python', 'quantitative_betting_workflow.py', 
+            '--full-run', '--auto-place'
+        ], cwd='/workspace' if os.path.exists('/workspace') else '.')
+        
+        st.success(f"✅ Workflow started (PID: {process.pid})")
+        st.info("🔄 Workflow running in background - check logs for progress")
+        
+    except Exception as e:
+        st.error(f"❌ Error starting workflow: {e}")
+        st.error(f"Current directory: {os.getcwd()}")
 
 # Initialize database sync on startup
 @st.cache_resource
